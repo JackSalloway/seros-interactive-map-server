@@ -85,6 +85,10 @@ app.use(express.urlencoded({ extended: true })); // Support URL-encoded bodies
 
 app.use("/", interactiveMapRouter);
 
-app.listen(5000, () => {
-    console.log("Server started on port 5000.");
+app.listen(process.env.PORT || 5000, () => {
+    if (process.env.PORT !== undefined) {
+        console.log("Server started on heroku.");
+    } else {
+        console.log("Server started on port 5000.");
+    }
 });
