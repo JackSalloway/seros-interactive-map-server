@@ -22,12 +22,14 @@ mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-app.use(
-    cors({
-        origin: "https://seros-interactive-map.herokuapp.com/location_data",
-        credentials: true,
-    })
-);
+app.use(cors());
+
+// app.use(
+//     cors({
+//         origin: "https://seros-interactive-map.herokuapp.com/location_data",
+//         credentials: true,
+//     })
+// );
 
 app.use(cookieParser());
 
