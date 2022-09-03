@@ -24,7 +24,7 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 app.use(
     cors({
-        origin: "https://seros-interactive-map.herokuapp.com",
+        origin: "https://seros-interactive-map.herokuapp.com/location_data",
         credentials: true,
     })
 );
