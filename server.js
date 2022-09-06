@@ -26,7 +26,7 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 app.use(
     cors({
-        origin: "https://seros.jacksalloway.com/",
+        origin: "https://seros.jacksalloway.com",
         credentials: true,
     })
 );
