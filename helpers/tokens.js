@@ -18,16 +18,17 @@ const createRefreshToken = (userId) => {
     });
 };
 
-const sendAccessToken = (req, res, accessToken) => {
+const sendAccessToken = (_req, res, accessToken) => {
     res.cookie("access_token", accessToken, {
         httpOnly: true,
+        secure: true,
     });
 };
 
 const sendRefreshToken = (res, refreshToken) => {
     res.cookie("refresh_token", refreshToken, {
         httpOnly: true,
-        // path: "/refresh_token",
+        secure: true,
     });
 };
 
