@@ -57,8 +57,14 @@ router.post("/login", async (req, res) => {
         res.send(returnValue);
     } catch (err) {
         console.error(err);
-        res.status(401).send(err.message);
-        // res.sendStatus(500);
+        if (err.message === "Incorrect details provided") {
+            res.send(
+                "Incorrect details provided. Ensure your details are correct."
+            );
+        }
+        // Had to remove to following line, due to the app crashing on a 401 request meaning I cannot let the user know that their login details are incorrect
+        // res.status(401).send(err.message);
+        res.sendStatus(500);
     }
 });
 

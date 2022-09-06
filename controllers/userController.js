@@ -64,7 +64,7 @@ class UserController {
         try {
             // Find user within database
             const user = await User.findOne({ username: username });
-            if (!user) throw new Error("User does not exist"); // Username provided does not exist
+            if (!user) throw new Error("Incorrect details provided"); // Username provided does not exist
             // User found, so compare crypted password to database password
             const valid = await bcrypt.compare(password, user.password);
             if (!valid) throw new Error("Incorrect details provided"); // Password provided does not match the username
