@@ -27,7 +27,7 @@ router.post("/register", async (req, res) => {
         const result = await controller.register(username, email, password);
         // Is the following line still needed?
         res.cookie("account", result, { maxAge: 60 * 60 * 1000 });
-        res.send("User created!. Please login!");
+        res.send("User created! Please login!");
     } catch (err) {
         if (err.message === "Username already exists") {
             res.send("Username already exists. Please choose a different one.");
