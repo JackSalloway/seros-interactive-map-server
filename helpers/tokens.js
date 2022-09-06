@@ -21,8 +21,8 @@ const createRefreshToken = (userId) => {
 const sendAccessToken = (_req, res, accessToken) => {
     res.cookie("access_token", accessToken, {
         httpOnly: true,
+        sameSite: "none",
         secure: true,
-        domain: "seros.jacksalloway.com",
         path: "/",
     });
 };
@@ -30,8 +30,8 @@ const sendAccessToken = (_req, res, accessToken) => {
 const sendRefreshToken = (res, refreshToken) => {
     res.cookie("refresh_token", refreshToken, {
         httpOnly: true,
+        sameSite: "none",
         secure: true,
-        domain: "seros.jacksalloway.com",
         path: "/",
     });
 };
