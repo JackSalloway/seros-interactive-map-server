@@ -30,14 +30,14 @@ router.post("/register", async (req, res) => {
         res.status(200).send("User created! Please login!");
     } catch (err) {
         if (err.message === "Username already exists") {
-            res.status(401).send(
+            res.status(409).send(
                 "Username already exists. Please choose a different one."
             );
             return;
         }
 
         if (err.message === "Email already exists") {
-            res.status(401).send(
+            res.status(409).send(
                 "Email is already in use. Please use a different one."
             );
             return;
