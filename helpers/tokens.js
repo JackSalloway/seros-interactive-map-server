@@ -21,7 +21,6 @@ const sendAccessToken = (_req, res, accessToken) => {
         maxAge: 60 * 60 * 1000,
         httpOnly: true,
         domain: "jacksalloway.com",
-        sameSite: "none",
         secure: true,
         path: "/",
     });
@@ -32,7 +31,6 @@ const sendRefreshToken = (res, refreshToken) => {
         maxAge: 60 * 60 * 1000,
         httpOnly: true,
         domain: "jacksalloway.com",
-        sameSite: "none",
         secure: true,
         path: "/",
     });
