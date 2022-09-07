@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 const { sign } = require("jsonwebtoken");
 
 const createAccessToken = (userId, username, privilege) => {
