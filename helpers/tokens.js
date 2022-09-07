@@ -20,7 +20,6 @@ const sendAccessToken = (_req, res, accessToken) => {
     res.cookie("access_token", accessToken, {
         maxAge: 60 * 60 * 1000,
         httpOnly: true,
-        domain: "seros.jacksalloway.com",
         sameSite: "none",
         secure: true,
         path: "/",
@@ -31,7 +30,6 @@ const sendRefreshToken = (res, refreshToken) => {
     res.cookie("refresh_token", refreshToken, {
         maxAge: 60 * 60 * 1000,
         httpOnly: true,
-        domain: "seros.jacksalloway.com",
         sameSite: "none",
         secure: true,
         path: "/",
