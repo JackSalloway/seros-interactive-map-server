@@ -114,7 +114,11 @@ class UserController {
             throw new Error("User token !== cookie token");
         }
         // Token exists, create new refresh and access tokens
-        const accessToken = createAccessToken(user.id);
+        const accessToken = createAccessToken(
+            user.id,
+            user.username,
+            user.privileged
+        );
         const refreshToken = createRefreshToken(user.id);
         // Update refresh token value on the database
         User.updateOne(
