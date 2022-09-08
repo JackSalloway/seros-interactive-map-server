@@ -67,7 +67,7 @@ app.use(
     (req, res, next) => {
         try {
             const userToken = authorizeUser(req);
-            if (!userToken.privilege) {
+            if (!userToken.privileged) {
                 console.error("User not privileged");
                 return res.sendStatus(401);
             }
