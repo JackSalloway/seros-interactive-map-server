@@ -70,8 +70,16 @@ router.post("/login", async (req, res) => {
 
 router.get("/logout", (_req, res) => {
     console.log("logout hit");
-    res.clearCookie("refresh_token");
-    res.clearCookie("access_token");
+    res.clearCookie("refresh_token", {
+        domain: "jacksalloway.com",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+    });
+    res.clearCookie("access_token", {
+        domain: "jacksalloway.com",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+    });
     res.end();
 });
 

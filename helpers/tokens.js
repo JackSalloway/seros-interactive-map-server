@@ -18,20 +18,20 @@ const createRefreshToken = (userId) => {
 
 const sendAccessToken = (_req, res, accessToken) => {
     res.cookie("access_token", accessToken, {
-        maxAge: 60 * 60 * 1000,
+        maxAge: 60 * 60 * 1000 * 24 * 30,
         httpOnly: true,
         domain: "jacksalloway.com",
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         path: "/",
     });
 };
 
 const sendRefreshToken = (res, refreshToken) => {
     res.cookie("refresh_token", refreshToken, {
-        maxAge: 60 * 60 * 1000,
+        maxAge: 60 * 60 * 1000 * 24 * 30,
         httpOnly: true,
         domain: "jacksalloway.com",
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         path: "/",
     });
 };
