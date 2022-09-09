@@ -25,7 +25,7 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 app.use(
     cors({
-        origin: "https://seros.jacksalloway.com",
+        origin: process.env.CORS_ORIGIN_URL,
         credentials: true,
     })
 );
@@ -88,7 +88,7 @@ app.use("/", interactiveMapRouter);
 
 app.listen(process.env.PORT || 5000, () => {
     if (process.env.PORT !== undefined) {
-        console.log("Server started on heroku.");
+        console.log("Server started on digitalocean.");
     } else {
         console.log("Server started on port 5000.");
     }
