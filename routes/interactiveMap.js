@@ -68,7 +68,7 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.post("/logout", (_req, res) => {
+router.get("/logout", (_req, res) => {
     console.log("logout hit");
     res.clearCookie("refresh_token");
     res.clearCookie("access_token");
