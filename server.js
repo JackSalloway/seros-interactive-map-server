@@ -2,7 +2,6 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 
@@ -81,7 +80,7 @@ app.use(
 );
 
 // Think the following line can also be done by using this: app.use(express.json) - At least that is what I keep seeing people do
-app.use(bodyParser.json()); // Support JSON-encoded bodies
+app.use(express.json()); // Support JSON-encoded bodies
 app.use(express.urlencoded({ extended: true })); // Support URL-encoded bodies
 
 app.use("/", interactiveMapRouter);
