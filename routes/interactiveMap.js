@@ -306,12 +306,8 @@ router.post("/create_npc", ...Validators.npc(), async (req, res) => {
     if (errors !== undefined) {
         return res.status(400).json(errors);
     }
-    let importance = null;
-    if (req.body.npc_quests.length === 0) {
-        importance = false;
-    } else {
-        importance = true;
-    }
+    const importance = req.body.npc_quests.length === 0 ? false : true;
+
     const npcContent = {
         name: req.body.npc_name,
         race: req.body.npc_race,
