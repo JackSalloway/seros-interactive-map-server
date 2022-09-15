@@ -79,7 +79,6 @@ app.use(
     }
 );
 
-// Think the following line can also be done by using this: app.use(express.json) - At least that is what I keep seeing people do
 app.use(express.json()); // Support JSON-encoded bodies
 app.use(express.urlencoded({ extended: true })); // Support URL-encoded bodies
 
