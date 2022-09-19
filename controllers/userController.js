@@ -34,7 +34,6 @@ class UserController {
             const dbEmail = await User.findOne({ email: email });
             if (dbEmail) {
                 throw new EmailAlreadyExistsError("Email already exists");
-                // throw new Error("Email already exists");
             }
 
             // Create new user document with hashed password
