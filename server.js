@@ -99,7 +99,7 @@ app.use("/", interactiveMapRouter);
 
 app.listen(process.env.PORT || 5000, () => {
     if (process.env.PORT !== undefined) {
-        console.log("Server started on digitalocean.");
+        console.log(`Server started on ${process.env.PORT}`);
     } else {
         console.log("Server started on port 5000.");
     }
