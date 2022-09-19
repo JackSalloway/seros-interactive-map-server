@@ -1,12 +1,16 @@
 const express = require("express");
 const router = express.Router();
 
-// Require helper modules
+// import helper modules
 const Validators = require("../helpers/validators");
 const { sendAccessToken, sendRefreshToken } = require("../helpers/tokens");
 const { authorizeUser } = require("../helpers/authorizeUser");
 
-// Require controller modules
+// import errors
+const UsernameAlreadyExistsError = require("../errors/usernameAlreadyExistsError");
+const EmailAlreadyExistsError = require("../errors/emailAlreadyExistsError");
+
+// import controller modules
 const UserController = require("../controllers/userController");
 const LocationController = require("../controllers/locationController");
 const NPCController = require("../controllers/npcController");
@@ -29,13 +33,17 @@ router.post("/register", async (req, res) => {
         res.cookie("account", result, { maxAge: 60 * 60 * 1000 });
         res.send("User created! Please login!");
     } catch (err) {
-        if (err.message === "Username already exists") {
-            res.send("Username already exists. Please choose a different one.");
+        if (err instanceof UsernameAlreadyExistsError) {
+            res.status(400).send(
+                "Username already exists. Please choose a different one."
+            );
             return;
         }
 
-        if (err.message === "Email already exists") {
-            res.send("Email is already in use. Please use a different one.");
+        if (err instanceof EmailAlreadyExistsError) {
+            res.status(400).send(
+                "Email is already in use. Please use a different one."
+            );
             return;
         }
 

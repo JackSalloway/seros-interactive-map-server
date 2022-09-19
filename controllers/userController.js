@@ -3,6 +3,8 @@ const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { verify } = require("jsonwebtoken");
+const UsernameAlreadyExistsError = require("../errors/usernameAlreadyExistsError");
+const EmailAlreadyExistsError = require("../errors/emailAlreadyExistsError");
 
 // Register a new user
 
@@ -25,13 +27,14 @@ class UserController {
             // Check if username is already taken
             const dbUsername = await User.findOne({ username: username });
             if (dbUsername) {
-                throw new Error("Username already exists");
+                throw new UsernameAlreadyExistsError("Username already exists");
             }
 
             // Check if email is already taken
             const dbEmail = await User.findOne({ email: email });
             if (dbEmail) {
-                throw new Error("Email already exists");
+                throw new EmailAlreadyExistsError("Email already exists");
+                // throw new Error("Email already exists");
             }
 
             // Create new user document with hashed password
