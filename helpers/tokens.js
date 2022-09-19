@@ -17,23 +17,33 @@ const createRefreshToken = (userId) => {
 };
 
 const sendAccessToken = (_req, res, accessToken) => {
-    res.cookie("access_token", accessToken, {
+    const options = {
         maxAge: 60 * 60 * 1000 * 24 * 30,
         httpOnly: true,
-        domain: "jacksalloway.com",
         secure: process.env.NODE_ENV === "production",
         path: "/",
-    });
+    };
+
+    if (process.env.NODE_ENV === "production") {
+        options.domain = "jacksalloway.com";
+    }
+
+    res.cookie("access_token", accessToken, options);
 };
 
 const sendRefreshToken = (res, refreshToken) => {
-    res.cookie("refresh_token", refreshToken, {
+    const options = {
         maxAge: 60 * 60 * 1000 * 24 * 30,
         httpOnly: true,
-        domain: "jacksalloway.com",
         secure: process.env.NODE_ENV === "production",
         path: "/",
-    });
+    };
+
+    if (process.env.NODE_ENV === "production") {
+        options.domain = "jacksalloway.com";
+    }
+
+    res.cookie("refresh_token", refreshToken, options);
 };
 
 module.exports = {
