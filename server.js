@@ -8,7 +8,20 @@ const morgan = require("morgan");
 const { authorizeUser } = require("./helpers/authorizeUser");
 const { refreshTokenFunc } = require("./helpers/refreshToken");
 
+const MissingRequiredEnvVarsError = require("./errors/missingRequiredEnvVarsError");
+
 const app = express();
+
+if (
+    typeof process.env.MONGODB_URI === "undefined" ||
+    typeof process.env.CORS_ORIGIN_URL === "undefined" ||
+    typeof process.env.REFRESH_TOKEN_SECRET === "undefined" ||
+    typeof process.env.ACCESS_TOKEN_SECRET === "undefined"
+) {
+    throw new MissingRequiredEnvVarsError(
+        "Not all required env vars are set. Please ensure MONGODB_URI, CORS_ORIGIN, REFRESH_TOKEN_SECRET, ACCESS_TOKEN_SECRET are set."
+    );
+}
 
 app.use(morgan("tiny"));
 
