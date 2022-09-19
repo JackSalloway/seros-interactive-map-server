@@ -26,7 +26,11 @@ if (
 app.use(morgan("tiny"));
 
 // Route imports
-const interactiveMapRouter = require("./routes/interactiveMap");
+const userRoutes = require("./routes/userRoutes");
+const locationRoutes = require("./routes/locationRoutes");
+// const subLocationRoutes = require("./routes/subLocationRoutes");
+const questRoutes = require("./routes/questRoutes");
+const npcRoutes = require("./routes/npcRoutes");
 const { sendAccessToken, sendRefreshToken } = require("./helpers/tokens");
 
 // Connect to database
@@ -95,7 +99,13 @@ app.use(
 app.use(express.json()); // Support JSON-encoded bodies
 app.use(express.urlencoded({ extended: true })); // Support URL-encoded bodies
 
-app.use("/", interactiveMapRouter);
+app.use("/", userRoutes);
+app.use("/", locationRoutes);
+// app.use("/", subLocationRoutes);
+app.use("/", npcRoutes);
+app.use("/", questRoutes);
+
+// app.use("/", interactiveMapRouter);
 
 app.listen(process.env.PORT || 5000, () => {
     if (process.env.PORT !== undefined) {
