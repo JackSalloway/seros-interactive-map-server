@@ -1,17 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const Validators = require("../helpers/validators");
+const { sendRefreshToken, sendAccessToken } = require("../helpers/tokens");
 const UserController = require("../controllers/userController");
+
+// Error imports
+const MissingRequiredLoginParameters = require("../errors/userErrors/missingRequiredLoginParametersError");
+const UsernameAlreadyExistsError = require("../errors/userErrors/usernameAlreadyExistsError");
+const EmailAlreadyExistsError = require("../errors/userErrors/emailAlreadyExistsError");
+const IncorrectLoginDetailsError = require("../errors/userErrors/incorrectLoginDetailsErrors");
 
 /// USER ROUTES ///
 // POST request to create a new user
 router.post("/register", async (req, res) => {
     console.log("register hit");
     const { username, email, password } = req.body;
-
-    if (!username || !email || !password) {
-        throw new Error("Missing required parameters");
-    }
 
     try {
         const controller = new UserController();
@@ -20,6 +23,12 @@ router.post("/register", async (req, res) => {
         res.cookie("account", result, { maxAge: 60 * 60 * 1000 });
         res.send("User created! Please login!");
     } catch (err) {
+        if (err instanceof MissingRequiredLoginParameters) {
+            res.status(400).send(
+                "Please ensure all login inputs are filled correctly."
+            );
+            return;
+        }
         if (err instanceof UsernameAlreadyExistsError) {
             res.status(400).send(
                 "Username already exists. Please choose a different one."
@@ -52,13 +61,12 @@ router.post("/login", async (req, res) => {
         res.send(returnValue);
     } catch (err) {
         console.error(err);
-        if (err.message === "Incorrect details provided") {
-            res.send(
+        if (err instanceof IncorrectLoginDetailsError) {
+            res.status(400).send(
                 "Incorrect details provided. Ensure your details are correct."
             );
+            return;
         }
-        // Had to remove to following line, due to the app crashing on a 401 request meaning I cannot let the user know that their login details are incorrect
-        // res.status(401).send(err.message);
         res.sendStatus(500);
     }
 });
@@ -81,35 +89,10 @@ router.get("/logout", (_req, res) => {
 // GET request to check if a user has logged in and their refresh token is still valid
 router.get("/startup", async (req, res) => {
     console.log("startup hit");
-    // Access and Refresh token already verified in middleware
-    // access = req.cookies.access_token;
-    // refresh = req.cookies.refresh_token;
-    // res.send({ access, refresh });
-
-    try {
-        const controller = new UserController();
-        const result = await controller.userStartup(req);
-        res.send(result);
-    } catch (err) {
-        console.error(err);
-        res.sendStatus(500);
-    }
+    const controller = new UserController();
+    const result = await controller.userStartup(req);
+    res.send(result);
 });
-
-// ROUTE NOT NEEDED - JUST USED FOR TESTING
-// router.post("/protected", async (req, res) => {
-//     try {
-//         const userId = authorizeUser(req);
-//         if (userId !== null) {
-//             res.send({
-//                 data: "This is protected data.",
-//             });
-//         }
-//     } catch (err) {
-//         console.error(err);
-//         res.sendStatus(500);
-//     }
-// });
 
 // ROUTE NOT NEEDED - JUST USED FOR TESTING
 // Get a new access token with a refresh token

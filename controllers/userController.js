@@ -3,8 +3,12 @@ const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { verify } = require("jsonwebtoken");
+
+// Error imports
 const UsernameAlreadyExistsError = require("../errors/userErrors/usernameAlreadyExistsError");
 const EmailAlreadyExistsError = require("../errors/userErrors/emailAlreadyExistsError");
+const MissingRequiredLoginParametersError = require("../errors/userErrors/missingRequiredLoginParametersError");
+const IncorrectLoginDetailsError = require("../errors/userErrors/incorrectLoginDetailsErrors");
 
 // Register a new user
 
@@ -24,6 +28,12 @@ class UserController {
         // See if username already exists
 
         try {
+            // Check if missing any parameters
+            if (!username || !email || !password) {
+                throw new MissingRequiredLoginParametersError(
+                    "Missing required login parameters"
+                );
+            }
             // Check if username is already taken
             const dbUsername = await User.findOne({ username: username });
             if (dbUsername) {
@@ -66,10 +76,16 @@ class UserController {
         try {
             // Find user within database
             const user = await User.findOne({ username: username });
-            if (!user) throw new Error("Incorrect details provided"); // Username provided does not exist
+            if (!user)
+                throw new IncorrectLoginDetailsError(
+                    "Incorrect details provided"
+                ); // Username provided does not exist
             // User found, so compare crypted password to database password
             const valid = await bcrypt.compare(password, user.password);
-            if (!valid) throw new Error("Incorrect details provided"); // Password provided does not match the username
+            if (!valid)
+                throw new IncorrectLoginDetailsError(
+                    "Incorrect details provided"
+                ); // Password provided does not match the username
             // Password matches username, so create Access and Refresh tokens
             const accessToken = createAccessToken(
                 user.id,
