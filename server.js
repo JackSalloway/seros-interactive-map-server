@@ -8,7 +8,7 @@ const morgan = require("morgan");
 const { authorizeUser } = require("./helpers/authorizeUser");
 const { refreshTokenFunc } = require("./helpers/refreshToken");
 
-const MissingRequiredEnvVarsError = require("./errors/missingRequiredEnvVarsError");
+const MissingRequiredEnvVarsError = require("./errors/userErrors/missingRequiredEnvVarsError");
 
 const app = express();
 

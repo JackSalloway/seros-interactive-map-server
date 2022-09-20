@@ -3,8 +3,8 @@ const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { verify } = require("jsonwebtoken");
-const UsernameAlreadyExistsError = require("../errors/usernameAlreadyExistsError");
-const EmailAlreadyExistsError = require("../errors/emailAlreadyExistsError");
+const UsernameAlreadyExistsError = require("../errors/userErrors/usernameAlreadyExistsError");
+const EmailAlreadyExistsError = require("../errors/userErrors/emailAlreadyExistsError");
 
 // Register a new user
 

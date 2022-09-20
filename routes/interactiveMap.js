@@ -7,8 +7,8 @@ const { sendAccessToken, sendRefreshToken } = require("../helpers/tokens");
 const { authorizeUser } = require("../helpers/authorizeUser");
 
 // import errors
-const UsernameAlreadyExistsError = require("../errors/usernameAlreadyExistsError");
-const EmailAlreadyExistsError = require("../errors/emailAlreadyExistsError");
+const UsernameAlreadyExistsError = require("../errors/userErrors/usernameAlreadyExistsError");
+const EmailAlreadyExistsError = require("../errors/userErrors/emailAlreadyExistsError");
 
 // import controller modules
 const UserController = require("../controllers/userController");
