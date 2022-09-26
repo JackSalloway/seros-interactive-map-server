@@ -31,7 +31,7 @@ const locationRoutes = require("./routes/locationRoutes");
 // const subLocationRoutes = require("./routes/subLocationRoutes");
 const questRoutes = require("./routes/questRoutes");
 const npcRoutes = require("./routes/npcRoutes");
-const { sendAccessToken, sendRefreshToken } = require("./helpers/tokens");
+const { setAccessToken, setRefreshToken } = require("./helpers/tokens");
 
 // Connect to database
 const mongoDB = process.env.MONGODB_URI;
@@ -61,9 +61,9 @@ app.use(
             ) {
                 return res.send({ accessToken: "" });
             }
-            // sendRefreshToken(res, refreshToken);
-            sendRefreshToken(res, refreshToken);
-            sendAccessToken(req, res, accessToken);
+            // setRefreshToken(res, refreshToken);
+            setRefreshToken(res, refreshToken);
+            setAccessToken(req, res, accessToken);
             next();
         } catch (err) {
             if (err.message === "Failed due to missing token") {

@@ -5,18 +5,18 @@ const createAccessToken = (userId, username, privileged) => {
         { userId, username, privileged },
         process.env.ACCESS_TOKEN_SECRET,
         {
-            expiresIn: "15m",
+            expiresIn: "6d",
         }
     );
 };
 
 const createRefreshToken = (userId) => {
     return sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
-        expiresIn: "7d",
+        expiresIn: "30d",
     });
 };
 
-const sendAccessToken = (_req, res, accessToken) => {
+const setAccessToken = (_req, res, accessToken) => {
     const options = {
         maxAge: 60 * 60 * 1000 * 24 * 30,
         httpOnly: true,
@@ -31,7 +31,7 @@ const sendAccessToken = (_req, res, accessToken) => {
     res.cookie("access_token", accessToken, options);
 };
 
-const sendRefreshToken = (res, refreshToken) => {
+const setRefreshToken = (res, refreshToken) => {
     const options = {
         maxAge: 60 * 60 * 1000 * 24 * 30,
         httpOnly: true,
@@ -49,6 +49,6 @@ const sendRefreshToken = (res, refreshToken) => {
 module.exports = {
     createAccessToken,
     createRefreshToken,
-    sendAccessToken,
-    sendRefreshToken,
+    setAccessToken,
+    setRefreshToken,
 };

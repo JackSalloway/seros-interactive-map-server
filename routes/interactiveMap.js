@@ -3,7 +3,7 @@ const router = express.Router();
 
 // import helper modules
 const Validators = require("../helpers/validators");
-const { sendAccessToken, sendRefreshToken } = require("../helpers/tokens");
+const { setAccessToken, setRefreshToken } = require("../helpers/tokens");
 const { authorizeUser } = require("../helpers/authorizeUser");
 
 // import errors
@@ -60,8 +60,8 @@ router.post("/login", async (req, res) => {
         const controller = new UserController();
         const { refreshToken, accessToken, returnValue } =
             await controller.login(username, password);
-        sendRefreshToken(res, refreshToken); // Set cookies
-        sendAccessToken(req, res, accessToken); // Send response
+        setRefreshToken(res, refreshToken); // Set cookies
+        setAccessToken(req, res, accessToken); // Send response
         res.send(returnValue);
     } catch (err) {
         console.error(err);
@@ -139,8 +139,8 @@ router.get("/startup", async (req, res) => {
 //         ) {
 //             return res.send({ accessToken: "" });
 //         }
-//         sendRefreshToken(res, refreshToken);
-//         // Do I want to call sendAccessToken after this line? I am thinking I do as I need to set the new access token within the cookies to reset the expiry date
+//         setRefreshToken(res, refreshToken);
+//         // Do I want to call setAccessToken after this line? I am thinking I do as I need to set the new access token within the cookies to reset the expiry date
 //         return res.send({ accessToken });
 //     } catch (err) {
 //         const errors = [
