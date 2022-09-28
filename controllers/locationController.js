@@ -22,6 +22,21 @@ class LocationController {
         }
     }
 
+    async updateLocation(locationId, data) {
+        try {
+            const result = await Location.findOneAndUpdate(
+                { _id: locationId },
+                { $set: data },
+                { new: true }
+            )
+                .lean()
+                .exec();
+            return result;
+        } catch (err) {
+            throw err;
+        }
+    }
+
     // Get all data for a specific location
     // async getSpecificLocation(locationId) {
     //     try {

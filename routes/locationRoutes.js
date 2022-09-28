@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Validators = require("../helpers/validators");
 const LocationController = require("../controllers/locationController");
+const { restart } = require("nodemon");
 
 /// LOCATION ROUTES ///
 
@@ -42,6 +43,41 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
         };
         const controller = new LocationController();
         const result = await controller.createLocation(locationContent);
+        return res.send(result);
+    } catch (err) {
+        console.error(err.message);
+        res.sendStatus(500);
+    }
+});
+
+// POST request to update a location
+router.post("/update_location", ...Validators.location(), async (req, res) => {
+    console.log("update location hit");
+    const errors = Validators.validateResult(req);
+    if (errors !== undefined) {
+        return res.status(400).json(errors);
+    }
+
+    try {
+        const updatedLocationContent = {
+            name: req.body.location_name,
+            desc: req.body.location_desc,
+            region: req.body.location_region,
+            latlng: {
+                lat: req.body.location_lat,
+                lng: req.body.location_lng,
+            },
+            type: req.body.location_type,
+            visited: req.body.location_visited,
+            marked: req.body.location_marked,
+            sub_locations: req.body.location_sub_locations,
+        };
+        console.log(updatedLocationContent);
+        const controller = new LocationController();
+        const result = await controller.updateLocation(
+            req.body.location_id,
+            updatedLocationContent
+        );
         return res.send(result);
     } catch (err) {
         console.error(err.message);
