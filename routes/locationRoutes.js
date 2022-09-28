@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const Validators = require("../helpers/validators");
 const LocationController = require("../controllers/locationController");
-const { restart } = require("nodemon");
 
 /// LOCATION ROUTES ///
 
