@@ -49,6 +49,20 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
     }
 });
 
+// DELETE request to delete a specific location
+router.delete("/delete_location", async (req, res) => {
+    console.log("delete location hit");
+    try {
+        const controller = new LocationController();
+        const result = await controller.deleteLocation(req.body.location_id);
+        // console.log(result);
+        return res.json(result);
+    } catch (err) {
+        console.error(err.message);
+        res.sendStatus(500);
+    }
+});
+
 // POST request to update a location
 router.post("/update_location", ...Validators.location(), async (req, res) => {
     console.log("update location hit");

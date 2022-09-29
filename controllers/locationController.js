@@ -1,6 +1,8 @@
 const Location = require("../models/location");
 const Quest = require("../models/quest");
+const NPC = require("../models/npc");
 const he = require("he");
+const { default: mongoose } = require("mongoose");
 
 class LocationController {
     // Fetch all location data when the app is started
@@ -18,6 +20,48 @@ class LocationController {
             const location = new Location(data);
             await location.save();
             return Location.find({ _id: location.id }).lean().exec();
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    // Delete a specific location based on id and update any affected npcs/quests
+    async deleteLocation(locationId) {
+        try {
+            // Remove references to location from any NPCs that reference it
+            await NPC.updateMany(
+                {},
+                {
+                    $pull: {
+                        associated_locations:
+                            mongoose.Types.ObjectId(locationId),
+                    },
+                }
+            );
+            // Remove references to location from any NPCs that reference it
+            await Quest.updateMany(
+                {},
+                {
+                    $pull: {
+                        associated_locations:
+                            mongoose.Types.ObjectId(locationId),
+                    },
+                }
+            );
+            // Delete location
+            await Location.findByIdAndDelete(locationId);
+            // Retrieve updated NPC list
+            const updatedNPCList = await NPC.find({})
+                .populate("quests")
+                .populate("associated_locations")
+                .lean()
+                .exec();
+            //  Retrieve updated Quest List
+            const updatedQuestList = await Quest.find({})
+                .populate("associated_locations")
+                .lean()
+                .exec();
+            return { newNPCs: updatedNPCList, newQuests: updatedQuestList };
         } catch (err) {
             throw err;
         }
