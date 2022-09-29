@@ -30,19 +30,19 @@ class QuestController {
     }
 
     // Delete a specifc quest and remove the quest from any NPCs that have it assigned
-    async deleteQuest(data) {
+    async deleteQuest(questId) {
         try {
             // Remove references to quest from any NPCs that reference it
             await NPC.updateMany(
                 {},
-                { $pull: { quests: mongoose.Types.ObjectId(data) } }
+                { $pull: { quests: mongoose.Types.ObjectId(questId) } }
             );
             // Update important field for all npcs that have no quests
             await NPC.updateMany(
                 { quests: { $exists: true, $size: 0 } },
                 { $set: { important: false } }
             );
-            await Quest.findByIdAndDelete(data);
+            await Quest.findByIdAndDelete(questId);
             return await NPC.find({})
                 .populate("quests")
                 .populate("associated_locations");
