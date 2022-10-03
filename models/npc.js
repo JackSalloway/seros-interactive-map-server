@@ -7,6 +7,7 @@ const NPCSchema = new Schema({
     race: { type: String, required: true },
     desc: { type: String, required: true },
     disposition: { type: String, required: true },
+    status: { type: String, required: true },
     important: { type: Boolean, required: true },
     associated_locations: [{ type: Schema.Types.ObjectId, ref: "Location" }],
     quests: [{ type: Schema.Types.ObjectId, ref: "Quest" }],

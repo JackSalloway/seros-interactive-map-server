@@ -149,6 +149,13 @@ class Validators {
                 .withMessage("NPC disposition must be a string.")
                 .escape(),
 
+            // NPC disposition
+            body("npc_status", "NPC status is required.")
+                .trim()
+                .isString()
+                .withMessage("NPC status must be a string.")
+                .escape(),
+
             // NPC associated locations
             body("npc_associated_locations.*", "Invalid location provided.")
                 .trim()

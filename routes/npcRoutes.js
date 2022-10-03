@@ -78,10 +78,12 @@ router.post("/update_npc", ...Validators.npc(), async (req, res) => {
             race: req.body.npc_race,
             desc: req.body.npc_desc,
             disposition: req.body.npc_disposition,
+            status: req.body.npc_status,
             important: importance,
             associated_locations: req.body.npc_associated_locations,
             quests: req.body.npc_quests,
         };
+        console.log(updatedNPCContent);
         const controller = new NPCController();
         const result = await controller.updateNPC(
             req.body.npc_id,
