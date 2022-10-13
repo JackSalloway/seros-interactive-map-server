@@ -3,9 +3,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const NPCSchema = new Schema({
-    name: { type: String, required: true },
+    name: { type: String, required: true, minLength: 1 },
     race: { type: String, required: true },
-    desc: { type: String, required: true },
+    desc: { type: String, required: true, minLength: 1 },
     disposition: { type: String, required: true },
     status: { type: String, required: true },
     important: { type: Boolean, required: true },

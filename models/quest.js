@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const Quest = new Schema({
-    name: { type: String, required: true, minLength: 5 },
-    desc: { type: String, required: true, minLength: 5 },
+    name: { type: String, required: true, minLength: 1 },
+    desc: { type: String, required: true, minLength: 1 },
     associated_locations: [{ type: Schema.Types.ObjectId, ref: "Location" }],
     completed: { type: Boolean, required: true },
 });
