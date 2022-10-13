@@ -14,19 +14,6 @@ const IncorrectLoginDetailsError = require("../errors/userErrors/incorrectLoginD
 
 class UserController {
     async register(username, email, password) {
-        // Validate all fields
-        // WILL ADD THESE IN LATER
-
-        // Username field
-
-        // Email field
-
-        // Password field
-
-        // Process request after validation and sanitization
-
-        // See if username already exists
-
         try {
             // Check if missing any parameters
             if (!username || !email || !password) {

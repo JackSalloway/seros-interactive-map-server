@@ -9,6 +9,36 @@ class Validators {
         }
     }
 
+    // Validation for registering a new account
+    static user() {
+        //Validate all fields
+        // Validate all fields
+        return [
+            // Username field
+            body("username", "Username required.")
+                .trim()
+                .isString()
+                .withMessage("Username must be a string.")
+                .isLength({ min: 3 })
+                .withMessage("Username must be at least 3 characters.")
+                .isLength({ max: 20 })
+                .withMessage("Username must not be greater than 20 characters.")
+                .escape(),
+            // Email field
+            body("email", "Email address is required.")
+                .trim()
+                .isEmail()
+                .withMessage("Email must be an email.")
+                .escape(),
+            // Password field
+            body("password", "Password required")
+                .trim()
+                .isString()
+                .withMessage("Password must be a string.")
+                .escape(),
+        ];
+    }
+
     // Validation for a location that is placed on the map
     static location() {
         // Validate all fields
