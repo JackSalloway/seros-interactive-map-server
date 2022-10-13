@@ -9,6 +9,7 @@ const { authorizeUser } = require("./helpers/authorizeUser");
 const { refreshTokenFunc } = require("./helpers/refreshToken");
 
 const MissingRequiredEnvVarsError = require("./errors/userErrors/missingRequiredEnvVarsError");
+const FailedAuthenticationError = require("./errors/userErrors/failedAuthenticationError.js");
 
 const app = express();
 
@@ -66,6 +67,13 @@ app.use(
             setAccessToken(req, res, accessToken);
             next();
         } catch (err) {
+            if (err instanceof FailedAuthenticationError) {
+                return res
+                    .status(401)
+                    .send(
+                        "Unable to authenticate. Perhaps your session timed out? Please log in and try again"
+                    );
+            }
             if (err.message === "Failed due to missing token") {
                 // User was not signed in and has no cookies so no fail response status required.
                 return next();
