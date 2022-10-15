@@ -55,7 +55,6 @@ router.delete("/delete_location", async (req, res) => {
     try {
         const controller = new LocationController();
         const result = await controller.deleteLocation(req.body.location_id);
-        // console.log(result);
         return res.json(result);
     } catch (err) {
         console.error(err.message);
@@ -85,7 +84,6 @@ router.post("/update_location", ...Validators.location(), async (req, res) => {
             marked: req.body.location_marked,
             sub_locations: req.body.location_sub_locations,
         };
-        console.log(updatedLocationContent);
         const controller = new LocationController();
         const result = await controller.updateLocation(
             req.body.location_id,
