@@ -5,14 +5,16 @@ const createAccessToken = (userId, username, privileged) => {
         { userId, username, privileged },
         process.env.ACCESS_TOKEN_SECRET,
         {
-            expiresIn: "6d",
+            expiresIn: "7d",
         }
     );
 };
 
 const createRefreshToken = (userId) => {
     return sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
-        expiresIn: "30d",
+        expiresIn: "1d",
+        // expiresIn: 30, // 30 seconds
+        // expiresIn: 1800, // 30 minutes
     });
 };
 
