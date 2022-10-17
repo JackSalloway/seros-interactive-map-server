@@ -12,7 +12,8 @@ const createAccessToken = (userId, username, privileged) => {
 
 const createRefreshToken = (userId) => {
     return sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
-        expiresIn: "1d",
+        expiresIn: "6d",
+        // expiresIn: "1d",
         // expiresIn: 30, // 30 seconds
         // expiresIn: 1800, // 30 minutes
     });
