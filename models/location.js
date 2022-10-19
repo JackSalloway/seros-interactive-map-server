@@ -20,6 +20,7 @@ const LocationSchema = new Schema({
             desc: { type: String, minLength: 1 },
         },
     ],
+    campaign: { type: Schema.Types.ObjectId, ref: "Campaign" },
 });
 
 // Create virtual for url, not sure if I will need this but could be handy

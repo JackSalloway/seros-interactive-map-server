@@ -11,6 +11,7 @@ const NPCSchema = new Schema({
     important: { type: Boolean, required: true },
     associated_locations: [{ type: Schema.Types.ObjectId, ref: "Location" }],
     quests: [{ type: Schema.Types.ObjectId, ref: "Quest" }],
+    campaign: { type: Schema.Types.ObjectId, ref: "Campaign" },
 });
 
 // Create virtual for url, not sure if I will need this but could be handy

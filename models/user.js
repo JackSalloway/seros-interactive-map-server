@@ -13,6 +13,7 @@ const UserSchema = new Schema({
     password: { type: String, required: true },
     privileged: { type: Boolean, required: true },
     refresh_token: { type: String },
+    campaigns: [{ type: Schema.Types.ObjectId, ref: "Campaign" }],
 });
 
 module.exports = mongoose.model("user", UserSchema);
