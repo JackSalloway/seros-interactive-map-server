@@ -16,7 +16,16 @@ const serosCampaignId = "62fe09d6a6e27cf4bb56919e";
 
 User.updateMany(
     {},
-    { $set: { campaigns: [mongoose.Types.ObjectId(serosCampaignId)] } }
+    {
+        $set: {
+            campaigns: [
+                {
+                    campaign_id: mongoose.Types.ObjectId(serosCampaignId),
+                    admin: false,
+                },
+            ],
+        },
+    }
 ).then((result) =>
     console.log(
         "Update successful: %d matched, %d modified",
