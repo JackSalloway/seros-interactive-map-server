@@ -12,6 +12,7 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 // Seros is the name of my current campaign
+
 const serosCampaignId = "62fe09d6a6e27cf4bb56919e";
 
 Location.updateMany(

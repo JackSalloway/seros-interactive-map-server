@@ -15,7 +15,7 @@ const UserSchema = new Schema({
     refresh_token: { type: String },
     campaigns: [
         {
-            campaign_id: { type: Schema.Types.ObjectId, ref: "Campaign" },
+            campaign: { type: Schema.Types.ObjectId, ref: "Campaign" },
             admin: { type: Boolean, required: true },
         },
     ],

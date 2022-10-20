@@ -19,7 +19,9 @@ const refreshTokenFunc = async (token) => {
         throw new FailedAuthenticationError("Token failed verification");
     }
     // Token is valid, check if user exists
-    const user = await User.findOne({ _id: payload.userId });
+    const user = await User.findOne({ _id: payload.userId }).populate(
+        "campaigns.campaign"
+    );
     // User does not exist
     if (!user) {
         throw new Error("User does not exist within database");
@@ -32,7 +34,8 @@ const refreshTokenFunc = async (token) => {
     const accessToken = createAccessToken(
         user.id,
         user.username,
-        user.privileged
+        user.privileged,
+        user.campaigns
     );
     const refreshToken = createRefreshToken(user.id);
     // Update refresh token value on the database

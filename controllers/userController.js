@@ -64,9 +64,9 @@ class UserController {
         try {
             // Find user within database
             const user = await User.findOne({ username: username }).populate(
-                "campaigns"
+                "campaigns.campaign"
             );
-            console.log(user);
+            // console.log(user.campaigns[0].campaign);
             if (!user)
                 throw new IncorrectLoginDetailsError(
                     "Incorrect details provided"
