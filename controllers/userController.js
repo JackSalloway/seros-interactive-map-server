@@ -40,6 +40,7 @@ class UserController {
                 email: email,
                 password: hashedPassword,
                 privileged: false,
+                campaigns: [],
             });
 
             await newUser.save();
@@ -62,7 +63,10 @@ class UserController {
 
         try {
             // Find user within database
-            const user = await User.findOne({ username: username });
+            const user = await User.findOne({ username: username }).populate(
+                "campaigns"
+            );
+            console.log(user);
             if (!user)
                 throw new IncorrectLoginDetailsError(
                     "Incorrect details provided"
@@ -77,7 +81,8 @@ class UserController {
             const accessToken = createAccessToken(
                 user.id,
                 username,
-                user.privileged
+                user.privileged,
+                user.campaigns
             );
             const refreshToken = createRefreshToken(user.id);
             // Put the refresh token in the database
@@ -89,7 +94,11 @@ class UserController {
             return {
                 accessToken,
                 refreshToken,
-                returnValue: { username, privileged: user.privileged },
+                returnValue: {
+                    username,
+                    privileged: user.privileged,
+                    campaigns: user.campaigns,
+                },
             };
         } catch (err) {
             throw err;

@@ -28,6 +28,7 @@ app.use(morgan("tiny"));
 
 // Route imports
 const userRoutes = require("./routes/userRoutes");
+const campaignRoutes = require("./routes/campaignRoutes");
 const locationRoutes = require("./routes/locationRoutes");
 // const subLocationRoutes = require("./routes/subLocationRoutes");
 const questRoutes = require("./routes/questRoutes");
@@ -108,6 +109,7 @@ app.use(express.json()); // Support JSON-encoded bodies
 app.use(express.urlencoded({ extended: true })); // Support URL-encoded bodies
 
 app.use("/", userRoutes);
+// app.use("/", campaignRoutes);
 app.use("/", locationRoutes);
 // app.use("/", subLocationRoutes);
 app.use("/", npcRoutes);
