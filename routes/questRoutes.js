@@ -9,7 +9,6 @@ const QuestController = require("../controllers/questController");
 router.post("/quest_data", async (req, res) => {
     console.log("quest_data hit");
     try {
-        console.log(req.body.campaign_id);
         const controller = new QuestController();
         const result = await controller.questData(req.body.campaign_id);
         res.json(result);

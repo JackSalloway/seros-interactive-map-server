@@ -9,7 +9,6 @@ const NPCController = require("../controllers/npcController");
 router.post("/npc_data", async (req, res) => {
     console.log("npc_data hit");
     try {
-        console.log(req.body.campaign_id);
         const controller = new NPCController();
         const result = await controller.npcData(req.body.campaign_id);
         res.json(result);
