@@ -7,9 +7,11 @@ const { npc } = require("../helpers/validators");
 
 class QuestController {
     // Fetch all quest data when the app is started
-    async questData() {
+    async questData(campaignID) {
         try {
-            return await Quest.find({}).populate("associated_locations");
+            return await Quest.find({ campaign: campaignID }).populate(
+                "associated_locations"
+            );
         } catch (err) {
             throw err;
         }
