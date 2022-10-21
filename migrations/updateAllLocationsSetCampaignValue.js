@@ -13,7 +13,7 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 // Seros is the name of my current campaign
 
-const serosCampaignId = "62fe09d6a6e27cf4bb56919e";
+const serosCampaignId = "635015d71ca3c3ef6865513a";
 
 Location.updateMany(
     {},
