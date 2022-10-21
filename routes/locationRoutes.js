@@ -6,11 +6,11 @@ const LocationController = require("../controllers/locationController");
 /// LOCATION ROUTES ///
 
 // GET request for all map location data
-router.post("/location_data", async (req, res) => {
+router.get("/location_data", async (req, res) => {
     console.log("location_data hit");
     try {
         const controller = new LocationController();
-        const result = await controller.mapData(req.body.campaign_id);
+        const result = await controller.mapData(req.query.campaign_id);
         res.json(result);
     } catch (err) {
         console.error(err.message);

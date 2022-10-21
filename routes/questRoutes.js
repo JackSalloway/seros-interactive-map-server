@@ -6,11 +6,11 @@ const QuestController = require("../controllers/questController");
 /// QUEST-ROUTES ///
 
 // GET request for all quest data
-router.post("/quest_data", async (req, res) => {
+router.get("/quest_data", async (req, res) => {
     console.log("quest_data hit");
     try {
         const controller = new QuestController();
-        const result = await controller.questData(req.body.campaign_id);
+        const result = await controller.questData(req.query.campaign_id);
         res.json(result);
     } catch (err) {
         console.error(err);
