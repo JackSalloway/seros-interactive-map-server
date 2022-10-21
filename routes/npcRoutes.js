@@ -6,11 +6,12 @@ const NPCController = require("../controllers/npcController");
 /// NPC ROUTES ///
 
 /// GET request for all NPC data
-router.get("/npc_data", async (req, res) => {
+router.post("/npc_data", async (req, res) => {
     console.log("npc_data hit");
     try {
+        console.log(req.body.campaign_id);
         const controller = new NPCController();
-        const result = await controller.npcData(req.body.npc_quests);
+        const result = await controller.npcData(req.body.campaign_id);
         res.json(result);
     } catch (err) {
         console.error(err);

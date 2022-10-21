@@ -1,9 +1,9 @@
 const NPC = require("../models/npc");
 class NPCController {
     // Fetch all NPC data when the app is started
-    async npcData() {
+    async npcData(campaignID) {
         try {
-            return await NPC.find({})
+            return await NPC.find({ campaign: campaignID })
                 .populate("quests")
                 .populate("associated_locations");
         } catch (err) {
