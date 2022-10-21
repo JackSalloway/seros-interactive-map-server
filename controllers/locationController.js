@@ -6,9 +6,9 @@ const { default: mongoose } = require("mongoose");
 
 class LocationController {
     // Fetch all location data when the app is started
-    async mapData() {
+    async mapData(campainID) {
         try {
-            return await Location.find({});
+            return await Location.find({ campaign: campainID });
         } catch (err) {
             throw err;
         }
