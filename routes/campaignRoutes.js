@@ -25,11 +25,10 @@ router.post("/create_campaign", ...Validators.campaign(), async (req, res) => {
         console.log(campaignData);
         console.log(req.body.username);
         const controller = new CampaignController();
-        const { refreshToken, returnValue } = await controller.createCampaign(
-            campaignData,
-            req.body.username
-        );
+        const { accessToken, refreshToken, returnValue } =
+            await controller.createCampaign(campaignData, req.body.username);
         setRefreshToken(res, refreshToken); // Set cookies
+        setAccessToken(req, res, accessToken); // Send response
         console.log(returnValue);
         res.sendStatus(200);
     } catch (err) {
