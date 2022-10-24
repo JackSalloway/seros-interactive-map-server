@@ -109,7 +109,7 @@ app.use(express.json()); // Support JSON-encoded bodies
 app.use(express.urlencoded({ extended: true })); // Support URL-encoded bodies
 
 app.use("/", userRoutes);
-// app.use("/", campaignRoutes);
+app.use("/", campaignRoutes);
 app.use("/", locationRoutes);
 // app.use("/", subLocationRoutes);
 app.use("/", npcRoutes);

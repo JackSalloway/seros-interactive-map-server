@@ -28,6 +28,8 @@ const refreshTokenFunc = async (token) => {
     }
     // User exists, check if refresh token exists on user
     if (user.refresh_token !== token) {
+        console.log(user.refresh_token);
+        console.log(token);
         throw new Error("User token !== cookie token");
     }
     // Token exists, create new refresh and access tokens

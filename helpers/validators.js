@@ -39,6 +39,33 @@ class Validators {
         ];
     }
 
+    // Validation for a campaign
+    static campaign() {
+        return [
+            // Name field
+            body("campaign_name", "Campaign name required.")
+                .trim()
+                .isString()
+                .withMessage("Campaign name must be a string.")
+                .isLength({ min: 1 })
+                .withMessage("Campaign name must be greater than 1 character.")
+                .isLength({ max: 75 })
+                .withMessage(
+                    "Campaign name must not be greater than 75 characters."
+                )
+                .escape(),
+
+            // Description field
+            body("campaign_desc", "Campaign description required.")
+                .trim()
+                .isString()
+                .withMessage("Campaign description must be a string.")
+                .isLength({ min: 1 })
+                .withMessage("Campaign name must be greater than 1 character.")
+                .escape(),
+        ];
+    }
+
     // Validation for a location that is placed on the map
     static location() {
         // Validate all fields
