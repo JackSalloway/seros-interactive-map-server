@@ -3,6 +3,8 @@ const Campaign = require("../models/campaign");
 const User = require("../models/user");
 const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
 
+//Error imports
+const CampaignNoLongerExistsError = require("../errors/campaignErrors/campaignNoLongerExistsError");
 class CampaignController {
     // Fetch all campaign data when the app is started
     // async campaignData() {
@@ -61,6 +63,22 @@ class CampaignController {
                     campaigns: updatedUser.campaigns,
                 },
             };
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    // Fetch all data on a campaign and return it in a campaignSettings object for the user.
+    async campaignSettings(campaignId) {
+        try {
+            const campaign = await Campaign.find({
+                _id: mongoose.Types.ObjectId(campaignId),
+            });
+            if (!campaign)
+                throw new CampaignNoLongerExistsError(
+                    "This campaign no longer exists."
+                );
+            return campaign;
         } catch (err) {
             throw err;
         }

@@ -38,4 +38,18 @@ router.post("/create_campaign", ...Validators.campaign(), async (req, res) => {
     }
 });
 
+// GET request to fetch campaign settings
+router.get("/campaign_settings", async (req, res) => {
+    console.log("campaign settings hit");
+    console.log(req.query.campaign_id);
+    try {
+        const controller = new CampaignController();
+        const result = await controller.campaignSettings(req.query.campaign_id);
+        res.json(result);
+    } catch (err) {
+        console.err(err);
+        res.sendstatus(500);
+    }
+});
+
 module.exports = router;
