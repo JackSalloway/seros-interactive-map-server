@@ -20,6 +20,7 @@ router.post("/create_campaign", ...Validators.campaign(), async (req, res) => {
         const campaignData = {
             name: req.body.campaign_name,
             desc: req.body.campaign_desc,
+            invites: [],
         };
 
         console.log(campaignData);
