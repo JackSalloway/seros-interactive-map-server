@@ -30,7 +30,7 @@ router.post("/create_campaign", ...Validators.campaign(), async (req, res) => {
         setRefreshToken(res, refreshToken); // Set cookies
         setAccessToken(req, res, accessToken); // Send response
         console.log(returnValue);
-        res.sendStatus(200);
+        res.send(returnValue);
     } catch (err) {
         console.error(err);
         res.sendStatus(500);

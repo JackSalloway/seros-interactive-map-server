@@ -26,20 +26,23 @@ class CampaignController {
 
             const refreshToken = createRefreshToken(user.id);
 
-            User.findOneAndUpdate(
+            const updatedUser = await User.findOneAndUpdate(
                 { name: username },
                 {
                     $push: { campaigns: newCampaignUserData },
                     $set: { refresh_token: refreshToken },
-                }
-                // { new: true }
-            ).exec();
+                },
+                { new: true }
+            )
+                .populate("campaigns.campaign")
+                .lean()
+                .exec();
 
             const accessToken = createAccessToken(
-                user.id,
+                updatedUser.id,
                 username,
-                user.privileged,
-                user.campaigns
+                updatedUser.privileged,
+                updatedUser.campaigns
             );
 
             /// NEED THIS CODE TO KEEP USER LOGGED IN THROUGH USE OF COOKIES
@@ -47,13 +50,15 @@ class CampaignController {
             // User.updateOne({ username: username }, {}).exec();
             /// NEED THIS CODE TO KEEP USER LOGGED IN THROUGH USE OF COOKIES
 
+            console.log(updatedUser);
+
             return {
                 accessToken,
                 refreshToken,
                 returnValue: {
                     username,
-                    privileged: user.privileged,
-                    campaigns: user.campaigns,
+                    privileged: updatedUser.privileged,
+                    campaigns: updatedUser.campaigns,
                 },
             };
         } catch (err) {
