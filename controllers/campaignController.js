@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 const Campaign = require("../models/campaign");
+const Invite = require("../models/invite");
 const User = require("../models/user");
 const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
 
@@ -79,6 +81,61 @@ class CampaignController {
                     "This campaign no longer exists."
                 );
             return campaign;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async campaignCreateInviteCode(campaignId) {
+        try {
+            const inviteExists = Invite.findOne({
+                campaign: mongoose.Types.ObjectId(campaignId),
+            });
+            if (inviteExists) {
+                console.log(
+                    "Invite code already exists - no need to create another."
+                );
+            }
+            const inviteCode = crypto.randomUUID();
+            const date = new Date();
+
+            const inviteData = {
+                code: inviteCode,
+                created_at: date,
+                campaign: mongoose.Types.ObjectId(campaignId),
+            };
+
+            const invite = new Invite(inviteData);
+            await invite.save();
+            console.log(inviteData);
+
+            const test = await Invite.find({ _id: invite._id })
+                .populate("campaign")
+                .lean()
+                .exec();
+
+            console.log(test);
+
+            // const newInvitation = {
+            //     invite_code: inviteCode,
+            //     created_at: date,
+            // };
+
+            // const campaign = await Campaign.findOneAndUpdate(
+            //     {
+            //         _id: mongoose.Types.ObjectId(campaignId),
+            //     },
+            //     {
+            //         $push: { invites: newInvitation },
+            //     },
+            //     { new: true }
+            // )
+            //     .lean()
+            //     .exec();
+
+            // THIS CODE CURRENTLY DOES NOT UPDATE ANYTHING WITHIN THE DATABASE
+            // console.log(inviteCode);
+            return;
         } catch (err) {
             throw err;
         }
