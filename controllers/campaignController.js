@@ -80,7 +80,14 @@ class CampaignController {
                 throw new CampaignNoLongerExistsError(
                     "This campaign no longer exists."
                 );
-            return campaign;
+            console.log(campaign);
+            const invite = await Invite.find({
+                campaign: mongoose.Types.ObjectId(campaignId),
+            })
+                .populate("campaign")
+                .lean()
+                .exec();
+            return { campaign, invite };
         } catch (err) {
             throw err;
         }
@@ -109,33 +116,10 @@ class CampaignController {
             await invite.save();
             console.log(inviteData);
 
-            const test = await Invite.find({ _id: invite._id })
+            return await Invite.find({ _id: invite._id })
                 .populate("campaign")
                 .lean()
                 .exec();
-
-            console.log(test);
-
-            // const newInvitation = {
-            //     invite_code: inviteCode,
-            //     created_at: date,
-            // };
-
-            // const campaign = await Campaign.findOneAndUpdate(
-            //     {
-            //         _id: mongoose.Types.ObjectId(campaignId),
-            //     },
-            //     {
-            //         $push: { invites: newInvitation },
-            //     },
-            //     { new: true }
-            // )
-            //     .lean()
-            //     .exec();
-
-            // THIS CODE CURRENTLY DOES NOT UPDATE ANYTHING WITHIN THE DATABASE
-            // console.log(inviteCode);
-            return;
         } catch (err) {
             throw err;
         }

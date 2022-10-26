@@ -43,8 +43,12 @@ router.get("/campaign_settings", async (req, res) => {
     // console.log(req.query.campaign_id);
     try {
         const controller = new CampaignController();
-        const result = await controller.campaignSettings(req.query.campaign_id);
-        res.json(result);
+        const { campaign, invite } = await controller.campaignSettings(
+            req.query.campaign_id
+        );
+        console.log(campaign);
+        console.log(invite);
+        res.json({ campaign, invite });
     } catch (err) {
         console.err(err);
         res.sendstatus(500);
