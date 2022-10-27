@@ -82,14 +82,37 @@ class CampaignController {
                 throw new CampaignNoLongerExistsError(
                     "This campaign no longer exists."
                 );
-            console.log(campaign);
+            // console.log(campaign);
             const invite = await Invite.find({
                 campaign: mongoose.Types.ObjectId(campaignId),
             })
                 .populate("campaign")
                 .lean()
                 .exec();
-            return { campaign, invite };
+
+            // Find all users who have joined the campaign, and return their names and campaign details
+            // THIS CURRENTLY RETURNS ALL CAMPAIGN DATA, IT SHOULD ONLY RETURN THE RELEVANT CAMPAIGN
+            // NEED TO FIGURE OUT HOW TO FILTER IT FOR THAT
+            const campaignUsers = await User.find(
+                {
+                    campaigns: {
+                        $elemMatch: {
+                            campaign: campaignId,
+                        },
+                    },
+                },
+                {
+                    username: 1,
+                    campaigns: { $elemMatch: { campaign: campaignId } },
+                }
+                // "username campaigns"
+            )
+                .lean()
+                .exec();
+
+            // console.log(campaignUsers);
+
+            return { campaign, invite, campaignUsers };
         } catch (err) {
             throw err;
         }
@@ -167,18 +190,18 @@ class CampaignController {
 
             // console.log(user);
 
-            const userCurrentCampaigns = user.campaigns.map((campaign) => {
-                return campaign.campaign;
-            });
+            // const userCurrentCampaigns = user.campaigns.map((campaign) => {
+            //     return campaign.campaign;
+            // });
 
             // console.log(invite[0].campaign.toString());
-            userCurrentCampaigns.forEach((campaign) => {
-                console.log(
-                    campaign.toString(),
-                    "---",
-                    invite[0].campaign.toString()
-                );
-            });
+            // userCurrentCampaigns.forEach((campaign) => {
+            //     console.log(
+            //         campaign.toString(),
+            //         "---",
+            //         invite[0].campaign.toString()
+            //     );
+            // });
 
             // console.log(userCurrentCampaigns);
 
