@@ -39,6 +39,7 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
             visited: req.body.location_visited,
             marked: req.body.location_marked,
             sub_locations: [],
+            campaign: req.body.location_campaign_id,
         };
         const controller = new LocationController();
         const result = await controller.createLocation(locationContent);
@@ -83,6 +84,7 @@ router.post("/update_location", ...Validators.location(), async (req, res) => {
             visited: req.body.location_visited,
             marked: req.body.location_marked,
             sub_locations: req.body.location_sub_locations,
+            campaign: req.body.location_campaign_id,
         };
         const controller = new LocationController();
         const result = await controller.updateLocation(
