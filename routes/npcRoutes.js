@@ -36,6 +36,7 @@ router.post("/create_npc", ...Validators.npc(), async (req, res) => {
         important: importance,
         associated_locations: req.body.npc_associated_locations,
         quests: req.body.npc_quests,
+        campaign: req.body.npc_campaign,
     };
     try {
         const controller = new NPCController();
@@ -83,6 +84,7 @@ router.post("/update_npc", ...Validators.npc(), async (req, res) => {
             important: importance,
             associated_locations: req.body.npc_associated_locations,
             quests: req.body.npc_quests,
+            campaign: req.body.npc_campaign,
         };
         const controller = new NPCController();
         const result = await controller.updateNPC(
