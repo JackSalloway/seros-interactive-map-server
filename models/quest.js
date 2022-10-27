@@ -7,7 +7,7 @@ const Quest = new Schema({
     desc: { type: String, required: true, minLength: 1 },
     associated_locations: [{ type: Schema.Types.ObjectId, ref: "Location" }],
     completed: { type: Boolean, required: true },
-    campaign: { type: Schema.Types.ObjectId, ref: "Campaign" },
+    campaign: { type: Schema.Types.ObjectId, ref: "Campaign", required: true },
 });
 
 // Create virtual for url, not sure if I will need this but could be handy
