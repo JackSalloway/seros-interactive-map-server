@@ -4,6 +4,10 @@ const Validators = require("../helpers/validators");
 const CampaignController = require("../controllers/campaignController");
 const { setRefreshToken, setAccessToken } = require("../helpers/tokens");
 
+// Error imports
+const UserAlreadyInCampaignError = require("../errors/campaignErrors/userAlreadyInCampaignError");
+const InviteCodeDoesNotExistError = require("../errors/inviteErrors/inviteDoesNotExistError");
+
 /// CAMPAIGN ROUTES ///
 
 // GET request for all relevant campaign data
@@ -85,6 +89,14 @@ router.post("/join_campaign", async (req, res) => {
         res.send(returnValue);
     } catch (err) {
         console.error(err);
+        if (err instanceof UserAlreadyInCampaignError) {
+            res.status(400).send("You are already a member in this campaign.");
+            return;
+        }
+        if (err instanceof InviteCodeDoesNotExistError) {
+            res.status(400).send("Invite code invalid.");
+            return;
+        }
         res.sendStatus(500);
     }
 });

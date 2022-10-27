@@ -8,6 +8,7 @@ const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
 //Error imports
 const CampaignNoLongerExistsError = require("../errors/campaignErrors/campaignNoLongerExistsError");
 const InviteDoesNotExistError = require("../errors/inviteErrors/inviteDoesNotExistError");
+const UserAlreadyInCampaignError = require("../errors/campaignErrors/userAlreadyInCampaignError");
 class CampaignController {
     // Fetch all campaign data when the app is started
     // async campaignData() {
@@ -133,7 +134,10 @@ class CampaignController {
                 .exec();
 
             // Check if invite code is valid
-            if (!invite) {
+
+            console.log(invite);
+
+            if (!invite[0]) {
                 throw new InviteDoesNotExistError("Invite code not valid.");
             }
 
@@ -141,6 +145,52 @@ class CampaignController {
             const campaign = await Campaign.findById(invite[0].campaign);
 
             const user = await User.findOne({ username: username });
+
+            const doesUserHaveCampaign = await User.findOne({
+                campaigns: {
+                    $elemMatch: {
+                        campaign: campaign._id,
+                    },
+                },
+                username: username,
+            })
+                .lean()
+                .exec();
+
+            console.log(doesUserHaveCampaign);
+
+            if (doesUserHaveCampaign) {
+                throw new UserAlreadyInCampaignError(
+                    "You are already a member of this campaign."
+                );
+            }
+
+            // console.log(user);
+
+            const userCurrentCampaigns = user.campaigns.map((campaign) => {
+                return campaign.campaign;
+            });
+
+            // console.log(invite[0].campaign.toString());
+            userCurrentCampaigns.forEach((campaign) => {
+                console.log(
+                    campaign.toString(),
+                    "---",
+                    invite[0].campaign.toString()
+                );
+            });
+
+            // console.log(userCurrentCampaigns);
+
+            // Currently having issues with preventing users from joining the same campaign twice
+            // Cannot seem to get a truthy value back from the .every method below. Have also tried .filter
+            // Perhaps I will have to use a database find method that searches for users who have the username argument and already have the campaignId value in their campaigns field.
+
+            // console.log(
+            //     userCurrentCampaigns.every((id) => {
+            //         id.toString() == invite[0].campaign.toString();
+            //     })
+            // );
 
             const refreshToken = createRefreshToken(
                 mongoose.Types.ObjectId(user.id)
