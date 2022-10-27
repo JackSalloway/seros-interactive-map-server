@@ -151,8 +151,6 @@ class CampaignController {
                 admin: false,
             };
 
-            // CURRENTLY HAVING ISSUES WITH FINDING THE DOCUMENTS USING THE USERID VALUES - OR JUST ID VALUES IN GENERAL
-
             const updatedUser = await User.findOneAndUpdate(
                 { username: username },
                 {
