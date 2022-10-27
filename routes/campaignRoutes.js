@@ -46,8 +46,8 @@ router.get("/campaign_settings", async (req, res) => {
         const { campaign, invite } = await controller.campaignSettings(
             req.query.campaign_id
         );
-        console.log(campaign);
-        console.log(invite);
+        // console.log(campaign);
+        // console.log(invite);
         res.json({ campaign, invite });
     } catch (err) {
         console.err(err);
@@ -59,12 +59,30 @@ router.put("/campaign_generate_code", async (req, res) => {
     console.log("campaign generate code hit");
     try {
         const controller = new CampaignController();
-        console.log(req.body);
+        // console.log(req.body);
         const result = await controller.campaignCreateInviteCode(
             req.body.campaign_id
         );
         // console.log(result);
         res.send(result);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+router.post("/join_campaign", async (req, res) => {
+    console.log("join campaign hit");
+    try {
+        const controller = new CampaignController();
+        const { accessToken, refreshToken, returnValue } =
+            await controller.joinCampaign(
+                req.body.username,
+                req.body.invite_code
+            );
+        setRefreshToken(res, refreshToken); // Set cookies
+        setAccessToken(req, res, accessToken); // Send response
+        res.send(returnValue);
     } catch (err) {
         console.error(err);
         res.sendStatus(500);

@@ -7,6 +7,7 @@ const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
 
 //Error imports
 const CampaignNoLongerExistsError = require("../errors/campaignErrors/campaignNoLongerExistsError");
+const InviteDoesNotExistError = require("../errors/inviteErrors/inviteDoesNotExistError");
 class CampaignController {
     // Fetch all campaign data when the app is started
     // async campaignData() {
@@ -109,7 +110,7 @@ class CampaignController {
             const inviteData = {
                 code: inviteCode,
                 created_at: date,
-                campaign: mongoose.Types.ObjectId(campaignId),
+                campaign: campaignId,
             };
 
             const invite = new Invite(inviteData);
@@ -120,6 +121,67 @@ class CampaignController {
                 .populate("campaign")
                 .lean()
                 .exec();
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async joinCampaign(username, inviteCode) {
+        try {
+            const invite = await Invite.find({ code: inviteCode })
+                .lean()
+                .exec();
+
+            // Check if invite code is valid
+            if (!invite) {
+                throw new InviteDoesNotExistError("Invite code not valid.");
+            }
+
+            // find method seems to return an array, so have to select index 0 of that array
+            const campaign = await Campaign.findById(invite[0].campaign);
+
+            const user = await User.findOne({ username: username });
+
+            const refreshToken = createRefreshToken(
+                mongoose.Types.ObjectId(user.id)
+            );
+
+            const joinCampaignUserData = {
+                campaign: campaign._id,
+                admin: false,
+            };
+
+            // CURRENTLY HAVING ISSUES WITH FINDING THE DOCUMENTS USING THE USERID VALUES - OR JUST ID VALUES IN GENERAL
+
+            const updatedUser = await User.findOneAndUpdate(
+                { username: username },
+                {
+                    $push: { campaigns: joinCampaignUserData },
+                    $set: { refresh_token: refreshToken },
+                },
+                { new: true }
+            )
+                .populate("campaigns.campaign")
+                .lean()
+                .exec();
+
+            // console.log("updatedUser: ", updatedUser);
+
+            const accessToken = createAccessToken(
+                updatedUser._id,
+                updatedUser.username,
+                updatedUser.privileged,
+                updatedUser.campaigns
+            );
+            return {
+                accessToken,
+                refreshToken,
+                returnValue: {
+                    username: updatedUser.username,
+                    privileged: updatedUser.privileged,
+                    campaigns: updatedUser.campaigns,
+                },
+            };
         } catch (err) {
             throw err;
         }
