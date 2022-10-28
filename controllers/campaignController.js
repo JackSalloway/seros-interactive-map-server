@@ -34,7 +34,7 @@ class CampaignController {
             const refreshToken = createRefreshToken(user.id);
 
             const updatedUser = await User.findOneAndUpdate(
-                { name: username },
+                { username: username },
                 {
                     $push: { campaigns: newCampaignUserData },
                     $set: { refresh_token: refreshToken },
