@@ -17,6 +17,7 @@ const UserSchema = new Schema({
         {
             campaign: { type: Schema.Types.ObjectId, ref: "Campaign" },
             admin: { type: Boolean, required: true },
+            creator: { type: Boolean, required: true },
         },
     ],
 });

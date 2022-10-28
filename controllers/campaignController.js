@@ -28,6 +28,7 @@ class CampaignController {
             const newCampaignUserData = {
                 campaign: mongoose.Types.ObjectId(campaign.id),
                 admin: true,
+                creator: true,
             };
 
             const refreshToken = createRefreshToken(user.id);
@@ -222,6 +223,7 @@ class CampaignController {
             const joinCampaignUserData = {
                 campaign: campaign._id,
                 admin: false,
+                creator: false,
             };
 
             const updatedUser = await User.findOneAndUpdate(
