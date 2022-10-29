@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "jest ./tests",
         "start": "node server",
         "dev": "nodemon server"
     },
@@ -26,6 +26,8 @@
         "morgan": "^1.10.0"
     },
     "devDependencies": {
-        "nodemon": "^2.0.18"
+        "jest": "^29.2.2",
+        "nodemon": "^2.0.18",
+        "supertest": "^6.3.1"
     }
 }
