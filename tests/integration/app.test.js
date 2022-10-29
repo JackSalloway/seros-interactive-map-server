@@ -10,16 +10,16 @@ describe("app", () => {
                 .spyOn(locationController.prototype, "mapData")
                 .mockImplementation(() => {
                     return {
-                        result: "wimbly",
+                        result: "locationData",
                     };
                 });
 
             const result = await supertest(app)
-                .get("/location_data?campaign_id=hi")
-                .expect(200, { result: "wimbly" });
+                .get("/location_data?campaign_id=campaignID")
+                .expect(200, { result: "locationData" });
 
             expect(addSpy).toHaveBeenCalledTimes(1);
-            expect(addSpy).toHaveBeenCalledWith("hi");
+            expect(addSpy).toHaveBeenCalledWith("campaignID");
             return result;
         });
     });
