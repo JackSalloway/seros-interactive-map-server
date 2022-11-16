@@ -6,11 +6,11 @@ const LocationController = require("../controllers/locationController");
 /// LOCATION ROUTES ///
 
 // GET request for all map location data
-router.get("/location_data", async (_req, res) => {
+router.get("/location_data", async (req, res) => {
     console.log("location_data hit");
     try {
         const controller = new LocationController();
-        const result = await controller.mapData();
+        const result = await controller.mapData(req.query.campaign_id);
         res.json(result);
     } catch (err) {
         console.error(err.message);
@@ -39,6 +39,7 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
             visited: req.body.location_visited,
             marked: req.body.location_marked,
             sub_locations: [],
+            campaign: req.body.location_campaign_id,
         };
         const controller = new LocationController();
         const result = await controller.createLocation(locationContent);
@@ -55,7 +56,6 @@ router.delete("/delete_location", async (req, res) => {
     try {
         const controller = new LocationController();
         const result = await controller.deleteLocation(req.body.location_id);
-        // console.log(result);
         return res.json(result);
     } catch (err) {
         console.error(err.message);
@@ -84,8 +84,8 @@ router.post("/update_location", ...Validators.location(), async (req, res) => {
             visited: req.body.location_visited,
             marked: req.body.location_marked,
             sub_locations: req.body.location_sub_locations,
+            campaign: req.body.location_campaign_id,
         };
-        console.log(updatedLocationContent);
         const controller = new LocationController();
         const result = await controller.updateLocation(
             req.body.location_id,

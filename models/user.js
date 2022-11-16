@@ -13,6 +13,13 @@ const UserSchema = new Schema({
     password: { type: String, required: true },
     privileged: { type: Boolean, required: true },
     refresh_token: { type: String },
+    campaigns: [
+        {
+            campaign: { type: Schema.Types.ObjectId, ref: "Campaign" },
+            admin: { type: Boolean, required: true },
+            creator: { type: Boolean, required: true },
+        },
+    ],
 });
 
 module.exports = mongoose.model("user", UserSchema);

@@ -10,7 +10,7 @@ router.get("/npc_data", async (req, res) => {
     console.log("npc_data hit");
     try {
         const controller = new NPCController();
-        const result = await controller.npcData(req.body.npc_quests);
+        const result = await controller.npcData(req.query.campaign_id);
         res.json(result);
     } catch (err) {
         console.error(err);
@@ -32,9 +32,11 @@ router.post("/create_npc", ...Validators.npc(), async (req, res) => {
         race: req.body.npc_race,
         desc: req.body.npc_desc,
         disposition: req.body.npc_disposition,
+        status: req.body.npc_status,
         important: importance,
         associated_locations: req.body.npc_associated_locations,
         quests: req.body.npc_quests,
+        campaign: req.body.npc_campaign,
     };
     try {
         const controller = new NPCController();
@@ -78,9 +80,11 @@ router.post("/update_npc", ...Validators.npc(), async (req, res) => {
             race: req.body.npc_race,
             desc: req.body.npc_desc,
             disposition: req.body.npc_disposition,
+            status: req.body.npc_status,
             important: importance,
             associated_locations: req.body.npc_associated_locations,
             quests: req.body.npc_quests,
+            campaign: req.body.npc_campaign,
         };
         const controller = new NPCController();
         const result = await controller.updateNPC(

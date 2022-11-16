@@ -10,7 +10,7 @@ router.get("/quest_data", async (req, res) => {
     console.log("quest_data hit");
     try {
         const controller = new QuestController();
-        const result = await controller.questData();
+        const result = await controller.questData(req.query.campaign_id);
         res.json(result);
     } catch (err) {
         console.error(err);
@@ -31,6 +31,7 @@ router.post("/create_quest", ...Validators.quest(), async (req, res) => {
             desc: req.body.quest_desc,
             completed: req.body.quest_completed,
             associated_locations: req.body.quest_associated_locations,
+            campaign: req.body.quest_campaign,
         };
         const controller = new QuestController();
         const result = await controller.createQuest(questContent);
@@ -67,6 +68,7 @@ router.post("/update_quest", ...Validators.quest(), async (req, res) => {
             desc: req.body.quest_desc,
             completed: req.body.quest_completed,
             associated_locations: req.body.quest_associated_locations,
+            campaign: req.body.quest_campaign,
         };
         const controller = new QuestController();
         const result = await controller.updateQuest(

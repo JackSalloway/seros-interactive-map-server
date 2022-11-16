@@ -14,19 +14,6 @@ const IncorrectLoginDetailsError = require("../errors/userErrors/incorrectLoginD
 
 class UserController {
     async register(username, email, password) {
-        // Validate all fields
-        // WILL ADD THESE IN LATER
-
-        // Username field
-
-        // Email field
-
-        // Password field
-
-        // Process request after validation and sanitization
-
-        // See if username already exists
-
         try {
             // Check if missing any parameters
             if (!username || !email || !password) {
@@ -53,6 +40,7 @@ class UserController {
                 email: email,
                 password: hashedPassword,
                 privileged: false,
+                campaigns: [],
             });
 
             await newUser.save();
@@ -75,7 +63,10 @@ class UserController {
 
         try {
             // Find user within database
-            const user = await User.findOne({ username: username });
+            const user = await User.findOne({ username: username }).populate(
+                "campaigns.campaign"
+            );
+            // console.log(user.campaigns[0].campaign);
             if (!user)
                 throw new IncorrectLoginDetailsError(
                     "Incorrect details provided"
@@ -90,7 +81,8 @@ class UserController {
             const accessToken = createAccessToken(
                 user.id,
                 username,
-                user.privileged
+                user.privileged,
+                user.campaigns
             );
             const refreshToken = createRefreshToken(user.id);
             // Put the refresh token in the database
@@ -102,7 +94,11 @@ class UserController {
             return {
                 accessToken,
                 refreshToken,
-                returnValue: { username, privileged: user.privileged },
+                returnValue: {
+                    username,
+                    privileged: user.privileged,
+                    campaigns: user.campaigns,
+                },
             };
         } catch (err) {
             throw err;

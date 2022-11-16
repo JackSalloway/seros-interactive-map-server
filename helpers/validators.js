@@ -9,6 +9,63 @@ class Validators {
         }
     }
 
+    // Validation for registering a new account
+    static user() {
+        //Validate all fields
+        // Validate all fields
+        return [
+            // Username field
+            body("username", "Username required.")
+                .trim()
+                .isString()
+                .withMessage("Username must be a string.")
+                .isLength({ min: 3 })
+                .withMessage("Username must be at least 3 characters.")
+                .isLength({ max: 20 })
+                .withMessage("Username must not be greater than 20 characters.")
+                .escape(),
+            // Email field
+            body("email", "Email address is required.")
+                .trim()
+                .isEmail()
+                .withMessage("Email must be an email.")
+                .escape(),
+            // Password field
+            body("password", "Password required")
+                .trim()
+                .isString()
+                .withMessage("Password must be a string.")
+                .escape(),
+        ];
+    }
+
+    // Validation for a campaign
+    static campaign() {
+        return [
+            // Name field
+            body("campaign_name", "Campaign name required.")
+                .trim()
+                .isString()
+                .withMessage("Campaign name must be a string.")
+                .isLength({ min: 1 })
+                .withMessage("Campaign name must be greater than 1 character.")
+                .isLength({ max: 75 })
+                .withMessage(
+                    "Campaign name must not be greater than 75 characters."
+                )
+                .escape(),
+
+            // Description field
+            body("campaign_desc", "Campaign description required.")
+                .trim()
+                .isString()
+                .withMessage("Campaign description must be a string.")
+                .isLength({ min: 1 })
+                .withMessage("Campaign name must be greater than 1 character.")
+                .escape(),
+        ];
+    }
+
     // Validation for a location that is placed on the map
     static location() {
         // Validate all fields
@@ -18,8 +75,8 @@ class Validators {
                 .trim()
                 .isString()
                 .withMessage("Location name must be a string.")
-                .isLength({ min: 5 })
-                .withMessage("Location name must be greater than 5 characters.")
+                .isLength({ min: 1 })
+                .withMessage("Location name must be greater than 1 character.")
                 .isLength({ max: 75 })
                 .withMessage(
                     "Location name must not be greater than 75 characters."
@@ -73,9 +130,9 @@ class Validators {
                 .trim()
                 .isString()
                 .withMessage("Location description must be a string.")
-                .isLength({ min: 15 })
+                .isLength({ min: 1 })
                 .withMessage(
-                    "Location description must be at least 15 characters long"
+                    "Location description must be at least 1 character."
                 )
                 .escape(),
         ];
@@ -90,9 +147,9 @@ class Validators {
                 .trim()
                 .isString()
                 .withMessage("Sub location name must be a string.")
-                .isLength({ min: 3 })
+                .isLength({ min: 1 })
                 .withMessage(
-                    "Sub location name must be greater than 3 characters."
+                    "Sub location name must be greater than 1 character."
                 )
                 .isLength({ max: 75 })
                 .withMessage(
@@ -105,9 +162,9 @@ class Validators {
                 .trim()
                 .isString()
                 .withMessage("Sub location description must be a string.")
-                .isLength({ min: 10 })
+                .isLength({ min: 1 })
                 .withMessage(
-                    "Location description must be at least 10 characters long"
+                    "Location description must be at least 1 character."
                 )
                 .escape(),
         ];
@@ -136,10 +193,8 @@ class Validators {
                 .trim()
                 .isString()
                 .withMessage("NPC description must be a string.")
-                .isLength({ min: 10 })
-                .withMessage(
-                    "NPC description must be at least 10 characters long"
-                )
+                .isLength({ min: 1 })
+                .withMessage("NPC description must be at least 1 character")
                 .escape(),
 
             // NPC disposition
@@ -147,6 +202,13 @@ class Validators {
                 .trim()
                 .isString()
                 .withMessage("NPC disposition must be a string.")
+                .escape(),
+
+            // NPC disposition
+            body("npc_status", "NPC status is required.")
+                .trim()
+                .isString()
+                .withMessage("NPC status must be a string.")
                 .escape(),
 
             // NPC associated locations
@@ -176,8 +238,8 @@ class Validators {
                 .trim()
                 .isString()
                 .withMessage("Quest name must be a string.")
-                .isLength({ min: 5 })
-                .withMessage("Quest name must be at least 5 characters.")
+                .isLength({ min: 1 })
+                .withMessage("Quest name must be at least 1 character.")
                 .escape(),
 
             // Desc field
@@ -185,8 +247,8 @@ class Validators {
                 .trim()
                 .isString()
                 .withMessage("Quest description must be a string.")
-                .isLength({ min: 5 })
-                .withMessage("Quest description must be at least 5 characters.")
+                .isLength({ min: 1 })
+                .withMessage("Quest description must be at least 1 character.")
                 .escape(),
 
             // This check was causing an error which for some reason trimmed the quest_associated_locations array down to a single string.
