@@ -92,8 +92,6 @@ class CampaignController {
                 .exec();
 
             // Find all users who have joined the campaign, and return their names and campaign details
-            // THIS CURRENTLY RETURNS ALL CAMPAIGN DATA, IT SHOULD ONLY RETURN THE RELEVANT CAMPAIGN
-            // NEED TO FIGURE OUT HOW TO FILTER IT FOR THAT
             const campaignUsers = await User.find(
                 {
                     campaigns: {
@@ -111,7 +109,7 @@ class CampaignController {
                 .lean()
                 .exec();
 
-            // console.log(campaignUsers);
+            console.log(campaignUsers);
 
             return { campaign, invite, campaignUsers };
         } catch (err) {
