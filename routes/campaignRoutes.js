@@ -58,6 +58,35 @@ router.get("/campaign_settings", async (req, res) => {
     }
 });
 
+router.post("/update_campaign", ...Validators.campaign(), async (req, res) => {
+    console.log("update campaign hit");
+    const errors = Validators.validateResult(req);
+    if (errors !== undefined) {
+        return res.status(400).json(errors);
+    }
+    try {
+        const controller = new CampaignController();
+        console.log(req.body);
+        const updatedData = {
+            name: req.body.campaign_name,
+            desc: req.body.campaign_desc,
+        };
+        const { accessToken, refreshToken, returnValue } =
+            await controller.updateCampaign(
+                req.body.campaign_id,
+                updatedData,
+                req.body.username
+            );
+        setRefreshToken(res, refreshToken); // Set cookies
+        setAccessToken(req, res, accessToken); // Send response
+        console.log(returnValue);
+        res.send(returnValue);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
 router.put("/campaign_generate_code", async (req, res) => {
     console.log("campaign generate code hit");
     try {

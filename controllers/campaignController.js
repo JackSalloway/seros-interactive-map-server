@@ -104,7 +104,6 @@ class CampaignController {
                     username: 1,
                     campaigns: { $elemMatch: { campaign: campaignId } },
                 }
-                // "username campaigns"
             )
                 .lean()
                 .exec();
@@ -112,6 +111,55 @@ class CampaignController {
             console.log(campaignUsers);
 
             return { campaign, invite, campaignUsers };
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async updateCampaign(campaignId, data, username) {
+        try {
+            const user = await User.findOne({ username: username });
+
+            await Campaign.findOneAndUpdate(
+                { _id: campaignId },
+                { $set: data },
+                { new: true }
+            )
+                .lean()
+                .exec();
+
+            const refreshToken = createRefreshToken(user.id);
+
+            const updatedUser = await User.findOneAndUpdate(
+                {
+                    username: username,
+                },
+                {
+                    $set: { refresh_token: refreshToken },
+                },
+                { new: true }
+            )
+                .populate("campaigns.campaign")
+                .lean()
+                .exec();
+
+            const accessToken = createAccessToken(
+                updatedUser.id,
+                username,
+                updatedUser.privileged,
+                updatedUser.campaigns
+            );
+            console.log(updatedUser);
+
+            return {
+                accessToken,
+                refreshToken,
+                returnValue: {
+                    username,
+                    privileged: updatedUser.privileged,
+                    campaigns: updatedUser.campaigns,
+                },
+            };
         } catch (err) {
             throw err;
         }
