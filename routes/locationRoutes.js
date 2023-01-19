@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Validators = require("../helpers/validators");
 const LocationController = require("../controllers/locationController");
+const ChangelogController = require("../controllers/changelogController");
 
 /// LOCATION ROUTES ///
 
@@ -43,8 +44,17 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
             campaign: req.body.location_campaign_id,
         };
         const controller = new LocationController();
-        const result = await controller.createLocation(locationContent);
-        return res.send(result);
+        const locationResult = await controller.createLocation(locationContent);
+
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.location_campaign_id,
+            req.body.username,
+            req.body.location_name,
+            req.url
+        );
+
+        return res.send({ locationResult, changelogResult });
     } catch (err) {
         console.error(err.message);
         res.sendStatus(500);
@@ -56,8 +66,19 @@ router.delete("/delete_location", async (req, res) => {
     console.log("delete location hit");
     try {
         const controller = new LocationController();
-        const result = await controller.deleteLocation(req.body.location_id);
-        return res.json(result);
+        const locationResult = await controller.deleteLocation(
+            req.body.location_id
+        );
+
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.location_campaign_id,
+            req.body.username,
+            req.body.location_name,
+            req.url
+        );
+
+        return res.json({ locationResult, changelogResult });
     } catch (err) {
         console.error(err.message);
         res.sendStatus(500);
@@ -88,11 +109,20 @@ router.post("/update_location", ...Validators.location(), async (req, res) => {
             campaign: req.body.location_campaign_id,
         };
         const controller = new LocationController();
-        const result = await controller.updateLocation(
+        const locationResult = await controller.updateLocation(
             req.body.location_id,
             updatedLocationContent
         );
-        return res.send(result);
+
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.location_campaign_id,
+            req.body.username,
+            req.body.location_name,
+            req.url
+        );
+
+        return res.send({ locationResult, changelogResult });
     } catch (err) {
         console.error(err.message);
         res.sendStatus(500);

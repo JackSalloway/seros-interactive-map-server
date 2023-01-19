@@ -19,7 +19,7 @@ class LocationController {
         try {
             const location = new Location(data);
             await location.save();
-            return Location.find({ _id: location.id }).lean().exec();
+            return Location.findOne({ _id: location.id }).lean().exec();
         } catch (err) {
             throw err;
         }
