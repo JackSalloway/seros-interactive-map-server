@@ -39,6 +39,9 @@ class ChangelogController {
             const changelogUrl = reqUrl.replace("/", ""); // Remove the / at the start of the url
             const changelogDataArray = changelogUrl.split("_"); // Split the string into two separate words and return an array
             let pastTenseOperation = changelogDataArray[0].concat("", "d");
+            if (changelogDataArray[1] === "sub") {
+                changelogDataArray[1] = "sublocation";
+            }
 
             // Date value used for time of request
             const date = new Date();

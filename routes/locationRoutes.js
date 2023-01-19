@@ -148,11 +148,20 @@ router.post(
                 desc: req.body.sub_location_desc,
             };
             const controller = new LocationController();
-            const result = await controller.createSubLocation(
+            const subLocationResult = await controller.createSubLocation(
                 req.body.parent_location_id,
                 subLocationContent
             );
-            return res.send(result);
+
+            const changelogController = new ChangelogController();
+            const changelogResult = await changelogController.updateChangelog(
+                req.body.location_campaign_id,
+                req.body.username,
+                req.body.sub_location_name,
+                req.url
+            );
+
+            return res.send({ subLocationResult, changelogResult });
         } catch (err) {
             console.error(err);
             res.sendStatus(500);
