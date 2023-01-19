@@ -11,7 +11,7 @@ router.get("/location_data", async (req, res) => {
     try {
         const controller = new LocationController();
         const result = await controller.mapData(req.query.campaign_id);
-        console.log(result);
+        // console.log(result);
         res.json(result);
     } catch (err) {
         console.error(err.message);
