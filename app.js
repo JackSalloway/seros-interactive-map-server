@@ -30,9 +30,9 @@ app.use(morgan("tiny"));
 const userRoutes = require("./routes/userRoutes");
 const campaignRoutes = require("./routes/campaignRoutes");
 const locationRoutes = require("./routes/locationRoutes");
-// const subLocationRoutes = require("./routes/subLocationRoutes");
 const questRoutes = require("./routes/questRoutes");
 const npcRoutes = require("./routes/npcRoutes");
+const changelogRoutes = require("./routes/changelogRoutes");
 const { setAccessToken, setRefreshToken } = require("./helpers/tokens");
 
 // Connect to database
@@ -52,7 +52,7 @@ app.use(cookieParser());
 
 // Refresh access token expiry if refresh token is still valid
 app.use(
-    /^(.(?!(location_data|npc_data|quest_data|login|register|logout)))*$/,
+    /^(.(?!(location_data|npc_data|quest_data|changelog_data|login|register|logout)))*$/,
     async (req, res, next) => {
         try {
             const token = req.cookies.refresh_token;
@@ -88,7 +88,7 @@ app.use(
 
 // Authorize user by veryfying JWT
 app.use(
-    /^(.(?!(location_data|npc_data|quest_data|login|register|logout|startup|campaign_settings|campaign_generate_code)))*$/,
+    /^(.(?!(location_data|npc_data|quest_data|changelog_data|login|register|logout|startup|campaign_settings|campaign_generate_code)))*$/,
     (req, res, next) => {
         try {
             const userToken = authorizeUser(req);
@@ -111,9 +111,9 @@ app.use(express.urlencoded({ extended: true })); // Support URL-encoded bodies
 app.use("/", userRoutes);
 app.use("/", campaignRoutes);
 app.use("/", locationRoutes);
-// app.use("/", subLocationRoutes);
 app.use("/", npcRoutes);
 app.use("/", questRoutes);
+app.use("/", changelogRoutes);
 
 // app.use("/", interactiveMapRouter);
 

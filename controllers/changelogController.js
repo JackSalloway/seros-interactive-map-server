@@ -2,6 +2,18 @@ const mongoose = require("mongoose");
 const Changelog = require("../models/changelog");
 
 class ChangelogController {
+    // Fetch changelog data when a campaign is selected
+    async changelogData(campaignId) {
+        try {
+            return await Changelog.findOne(
+                { campaign: campaignId },
+                "-_id -campaign -__v" // Return all values except the ones inside of the projection string
+            );
+        } catch (err) {
+            throw err;
+        }
+    }
+
     // Update relevant changelog document
     async updateChangelog(campaignId, username, dataName, reqUrl) {
         try {
