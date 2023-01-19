@@ -7,8 +7,9 @@ const ChangelogSchema = new Schema({
     changes: [
         {
             username: { type: String, required: true, minLength: 3 },
-            operation: { type: String, required: true },
-            data_type_affected: { type: String, required: true },
+            operation_type: { type: String, required: true },
+            data_name: { type: String, required: true },
+            data_affected: { type: String, required: true },
             created_at: { type: Date, default: Date.now },
         },
     ],
