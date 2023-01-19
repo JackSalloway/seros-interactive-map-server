@@ -182,13 +182,22 @@ router.post(
 
         try {
             const controller = new LocationController();
-            const result = await controller.updateSubLocation(
+            const subLocationResult = await controller.updateSubLocation(
                 req.body.location_id,
                 req.body.sub_location_name,
                 req.body.updated_sub_location_name,
                 req.body.updated_sub_location_desc
             );
-            return res.send(result);
+
+            const changelogController = new ChangelogController();
+            const changelogResult = await changelogController.updateChangelog(
+                req.body.location_campaign_id,
+                req.body.username,
+                req.body.updated_sub_location_name,
+                req.url
+            );
+
+            return res.send({ subLocationResult, changelogResult });
         } catch (err) {
             console.error(err);
             res.sendStatus(500);
