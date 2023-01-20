@@ -81,11 +81,22 @@ router.post("/update_quest", ...Validators.quest(), async (req, res) => {
             campaign: req.body.quest_campaign,
         };
         const controller = new QuestController();
+        // Decided to keep this one named as just result as it already returns an object with two objects named questResult and npcResult.
         const result = await controller.updateQuest(
             req.body.quest_id,
-            updatedQuestContent
+            updatedQuestContent,
+            req.body.quest_campaign
         );
-        return res.json(result);
+
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.quest_campaign,
+            req.body.username,
+            req.body.quest_name,
+            req.url
+        );
+
+        return res.json({ result, changelogResult });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
