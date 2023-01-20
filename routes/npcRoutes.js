@@ -63,8 +63,17 @@ router.delete("/delete_npc", async (req, res) => {
     console.log("delete_npc hit");
     try {
         const controller = new NPCController();
-        const result = await controller.deleteNPC(req.body.data_id);
-        return res.send(result);
+        const npcResult = await controller.deleteNPC(req.body.npc_id);
+
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.npc_campaign,
+            req.body.username,
+            req.body.npc_name,
+            req.url
+        );
+
+        return res.send({ npcResult, changelogResult });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
