@@ -57,8 +57,21 @@ router.post("/delete_quest", async (req, res) => {
     console.log("delete_quest hit");
     try {
         const controller = new QuestController();
-        const result = await controller.deleteQuest(req.body.data_id);
-        return res.json(result);
+        // Named this npcResult as the return value is actually
+        const npcResult = await controller.deleteQuest(
+            req.body.quest_id,
+            req.body.quest_campaign
+        );
+
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.quest_campaign,
+            req.body.username,
+            req.body.quest_name,
+            req.url
+        );
+
+        return res.json({ npcResult, changelogResult });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);

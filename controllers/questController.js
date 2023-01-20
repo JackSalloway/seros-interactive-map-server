@@ -32,7 +32,7 @@ class QuestController {
     }
 
     // Delete a specifc quest and remove the quest from any NPCs that have it assigned
-    async deleteQuest(questId) {
+    async deleteQuest(questId, campaignId) {
         try {
             // Remove references to quest from any NPCs that reference it
             await NPC.updateMany(
@@ -45,7 +45,7 @@ class QuestController {
                 { $set: { important: false } }
             );
             await Quest.findByIdAndDelete(questId);
-            return await NPC.find({})
+            return await NPC.find({ campaign: campaignId })
                 .populate("quests")
                 .populate("associated_locations");
         } catch (err) {
