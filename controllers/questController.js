@@ -54,7 +54,7 @@ class QuestController {
     }
 
     // Update a specific quest
-    async updateQuest(questId, data) {
+    async updateQuest(questId, data, campaignId) {
         try {
             const questResult = await Quest.findOneAndUpdate(
                 { _id: questId },
@@ -65,7 +65,7 @@ class QuestController {
                 .lean()
                 .exec();
 
-            const npcResult = await NPC.find({})
+            const npcResult = await NPC.find({ campaign: campaignId })
                 .populate("quests")
                 .populate("associated_locations");
             return { questResult, npcResult };
