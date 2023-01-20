@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Validators = require("../helpers/validators");
 const QuestController = require("../controllers/questController");
+const ChangelogController = require("../controllers/changelogController");
 
 /// QUEST-ROUTES ///
 
@@ -34,8 +35,17 @@ router.post("/create_quest", ...Validators.quest(), async (req, res) => {
             campaign: req.body.quest_campaign,
         };
         const controller = new QuestController();
-        const result = await controller.createQuest(questContent);
-        res.json(result);
+        const questResult = await controller.createQuest(questContent);
+
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.quest_campaign,
+            req.body.username,
+            req.body.quest_name,
+            req.url
+        );
+
+        res.json({ questResult, changelogResult });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
