@@ -106,11 +106,20 @@ router.post("/update_npc", ...Validators.npc(), async (req, res) => {
             campaign: req.body.npc_campaign,
         };
         const controller = new NPCController();
-        const result = await controller.updateNPC(
+        const npcResult = await controller.updateNPC(
             req.body.npc_id,
             updatedNPCContent
         );
-        return res.send(result);
+
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.npc_campaign,
+            req.body.username,
+            req.body.npc_name,
+            req.url
+        );
+
+        return res.send({ npcResult, changelogResult });
     } catch (err) {
         console.err(err);
         res.sendStatus(500);
