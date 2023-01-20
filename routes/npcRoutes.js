@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Validators = require("../helpers/validators");
 const NPCController = require("../controllers/npcController");
+const ChangelogController = require("../controllers/changelogController");
 
 /// NPC ROUTES ///
 
@@ -40,8 +41,17 @@ router.post("/create_npc", ...Validators.npc(), async (req, res) => {
     };
     try {
         const controller = new NPCController();
-        const result = await controller.createNPC(npcContent);
-        res.json(result);
+        const npcResult = await controller.createNPC(npcContent);
+
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.npc_campaign,
+            req.body.username,
+            req.body.npc_name,
+            req.url
+        );
+
+        res.json({ npcResult, changelogResult });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
