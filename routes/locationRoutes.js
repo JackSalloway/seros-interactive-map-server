@@ -66,9 +66,11 @@ router.delete("/delete_location", async (req, res) => {
     console.log("delete location hit");
     try {
         const controller = new LocationController();
-        const locationResult = await controller.deleteLocation(
-            req.body.location_id
-        );
+        const { updatedNPCList, updatedQuestList } =
+            await controller.deleteLocation(
+                req.body.location_id,
+                req.body.location_campaign_id
+            );
 
         const changelogController = new ChangelogController();
         const changelogResult = await changelogController.updateChangelog(
@@ -78,7 +80,7 @@ router.delete("/delete_location", async (req, res) => {
             req.url
         );
 
-        return res.json({ locationResult, changelogResult });
+        return res.json({ updatedNPCList, updatedQuestList, changelogResult });
     } catch (err) {
         console.error(err.message);
         res.sendStatus(500);

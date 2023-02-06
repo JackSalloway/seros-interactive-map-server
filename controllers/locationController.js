@@ -6,9 +6,9 @@ const { default: mongoose } = require("mongoose");
 
 class LocationController {
     // Fetch all location data when the app is started
-    async mapData(campainID) {
+    async mapData(campaignId) {
         try {
-            return await Location.find({ campaign: campainID });
+            return await Location.find({ campaign: campaignId });
         } catch (err) {
             throw err;
         }
@@ -26,11 +26,11 @@ class LocationController {
     }
 
     // Delete a specific location based on id and update any affected npcs/quests
-    async deleteLocation(locationId) {
+    async deleteLocation(locationId, campaignId) {
         try {
             // Remove references to location from any NPCs that reference it
             await NPC.updateMany(
-                {},
+                { campaign: campaignId },
                 {
                     $pull: {
                         associated_locations:
@@ -40,7 +40,7 @@ class LocationController {
             );
             // Remove references to location from any NPCs that reference it
             await Quest.updateMany(
-                {},
+                { campaign: campaignId },
                 {
                     $pull: {
                         associated_locations:
@@ -51,17 +51,19 @@ class LocationController {
             // Delete location
             await Location.findByIdAndDelete(locationId);
             // Retrieve updated NPC list
-            const updatedNPCList = await NPC.find({})
+            const updatedNPCList = await NPC.find({ campaign: campaignId })
                 .populate("quests")
                 .populate("associated_locations")
                 .lean()
                 .exec();
             //  Retrieve updated Quest List
-            const updatedQuestList = await Quest.find({})
+            const updatedQuestList = await Quest.find({ campaign: campaignId })
                 .populate("associated_locations")
                 .lean()
                 .exec();
-            return { newNPCs: updatedNPCList, newQuests: updatedQuestList };
+
+            console.log(updatedNPCList, updatedQuestList);
+            return { updatedNPCList, updatedQuestList };
         } catch (err) {
             throw err;
         }
