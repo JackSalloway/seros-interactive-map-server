@@ -51,6 +51,17 @@ class NPCController {
             throw err;
         }
     }
+
+    async updateLocationlessNPC(npcId, locations) {
+        try {
+            const npcToUpdate = await NPC.findById({ _id: npcId });
+            npcToUpdate.associated_locations = locations;
+            const result = await npcToUpdate.save();
+            return result;
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 
 module.exports = NPCController;

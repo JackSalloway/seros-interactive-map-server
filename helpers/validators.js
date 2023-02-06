@@ -229,6 +229,19 @@ class Validators {
         ];
     }
 
+    static locationlessNPC() {
+        // Validate all fields
+        return [
+            // NPC associated locations
+            body("npc_associated_locations.*", "Invalid location provided.")
+                .trim()
+                .isString()
+                .withMessage("Location values must be a string.")
+                .optional({ nullable: true })
+                .escape(),
+        ];
+    }
+
     // Validation for a quest
     static quest() {
         // Validate all fields

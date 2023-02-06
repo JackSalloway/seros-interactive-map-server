@@ -39,8 +39,14 @@ class ChangelogController {
             const changelogUrl = reqUrl.replace("/", ""); // Remove the / at the start of the url
             const changelogDataArray = changelogUrl.split("_"); // Split the string into two separate words and return an array
             let pastTenseOperation = changelogDataArray[0].concat("", "d");
+            // account for sublocation routes (sub location routes look like "OPERATION_sub_location", so the first index of the split array is just sub)
             if (changelogDataArray[1] === "sub") {
                 changelogDataArray[1] = "sublocation";
+            }
+
+            // Account for locationless npc/quest update routes
+            if (changelogDataArray[0] === "locationless") {
+                pastTenseOperation = "updated";
             }
 
             // Date value used for time of request

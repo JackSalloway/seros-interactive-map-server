@@ -126,4 +126,37 @@ router.post("/update_npc", ...Validators.npc(), async (req, res) => {
     }
 });
 
+// Post request to update a locationless NPC
+router.post(
+    "/locationless_npc",
+    ...Validators.locationlessNPC(),
+    async (req, res) => {
+        console.log("locationless_npc hit");
+        const errors = Validators.validateResult(req);
+        if (errors !== undefined) {
+            return res.status(400).json(errors);
+        }
+        try {
+            const controller = new NPCController();
+            const npcResult = await controller.updateLocationlessNPC(
+                req.body.npc_id,
+                req.body.npc_associated_locations
+            );
+
+            const changelogController = new ChangelogController();
+            const changelogResult = await changelogController.updateChangelog(
+                req.body.npc_campaign,
+                req.body.username,
+                req.body.npc_name,
+                req.url
+            );
+
+            return res.send({ npcResult, changelogResult });
+        } catch (err) {
+            console.err(err);
+            res.sendStatus(500);
+        }
+    }
+);
+
 module.exports = router;
