@@ -53,7 +53,7 @@ router.get("/campaign_settings", async (req, res) => {
         // console.log(invite);
         res.json({ campaign, invite, campaignUsers });
     } catch (err) {
-        console.err(err);
+        console.error(err);
         res.sendstatus(500);
     }
 });

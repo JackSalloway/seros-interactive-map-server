@@ -121,7 +121,7 @@ router.post("/update_npc", ...Validators.npc(), async (req, res) => {
 
         return res.send({ npcResult, changelogResult });
     } catch (err) {
-        console.err(err);
+        console.error(err);
         res.sendStatus(500);
     }
 });
@@ -153,7 +153,7 @@ router.post(
 
             return res.send({ npcResult, changelogResult });
         } catch (err) {
-            console.err(err);
+            console.error(err);
             res.sendStatus(500);
         }
     }

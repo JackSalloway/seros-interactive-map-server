@@ -378,7 +378,7 @@ router.post("/update_npc", ...Validators.npc(), async (req, res) => {
         );
         return res.send(result);
     } catch (err) {
-        console.err(err);
+        console.error(err);
         res.sendStatus(500);
     }
 });
