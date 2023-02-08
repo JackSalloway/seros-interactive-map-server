@@ -73,6 +73,27 @@ class QuestController {
             throw err;
         }
     }
+
+    // Update a locationless quest
+    async updateLocationlessQuest(questId, locations) {
+        try {
+            // As this route only updates the locations for a quest, it will not have to update any npc values like the other routes do
+            const result = await Quest.findOneAndUpdate(
+                { _id: questId },
+                {
+                    $push: { associated_locations: locations },
+                },
+                { new: true }
+            )
+                .populate("associated_locations")
+                .lean()
+                .exec();
+
+            return result;
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 
 module.exports = QuestController;

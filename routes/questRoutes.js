@@ -116,4 +116,37 @@ router.post("/update_quest", ...Validators.quest(), async (req, res) => {
     }
 });
 
+// Post request to update a locationless quest
+router.post(
+    "/locationless_quest",
+    ...Validators.locationlessQuest(),
+    async (req, res) => {
+        console.log("locationless_quest hit");
+        const errors = Validators.validateResult(req);
+        if (errors !== undefined) {
+            return res.status(400).json(errors);
+        }
+        try {
+            const controller = new QuestController();
+            const questResult = await controller.updateLocationlessQuest(
+                req.body.quest_id,
+                req.body.quest_associated_locations
+            );
+
+            const changelogController = new ChangelogController();
+            const changelogResult = await changelogController.updateChangelog(
+                req.body.quest_campaign,
+                req.body.username,
+                req.body.quest_name,
+                req.url
+            );
+
+            return res.send({ questResult, changelogResult });
+        } catch (err) {
+            console.error(err);
+            res.sendStatus(500);
+        }
+    }
+);
+
 module.exports = router;
