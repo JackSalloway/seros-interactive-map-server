@@ -229,6 +229,7 @@ class Validators {
         ];
     }
 
+    // Validation for a locationless npc
     static locationlessNPC() {
         // Validate all fields
         return [
