@@ -265,7 +265,6 @@ class Validators {
                 .withMessage("Quest description must be at least 1 character.")
                 .escape(),
 
-            // This check was causing an error which for some reason trimmed the quest_associated_locations array down to a single string.
             // Associated locations field
             body("quest_associated_locations.*", "Invalid location provided.")
                 .trim()
@@ -278,6 +277,19 @@ class Validators {
                 .trim()
                 .isBoolean()
                 .withMessage("Quest completed status must be a boolean value.")
+                .escape(),
+        ];
+    }
+
+    // Validation for a locationless quest
+    static locationlessQuest() {
+        // Validate all fields
+        return [
+            // Associated locations field
+            body("quest_associated_locations.*", "Invalid location provided.")
+                .trim()
+                .isString()
+                .withMessage("Each associated location must be a string.")
                 .escape(),
         ];
     }
