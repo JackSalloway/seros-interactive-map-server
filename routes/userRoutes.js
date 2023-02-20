@@ -75,12 +75,12 @@ router.post("/login", async (req, res) => {
 router.get("/logout", (_req, res) => {
     console.log("logout hit");
     res.clearCookie("refresh_token", {
-        domain: "jacksalloway.com",
+        domain: process.env.CORS_ORIGIN_URL,
         secure: process.env.NODE_ENV === "production",
         path: "/",
     });
     res.clearCookie("access_token", {
-        domain: "jacksalloway.com",
+        domain: process.env.CORS_ORIGIN_URL,
         secure: process.env.NODE_ENV === "production",
         path: "/",
     });
