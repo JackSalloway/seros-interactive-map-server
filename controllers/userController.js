@@ -9,6 +9,7 @@ const UsernameAlreadyExistsError = require("../errors/userErrors/usernameAlready
 const EmailAlreadyExistsError = require("../errors/userErrors/emailAlreadyExistsError");
 const MissingRequiredLoginParametersError = require("../errors/userErrors/missingRequiredLoginParametersError");
 const IncorrectLoginDetailsError = require("../errors/userErrors/incorrectLoginDetailsErrors");
+const NoCookiesDetectedError = require("../errors/userErrors/noCookiesDetectedError");
 
 // Register a new user
 
@@ -144,13 +145,18 @@ class UserController {
     }
 
     async userStartup(req) {
-        if (!req.cookies.access_token) {
-            return {};
+        try {
+            if (!req.cookies.access_token) {
+                throw new NoCookiesDetectedError("No cookies detected");
+            }
+
+            return verify(
+                req.cookies.access_token,
+                process.env.ACCESS_TOKEN_SECRET
+            );
+        } catch (err) {
+            throw err;
         }
-        return verify(
-            req.cookies.access_token,
-            process.env.ACCESS_TOKEN_SECRET
-        );
     }
 }
 

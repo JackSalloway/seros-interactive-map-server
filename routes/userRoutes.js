@@ -9,6 +9,7 @@ const MissingRequiredLoginParameters = require("../errors/userErrors/missingRequ
 const UsernameAlreadyExistsError = require("../errors/userErrors/usernameAlreadyExistsError");
 const EmailAlreadyExistsError = require("../errors/userErrors/emailAlreadyExistsError");
 const IncorrectLoginDetailsError = require("../errors/userErrors/incorrectLoginDetailsErrors");
+const NoCookiesDetectedError = require("../errors/userErrors/noCookiesDetectedError");
 
 /// USER ROUTES ///
 // POST request to create a new user
@@ -88,10 +89,26 @@ router.get("/logout", (_req, res) => {
 
 // GET request to check if a user has logged in and their refresh token is still valid
 router.get("/startup", async (req, res) => {
-    console.log("startup hit");
-    const controller = new UserController();
-    const result = await controller.userStartup(req);
-    res.send(result);
+    try {
+        console.log("startup hit");
+        const controller = new UserController();
+        const result = await controller.userStartup(req);
+        res.send(result);
+    } catch (err) {
+        console.log(err);
+        // Check if cookies are present
+        if (err instanceof NoCookiesDetectedError) {
+            res.status(401).send(
+                "No cookies detected, please login to view this page."
+            );
+            return;
+        }
+        // User JWT has expired
+        res.status(401).send(
+            "Session timed out, please enter your details to log in again."
+        );
+        return;
+    }
 });
 
 // ROUTE NOT NEEDED - JUST USED FOR TESTING
