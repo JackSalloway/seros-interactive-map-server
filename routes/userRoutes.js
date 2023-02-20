@@ -74,24 +74,13 @@ router.post("/login", async (req, res) => {
 
 router.get("/logout", (_req, res) => {
     console.log("logout hit");
-
-    // For some reason clearing the cookies on a local environment - the domain has to be just 'localhost'
-    // Which is different from the env CORS_ORIGIN_URL for a local environment
-    // Added in the following work around for this, although I could add another ENV value
-
-    let domainValue = process.env.CORS_ORIGIN_URL;
-    console.log(domainValue);
-    if (domainValue.includes("localhost")) {
-        domainValue = "localhost";
-    }
-
     res.clearCookie("refresh_token", {
-        domain: domainValue,
+        domain: process.env.CORS_ORIGIN_URL,
         secure: process.env.NODE_ENV === "production",
         path: "/",
     });
     res.clearCookie("access_token", {
-        domain: domainValue,
+        domain: process.env.CORS_ORIGIN_URL,
         secure: process.env.NODE_ENV === "production",
         path: "/",
     });
