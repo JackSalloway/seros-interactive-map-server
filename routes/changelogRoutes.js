@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const ChangelogController = require("../controllers/changelogController");
 
-// GET request for all map location data
+// GET request for changelog data
 router.get("/changelog_data", async (req, res) => {
     console.log("changelog_data hit");
     try {
