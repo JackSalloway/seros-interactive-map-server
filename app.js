@@ -33,6 +33,7 @@ const locationRoutes = require("./routes/locationRoutes");
 const questRoutes = require("./routes/questRoutes");
 const npcRoutes = require("./routes/npcRoutes");
 const changelogRoutes = require("./routes/changelogRoutes");
+const combatInstanceRoutes = require("./routes/combatInstanceRoutes");
 const { setAccessToken, setRefreshToken } = require("./helpers/tokens");
 
 // Connect to database
@@ -52,7 +53,7 @@ app.use(cookieParser());
 
 // Refresh access token expiry if refresh token is still valid
 app.use(
-    /^(.(?!(location_data|npc_data|quest_data|changelog_data|login|register|logout)))*$/,
+    /^(.(?!(location_data|npc_data|quest_data|changelog_data|combat_instance_data|login|register|logout)))*$/,
     async (req, res, next) => {
         try {
             const token = req.cookies.refresh_token;
@@ -88,7 +89,7 @@ app.use(
 
 // Authorize user by veryfying JWT
 app.use(
-    /^(.(?!(location_data|npc_data|quest_data|changelog_data|login|register|logout|startup|campaign_settings|campaign_generate_code)))*$/,
+    /^(.(?!(location_data|npc_data|quest_data|changelog_data|combat_instance_data|login|register|logout|startup|campaign_settings|campaign_generate_code)))*$/,
     (req, res, next) => {
         try {
             const userToken = authorizeUser(req);
@@ -114,6 +115,7 @@ app.use("/", locationRoutes);
 app.use("/", npcRoutes);
 app.use("/", questRoutes);
 app.use("/", changelogRoutes);
+app.use("/", combatInstanceRoutes);
 
 // app.use("/", interactiveMapRouter);
 
