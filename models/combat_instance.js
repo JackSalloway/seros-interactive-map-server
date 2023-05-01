@@ -16,6 +16,7 @@ const CombatInstanceSchema = new Schema({
     ],
     name: { type: String, required: true, minLength: 1 },
     campaign: { type: Schema.Types.ObjectId, ref: "Campaign", required: true },
+    created_at: { type: Date, default: Date.now },
     associated_locations: { type: Schema.Types.ObjectId, ref: "Location" },
 });
 
