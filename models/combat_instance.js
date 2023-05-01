@@ -18,7 +18,7 @@ const CombatInstanceSchema = new Schema({
     description: { type: String },
     campaign: { type: Schema.Types.ObjectId, ref: "Campaign", required: true },
     created_at: { type: Date, default: Date.now },
-    associated_location: { type: Schema.Types.ObjectId, ref: "Location" },
+    associated_locations: { type: Schema.Types.ObjectId, ref: "Location" },
 });
 
 // Export model
