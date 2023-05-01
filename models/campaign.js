@@ -7,8 +7,8 @@ const CampaignSchema = new Schema({
     desc: { type: String, required: true, minLength: 1 },
     players: [
         {
-            player_name: { type: String, minLength: 1 },
-            player_class: { type: String, minlength: 1 },
+            name: { type: String, minLength: 1 },
+            class: { type: String, minlength: 1 },
         },
     ],
     // map image?
