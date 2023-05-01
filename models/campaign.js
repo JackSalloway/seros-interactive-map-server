@@ -5,13 +5,12 @@ const Schema = mongoose.Schema;
 const CampaignSchema = new Schema({
     name: { type: String, required: true, minLength: 1 },
     desc: { type: String, required: true, minLength: 1 },
-    // invites: [
-    //     {
-    //         invite_code: { type: String },
-    //         created_at: { type: Date, default: Date.now },
-    //         expires_at: { type: Date },
-    //     },
-    // ],
+    players: [
+        {
+            player_name: { type: String, minLength: 1 },
+            player_class: { type: String, minlength: 1 },
+        },
+    ],
     // map image?
     // banner image?
 });
