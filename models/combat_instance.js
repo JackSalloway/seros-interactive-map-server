@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const CombatInstanceSchema = new Schema({
-    combat_instance_details: [
+    combat_details: [
         {
             player_name: { type: String, required: true, minLength: 1 },
             player_class: { type: String, required: true },
