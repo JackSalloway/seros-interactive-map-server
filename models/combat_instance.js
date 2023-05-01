@@ -10,7 +10,8 @@ const CombatInstanceSchema = new Schema({
             turns: {
                 damage: [Number],
                 healing: [Number],
-                deaths: [Number],
+                // Chose to remove deaths for now to get a basic concept of the dps meter working first
+                // deaths: [Number],
             },
         },
     ],
