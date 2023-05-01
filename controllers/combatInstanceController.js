@@ -5,7 +5,7 @@ class CombatInstanceController {
     // Fetch combat instance data when a campaign is selected
     async combatInstanceData(campaignId) {
         try {
-            return await CombatInstance.findOne(
+            return await CombatInstance.find(
                 { campaign: campaignId },
                 "-_id -campaign -__v" // Return all values except the ones inside of the projection string
             );
