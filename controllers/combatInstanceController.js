@@ -13,6 +13,19 @@ class CombatInstanceController {
             throw err;
         }
     }
+
+    // Create a combat instance at a relevant location
+    async createCombatInstance(data) {
+        try {
+            const combatInstance = new CombatInstance(data);
+            await combatInstance.save();
+            return CombatInstance.findOne({ _id: combatInstance.id })
+                .lean()
+                .exec();
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 
 module.exports = CombatInstanceController;
