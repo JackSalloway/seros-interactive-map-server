@@ -37,19 +37,29 @@ router.post("/create_combat_instance", async (req, res) => {
 
         // Validate and sanitize the date before the try catch clauses
 
-        // Check if player_character key:value pair is present within req.body.instance_details
-        // If it is present and is false, continue as normal,
-        // If it is present and is true, the campaign needs to be updated to include a new player character within the players array
-
-        // Update the changelog to include a new combat instance creation
-
-        // Return {instanceResult, changelogResult} and apply the returned data to the front end logic
+        // Create a new array of characters that are real players characters to add to the campaign document
+        const checkForNewPlayerCharacters = req.body.instance_details
+            .map((player) => {
+                // return player.player_character; // Returns either undefined, true or false
+                // console.log(player);
+                if (player.player_character === true)
+                    return {
+                        player_name: player.player_name,
+                        player_class: player.player_class,
+                    };
+            })
+            .filter((player) => player !== undefined);
 
         const controller = new CombatInstanceController();
         const instanceResult = await controller.createCombatInstance(
             combatInstanceData
         );
-        return instanceResult;
+
+        // Update the changelog to include a new combat instance creation
+
+        // Return {instanceResult, changelogResult} and apply the returned data to the front end logic
+
+        return res.json({ instanceResult });
     } catch (err) {
         console.error(err.message);
         res.sendStatus(500);
