@@ -63,6 +63,7 @@ router.post("/create_combat_instance", async (req, res) => {
             });
         }
 
+        // Update the changelog to include a new combat instance creation
         const controller = new CombatInstanceController();
         const instanceResult = await controller.createCombatInstance(
             combatInstanceData
@@ -75,10 +76,7 @@ router.post("/create_combat_instance", async (req, res) => {
             req.url
         );
 
-        // Update the changelog to include a new combat instance creation
-
         // Return {instanceResult, changelogResult} and apply the returned data to the front end logic
-
         return res.json({ instanceResult, changelogResult });
     } catch (err) {
         console.error(err.message);
