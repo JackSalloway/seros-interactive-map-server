@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const CombatInstanceController = require("../controllers/combatInstanceController");
 const CampaignController = require("../controllers/campaignController");
+const ChangelogController = require("../controllers/changelogController");
 
 // GET request all combat instance data
 router.get("/combat_instance_data", async (req, res) => {
@@ -66,12 +67,19 @@ router.post("/create_combat_instance", async (req, res) => {
         const instanceResult = await controller.createCombatInstance(
             combatInstanceData
         );
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.instance_campaign_id,
+            req.body.username,
+            req.body.instance_name,
+            req.url
+        );
 
         // Update the changelog to include a new combat instance creation
 
         // Return {instanceResult, changelogResult} and apply the returned data to the front end logic
 
-        return res.json({ instanceResult });
+        return res.json({ instanceResult, changelogResult });
     } catch (err) {
         console.error(err.message);
         res.sendStatus(500);

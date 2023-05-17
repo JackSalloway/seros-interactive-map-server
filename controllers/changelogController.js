@@ -44,6 +44,10 @@ class ChangelogController {
                 changelogDataArray[1] = "sublocation";
             }
 
+            if (changelogDataArray[1] === "combat") {
+                changelogDataArray[1] = "combat log";
+            }
+
             // Account for locationless npc/quest update routes
             if (changelogDataArray[0] === "locationless") {
                 pastTenseOperation = "updated";
