@@ -165,6 +165,22 @@ class CampaignController {
         }
     }
 
+    async updateCampaignPlayers(campaignId, playerData) {
+        try {
+            const addNewPlayer = await Campaign.findOneAndUpdate(
+                { _id: campaignId },
+                { $push: { players: playerData } },
+                { new: true }
+            )
+                .lean()
+                .exec();
+
+            return addNewPlayer;
+        } catch (err) {
+            throw err;
+        }
+    }
+
     async campaignCreateInviteCode(campaignId) {
         try {
             const inviteExists = Invite.findOne({

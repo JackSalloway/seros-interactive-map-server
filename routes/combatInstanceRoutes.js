@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const CombatInstanceController = require("../controllers/combatInstanceController");
+const CampaignController = require("../controllers/campaignController");
 
 // GET request all combat instance data
 router.get("/combat_instance_data", async (req, res) => {
@@ -44,11 +45,22 @@ router.post("/create_combat_instance", async (req, res) => {
                 // console.log(player);
                 if (player.player_character === true)
                     return {
-                        player_name: player.player_name,
-                        player_class: player.player_class,
+                        name: player.player_name,
+                        class: player.player_class,
                     };
             })
             .filter((player) => player !== undefined);
+
+        // Add new player characters to the relevant campaign document
+        if (checkForNewPlayerCharacters.length > 0) {
+            const campaignController = new CampaignController();
+            checkForNewPlayerCharacters.forEach((playerCharacter) => {
+                campaignController.updateCampaignPlayers(
+                    req.body.instance_campaign_id,
+                    playerCharacter
+                );
+            });
+        }
 
         const controller = new CombatInstanceController();
         const instanceResult = await controller.createCombatInstance(
