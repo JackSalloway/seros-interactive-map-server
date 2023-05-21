@@ -8,7 +8,7 @@ class CombatInstanceController {
             return await CombatInstance.find(
                 { campaign: campaignId },
                 "-_id -campaign -__v" // Return all values except the ones inside of the projection string
-            );
+            ).populate("associated_location");
         } catch (err) {
             throw err;
         }
@@ -20,6 +20,7 @@ class CombatInstanceController {
             const combatInstance = new CombatInstance(data);
             await combatInstance.save();
             return CombatInstance.findOne({ _id: combatInstance.id })
+                .populate("associated_location")
                 .lean()
                 .exec();
         } catch (err) {
