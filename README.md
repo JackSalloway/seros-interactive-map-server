@@ -43,7 +43,7 @@ Once these variables have been set the application can be started with the relev
 
 ### Creating And Storing Data
 
-Upon user account creation, relevant user data is hashed then stored in the user collection.
+Upon user account creation, sensitive user data is hashed then stored in the user collection.
 
 The API performs CRUD operations on the various data types contained within the database collections. These include:
 
