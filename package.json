@@ -24,7 +24,7 @@
         "jsonwebtoken": "^8.5.1",
         "mongoose": "^6.4.2",
         "morgan": "^1.10.0",
-        "mysql": "^2.18.1"
+        "mysql2": "^3.9.6"
     },
     "devDependencies": {
         "jest": "^29.2.2",
