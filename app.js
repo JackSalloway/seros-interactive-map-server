@@ -5,6 +5,8 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 
+const mysql = require("mysql");
+
 const { authorizeUser } = require("./helpers/authorizeUser");
 const { refreshTokenFunc } = require("./helpers/refreshToken");
 
@@ -36,11 +38,21 @@ const changelogRoutes = require("./routes/changelogRoutes");
 const combatInstanceRoutes = require("./routes/combatInstanceRoutes");
 const { setAccessToken, setRefreshToken } = require("./helpers/tokens");
 
-// Connect to database
+// Connect to mongodb database
 const mongoDB = process.env.MONGODB_URI;
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
+
+// Connect to mysql database
+const mySQL = mysql.createConnection({
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+    PORT: process.env.MYSQL_PORT,
+    supportBigNumbers: true,
+});
 
 app.use(
     cors({

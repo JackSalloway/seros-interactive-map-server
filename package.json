@@ -23,7 +23,8 @@
         "he": "^1.2.0",
         "jsonwebtoken": "^8.5.1",
         "mongoose": "^6.4.2",
-        "morgan": "^1.10.0"
+        "morgan": "^1.10.0",
+        "mysql": "^2.18.1"
     },
     "devDependencies": {
         "jest": "^29.2.2",
