@@ -1,6 +1,6 @@
 const User = require("../models/user");
 const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
-const mongoose = require("mongoose");
+const database = require("../services/database");
 const bcrypt = require("bcryptjs");
 const { verify } = require("jsonwebtoken");
 
@@ -63,41 +63,58 @@ class UserController {
 
         try {
             // Find user within database
-            const user = await User.findOne({ username: username }).populate(
-                "campaigns.campaign"
-            );
-            // console.log(user.campaigns[0].campaign);
-            if (!user)
+            // Create SQL query
+            const query = `SELECT user.id AS 'user_id', username, password, refresh_token,
+            campaign.id AS 'campaign_id', campaign.name AS 'campaign_name', campaign.description AS 'campaign_description' FROM user
+            JOIN campaign_users ON campaign_users.user_id = user.id
+            JOIN campaign ON campaign.id = campaign_users.campaign_id
+            WHERE username = '${username}'`;
+
+            const user = await database.execute(query);
+
+            // Check for username exists
+            if (user[0].length === 0) {
                 throw new IncorrectLoginDetailsError(
                     "Incorrect details provided"
-                ); // Username provided does not exist
+                ); // Username provided does not exist, so user[0] was not populated with query results
+            }
+
             // User found, so compare crypted password to database password
-            const valid = await bcrypt.compare(password, user.password);
+            const valid = await bcrypt.compare(password, user[0][0].password);
             if (!valid)
                 throw new IncorrectLoginDetailsError(
                     "Incorrect details provided"
                 ); // Password provided does not match the username
+
+            // Create an array of the users campaigns
+            const userCampaigns = user[0].map((result) => {
+                return {
+                    campaign_id: result.campaign_id,
+                    campaign_name: result.campaign_name,
+                    campaign_description: result.campaign_description,
+                };
+            });
+
             // Password matches username, so create Access and Refresh tokens
             const accessToken = createAccessToken(
-                user.id,
-                username,
-                user.privileged,
-                user.campaigns
+                user[0][0].user_id,
+                user[0][0].username,
+                userCampaigns
             );
-            const refreshToken = createRefreshToken(user.id);
+            const refreshToken = createRefreshToken(user[0][0].user_id);
+
             // Put the refresh token in the database
-            User.updateOne(
-                { username: username },
-                { $set: { refresh_token: refreshToken } }
-            ).exec();
-            // return accessToken and refreshToken
+            const updateUser = `UPDATE user SET refresh_token = '${refreshToken}' WHERE id = '${user[0][0].user_id}'`;
+
+            await database.execute(updateUser);
+
+            // return accessToken, refreshToken and userData
             return {
                 accessToken,
                 refreshToken,
                 returnValue: {
                     username,
-                    privileged: user.privileged,
-                    campaigns: user.campaigns,
+                    campaigns: userCampaigns,
                 },
             };
         } catch (err) {
