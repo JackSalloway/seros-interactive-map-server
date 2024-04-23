@@ -51,7 +51,7 @@ class UserController {
         }
     }
 
-    async login(username, password, privileged) {
+    async login(username, password) {
         // Validate all fields
         // WILL ADD THESE IN LATER
 
