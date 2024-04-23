@@ -19,43 +19,44 @@ const refreshTokenFunc = async (token) => {
         throw new FailedAuthenticationError("Token failed verification");
     }
 
-    // Create SQL query
-    const query = `SELECT user.id AS 'user_id', username, password, refresh_token,
-    campaign.id AS 'campaign_id', campaign.name AS 'campaign_name', campaign.description AS 'campaign_description' FROM user
-    JOIN campaign_users ON campaign_users.user_id = user.id
-    JOIN campaign ON campaign.id = campaign_users.campaign_id
-    WHERE user_id = '${payload.userId}'`;
+    // Create user query to check if user exists
+    const userQuery = `SELECT * FROM user WHERE id = '${payload.userId}' LIMIT 1`;
 
-    const user = await database.execute(query);
+    const [userRows, _userField] = await database.execute(userQuery);
 
     // Check username exists
-    if (user[0].length === 0) {
+    if (userRows.length !== 1) {
         throw new Error("User does not exist within database"); // Username provided does not exist, so user[0] was not populated with query results
     }
 
+    // Create user refresh token variable
+    const dbUserRefreshToken = userRows[0].refresh_token;
+
     // User exists, check if refresh token exists on user
-    if (user[0][0].refresh_token !== token) {
+    if (dbUserRefreshToken !== token) {
         throw new Error("User token !== cookie token");
     }
-    // Create an array of the users campaigns
-    const userCampaigns = user[0].map((result) => {
-        return {
-            campaign_id: result.campaign_id,
-            campaign_name: result.campaign_name,
-            campaign_description: result.campaign_description,
-        };
-    });
 
-    // Password matches username, so create Access and Refresh tokens
-    const accessToken = createAccessToken(
-        user[0][0].user_id,
-        user[0][0].username,
-        userCampaigns
+    // Create remaining user data variables
+    const dbUserID = userRows[0].id;
+    const dbUsername = userRows[0].username;
+
+    // Create campaign query to find the users relevant campaigns
+    const campaignQuery = `SELECT DISTINCT campaign.id AS 'campaign_id', campaign.name AS 'campaign_name', campaign.description AS 'campaign_description'
+    FROM campaign
+    JOIN campaign_users on campaign_users.campaign_id = campaign_id
+    WHERE campaign_users.user_id = ${dbUserID};`;
+
+    const [campaignRows, _campaignField] = await database.execute(
+        campaignQuery
     );
 
-    const refreshToken = createRefreshToken(user[0][0].user_id);
+    // Password matches username, so create Access and Refresh tokens
+    const accessToken = createAccessToken(dbUserID, dbUsername, campaignRows);
 
-    const updateUser = `UPDATE user SET refresh_token = '${refreshToken}' WHERE id = '${user[0][0].user_id}'`;
+    const refreshToken = createRefreshToken(dbUserID);
+
+    const updateUser = `UPDATE user SET refresh_token = '${refreshToken}' WHERE id = '${dbUserID}'`;
 
     await database.execute(updateUser);
 

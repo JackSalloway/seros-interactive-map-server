@@ -23,7 +23,10 @@ class UserController {
             }
             // Check if username is already taken
             const dbUsername = await User.findOne({ username: username });
-            if (dbUsername) {
+            // Create sql query for finding a specific user
+            const usernameQuery = `SELECT username FROM user WHERE username = '${username}'`;
+            const dbUser = await database.execute(usernameQuery);
+            if (dbUser) {
                 throw new UsernameAlreadyExistsError("Username already exists");
             }
 
@@ -63,48 +66,51 @@ class UserController {
 
         try {
             // Find user within database
-            // Create SQL query
-            const query = `SELECT user.id AS 'user_id', username, password, refresh_token,
-            campaign.id AS 'campaign_id', campaign.name AS 'campaign_name', campaign.description AS 'campaign_description' FROM user
-            JOIN campaign_users ON campaign_users.user_id = user.id
-            JOIN campaign ON campaign.id = campaign_users.campaign_id
-            WHERE username = '${username}'`;
 
-            const user = await database.execute(query);
+            // Create user query to check if user exists
+            const userQuery = `SELECT * FROM user WHERE username = '${username}' LIMIT 1`;
+
+            const [userRows, _userField] = await database.execute(userQuery);
 
             // Check username exists
-            if (user[0].length === 0) {
+            if (userRows.length !== 1) {
                 throw new IncorrectLoginDetailsError(
                     "Incorrect details provided"
                 ); // Username provided does not exist, so user[0] was not populated with query results
             }
 
+            // Destructure user values
+            const dbUserID = userRows[0].id;
+            const dbUsername = userRows[0].username;
+            const dbPassword = userRows[0].password;
+
             // User found, so compare crypted password to database password
-            const valid = await bcrypt.compare(password, user[0][0].password);
+            const valid = await bcrypt.compare(password, dbPassword);
             if (!valid)
                 throw new IncorrectLoginDetailsError(
                     "Incorrect details provided"
                 ); // Password provided does not match the username
 
-            // Create an array of the users campaigns
-            const userCampaigns = user[0].map((result) => {
-                return {
-                    campaign_id: result.campaign_id,
-                    campaign_name: result.campaign_name,
-                    campaign_description: result.campaign_description,
-                };
-            });
+            // Create campaign query to find the users relevant campaigns
+            const campaignQuery = `SELECT DISTINCT campaign.id AS 'campaign_id', campaign.name AS 'campaign_name', campaign.description AS 'campaign_description'
+            FROM campaign
+            JOIN campaign_users on campaign_users.campaign_id = campaign_id
+            WHERE campaign_users.user_id = ${dbUserID};`;
+
+            const [campaignRows, _campaignField] = await database.execute(
+                campaignQuery
+            );
 
             // Password matches username, so create Access and Refresh tokens
             const accessToken = createAccessToken(
-                user[0][0].user_id,
-                user[0][0].username,
-                userCampaigns
+                dbUserID,
+                dbUsername,
+                campaignRows
             );
-            const refreshToken = createRefreshToken(user[0][0].user_id);
+            const refreshToken = createRefreshToken(dbUserID);
 
             // Put the refresh token in the database
-            const updateUser = `UPDATE user SET refresh_token = '${refreshToken}' WHERE id = '${user[0][0].user_id}'`;
+            const updateUser = `UPDATE user SET refresh_token = '${refreshToken}' WHERE id = '${dbUserID}'`;
 
             await database.execute(updateUser);
 
@@ -114,7 +120,7 @@ class UserController {
                 refreshToken,
                 returnValue: {
                     username,
-                    campaigns: userCampaigns,
+                    campaigns: campaignRows,
                 },
             };
         } catch (err) {
