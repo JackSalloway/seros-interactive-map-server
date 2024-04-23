@@ -1,11 +1,8 @@
 require("dotenv").config();
-const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
-
-const database = require("./services/database.js");
 
 const { authorizeUser } = require("./helpers/authorizeUser");
 const { refreshTokenFunc } = require("./helpers/refreshToken");
@@ -43,19 +40,6 @@ const { setAccessToken, setRefreshToken } = require("./helpers/tokens");
 // mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 // const db = mongoose.connection;
 // db.on("error", console.error.bind(console, "MongoDB connection error:"));
-
-// Connect to mysql database
-(async () => {
-    try {
-        const [results, fields] = await database.query(
-            "SELECT * FROM location"
-        );
-
-        console.log(results);
-    } catch (err) {
-        console.log(err);
-    }
-})();
 
 app.use(
     cors({
