@@ -72,7 +72,7 @@ class UserController {
 
             const user = await database.execute(query);
 
-            // Check for username exists
+            // Check username exists
             if (user[0].length === 0) {
                 throw new IncorrectLoginDetailsError(
                     "Incorrect details provided"
