@@ -6,9 +6,12 @@ class QuestController {
     // Fetch all quest data when the app is started
     async questData(campaignID) {
         try {
-            return await Quest.find({ campaign: campaignID }).populate(
-                "associated_locations"
-            );
+            const questQuery = `SELECT quest.id AS 'quest_id' , quest.name, quest.description, completed, location_id, campaign_id FROM tactical_journal.quest
+            JOIN location_quests ON location_quests.quest_id = quest.id
+            JOIN location ON location.id = location_quests.location_id
+            WHERE campaign_id = '${campaignID}';`;
+            const quests = await database.execute(questQuery);
+            return quests[0];
         } catch (err) {
             throw err;
         }
