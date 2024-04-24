@@ -1,14 +1,12 @@
-const Location = require("../models/location");
-const Quest = require("../models/quest");
-const NPC = require("../models/npc");
+const database = require("../services/database");
 const he = require("he");
-const { default: mongoose } = require("mongoose");
 
 class LocationController {
     // Fetch all location data when the app is started
     async mapData(campaignId) {
         try {
-            return await Location.find({ campaign: campaignId });
+            const locationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked FROM location WHERE campaign_id = '${campaignId}'`;
+            return await database.execute(locationQuery);
         } catch (err) {
             throw err;
         }
