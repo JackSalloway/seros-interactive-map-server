@@ -1,7 +1,4 @@
-const Quest = require("../models/quest");
-const NPC = require("../models/npc");
-
-const mongoose = require("mongoose");
+const database = require("../services/database");
 const { body, validationResult } = require("express-validator");
 const { npc } = require("../helpers/validators");
 
