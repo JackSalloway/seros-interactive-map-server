@@ -6,7 +6,8 @@ class LocationController {
     async mapData(campaignId) {
         try {
             const locationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked FROM location WHERE campaign_id = '${campaignId}'`;
-            return await database.execute(locationQuery);
+            const locations = await database.execute(locationQuery);
+            return locations[0];
         } catch (err) {
             throw err;
         }
