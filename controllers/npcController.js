@@ -1,11 +1,15 @@
-const NPC = require("../models/npc");
+const database = require("../services/database");
 class NPCController {
     // Fetch all NPC data when the app is started
     async npcData(campaignID) {
         try {
-            return await NPC.find({ campaign: campaignID })
-                .populate("quests")
-                .populate("associated_locations");
+            const npcQuery = `SELECT npc.id AS 'npc_id', npc.name, npc.description, race, disposition, location_npcs.location_id status,
+            location.id AS 'location_id' FROM npc
+            JOIN location_npcs ON location_npcs.npc_id = npc.id
+            JOIN location ON location.id = location_npcs.location_id
+            WHERE campaign_id = '${campaignID}'`;
+            const npcs = await database.execute(npcQuery);
+            return npcs[0];
         } catch (err) {
             throw err;
         }
