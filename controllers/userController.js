@@ -21,34 +21,33 @@ class UserController {
                     "Missing required login parameters"
                 );
             }
-            // Check if username is already taken
-            const dbUsername = await User.findOne({ username: username });
-            // Create sql query for finding a specific user
-            const usernameQuery = `SELECT username FROM user WHERE username = '${username}'`;
-            const dbUser = await database.execute(usernameQuery);
-            if (dbUser) {
+
+            // Create sql query for finding a specific user to check if username provided is available
+            const usernameQuery = `SELECT username FROM user WHERE username = '${username}' LIMIT 1`;
+            const dbUsername = await database.execute(usernameQuery);
+            if (dbUsername[0].length !== 0) {
                 throw new UsernameAlreadyExistsError("Username already exists");
             }
 
-            // Check if email is already taken
-            const dbEmail = await User.findOne({ email: email });
-            if (dbEmail) {
+            // Create sql query for finding a specific email to check if email provided is available
+            const emailQuery = `SELECT email FROM user WHERE email = '${email}' LIMIT 1`;
+            const dbEmail = await database.execute(emailQuery);
+            if (dbEmail[0].length !== 0) {
                 throw new EmailAlreadyExistsError("Email already exists");
             }
 
+            // Username and email provided are not taken so continue
             // Create new user document with hashed password
             const hashedPassword = await bcrypt.hash(password, 10);
-            const newUser = new User({
-                username: username,
-                email: email,
-                password: hashedPassword,
-                privileged: false,
-                campaigns: [],
-            });
 
-            await newUser.save();
-            console.log("POST request recieved: register");
-            return { username: newUser.username, email: newUser.email };
+            // Create new row for user and campaign_user tables
+            const insertUser = `INSERT INTO user (username, password, email) VALUES ('${username}', '${hashedPassword}', '${email}')`;
+            const dbNewUser = await database.execute(insertUser);
+
+            console.log(dbNewUser);
+
+            // console.log("POST request recieved: register");
+            return { username: username, email: email };
         } catch (err) {
             throw err;
         }
