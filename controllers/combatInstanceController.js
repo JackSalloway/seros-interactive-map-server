@@ -29,7 +29,7 @@ class CombatInstanceController {
                             turn.combat_instance_id !==
                             combatInstance.combat_instance_id
                         ) {
-                            return null;
+                            return player;
                         }
                         const { player_name } = turn;
                         player[player_name] = player[player_name] ?? [];
@@ -40,8 +40,7 @@ class CombatInstanceController {
                 );
                 combatInstance.player_turns = playerTurns;
             }
-
-            return null;
+            return combatInstances;
         } catch (err) {
             throw err;
         }
