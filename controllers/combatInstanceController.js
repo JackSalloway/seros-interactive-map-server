@@ -7,7 +7,7 @@ class CombatInstanceController {
     async combatInstanceData(campaignId) {
         try {
             const combatInstanceQuery = `SELECT combat_instance.id AS 'combat_instance_id', combat_instance.name, combat_instance.description,
-            location_id, campaign_id
+            location_id, location.name AS 'location_name', latitude AS 'location_latitude', longitude AS 'location_longitude', campaign_id
             FROM combat_instance JOIN location ON location.id = combat_instance.location_id
             WHERE campaign_id = '${campaignId}'`;
             const [combatInstances, _combatInstanceField] =
