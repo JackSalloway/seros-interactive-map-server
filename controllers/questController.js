@@ -10,8 +10,9 @@ class QuestController {
             JOIN location_quests ON location_quests.quest_id = quest.id
             JOIN location ON location.id = location_quests.location_id
             WHERE campaign_id = '${campaignID}';`;
-            const quests = await database.execute(questQuery);
-            return quests[0];
+            const [quests, _questField] = await database.execute(questQuery);
+
+            return quests;
         } catch (err) {
             throw err;
         }
