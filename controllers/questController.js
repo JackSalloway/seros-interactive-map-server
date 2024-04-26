@@ -52,7 +52,7 @@ class QuestController {
                 return questObject;
             });
 
-            return quests;
+            return questData;
         } catch (err) {
             throw err;
         }
