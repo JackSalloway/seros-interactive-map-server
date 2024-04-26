@@ -1,16 +1,56 @@
 const database = require("../services/database");
 const { body, validationResult } = require("express-validator");
-const { npc } = require("../helpers/validators");
+const { npc, campaign } = require("../helpers/validators");
 
 class QuestController {
     // Fetch all quest data when the app is started
     async questData(campaignID) {
         try {
-            const questQuery = `SELECT quest.id AS 'quest_id' , quest.name, quest.description, completed, location_id, location.name AS 'location_name', campaign_id FROM tactical_journal.quest
+            const questQuery = `SELECT DISTINCT quest.id AS 'quest_id' , quest.name, quest.description, completed,
+            campaign_id FROM tactical_journal.quest
             JOIN location_quests ON location_quests.quest_id = quest.id
             JOIN location ON location.id = location_quests.location_id
             WHERE campaign_id = '${campaignID}';`;
             const [quests, _questField] = await database.execute(questQuery);
+
+            const locationQuestsQuery = `SELECT location_id, quest_id,
+            location.name AS 'location_name', latitude, longitude FROM location_quests
+            JOIN quest on quest.id = location_quests.quest_id
+            JOIN location on location.id = location_quests.location_id
+            WHERE campaign_id = '${campaignID}';`;
+            const [locationQuests, locationQuestsField] =
+                await database.execute(locationQuestsQuery);
+
+            const questData = quests.map((quest) => {
+                // Create quest object
+                let questObject = {
+                    id: quest.quest_id,
+                    name: quest.name,
+                    description: quest.description,
+                    completed: Boolean(quest.completed),
+                    associated_locations: [],
+                    campaign: {
+                        id: quest.campaign_id,
+                    },
+                };
+
+                locationQuests.forEach((locationQuest) => {
+                    // Early return if current locationQuest in loop is not related to the current quest
+                    if (locationQuest.quest_id !== questObject.id) {
+                        return;
+                    }
+
+                    // Push associated location to relevant quest object
+                    questObject.associated_locations.push({
+                        id: locationQuest.location_id,
+                        name: locationQuest.location_name,
+                        latitude: locationQuest.latitude,
+                        longitude: locationQuest.longitude,
+                    });
+                });
+
+                return questObject;
+            });
 
             return quests;
         } catch (err) {
