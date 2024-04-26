@@ -22,25 +22,67 @@ class CombatInstanceController {
             const [combatInstanceTurns, _combatInstanceTurnField] =
                 await database.query(combatInstanceTurnsQuery);
 
-            for (const combatInstance of combatInstances) {
-                const playerTurns = combatInstanceTurns.reduce(
-                    (player, turn) => {
-                        if (
-                            turn.combat_instance_id !==
-                            combatInstance.combat_instance_id
-                        ) {
-                            return player;
-                        }
-                        const { player_name } = turn;
-                        player[player_name] = player[player_name] ?? [];
-                        player[player_name].push(turn);
-                        return player;
+            const instanceData = combatInstances.map((instance) => {
+                // Create instance object
+                let instanceObject = {
+                    id: instance.combat_instance_id,
+                    name: instance.name,
+                    description: instance.description,
+                    location: {
+                        id: instance.location_id,
+                        name: instance.location_name,
+                        latitude: instance.location_latitude,
+                        longitude: instance.location_longitude,
                     },
-                    {}
-                );
-                combatInstance.player_turns = playerTurns;
-            }
-            return combatInstances;
+                    campaign: {
+                        id: instance.campaign_id,
+                    },
+                    players: [],
+                };
+
+                // Populate instanceObject.combat_details
+                combatInstanceTurns.forEach((playerTurn) => {
+                    // Early return if current turn in loop is not related to the combat instance
+                    if (playerTurn.combat_instance_id !== instanceObject.id) {
+                        return;
+                    }
+
+                    // Check if there is already an index for current player
+                    const playerIndex = instanceObject.players.findIndex(
+                        (player) => {
+                            return player.id === playerTurn.player_id;
+                        }
+                    );
+
+                    if (playerIndex !== -1) {
+                        // Player index already exists, so push the player_turn_id, turn_number, damage and healing values into it
+                        instanceObject.players[playerIndex].turns.push({
+                            id: playerTurn.player_turn_id,
+                            turn_number: playerTurn.turn_number,
+                            damage: playerTurn.damage,
+                            healing: playerTurn.healing,
+                        });
+                    } else {
+                        // Player index does not exist yet, so create a new one with all relevant details
+                        instanceObject.players.push({
+                            id: playerTurn.player_id,
+                            name: playerTurn.player_name,
+                            class: playerTurn.player_class,
+                            turns: [
+                                {
+                                    id: playerTurn.player_turn_id,
+                                    turn_number: playerTurn.turn_number,
+                                    damage: playerTurn.damage,
+                                    healing: playerTurn.healing,
+                                },
+                            ],
+                        });
+                    }
+                });
+                return instanceObject;
+            });
+
+            return instanceData;
         } catch (err) {
             throw err;
         }
