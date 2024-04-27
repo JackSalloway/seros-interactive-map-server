@@ -44,8 +44,10 @@ class QuestController {
                     questObject.associated_locations.push({
                         id: locationQuest.location_id,
                         name: locationQuest.location_name,
-                        latitude: locationQuest.latitude,
-                        longitude: locationQuest.longitude,
+                        latlng: {
+                            lat: locationQuest.latitude,
+                            lng: locationQuest.longitude,
+                        },
                     });
                 });
 
