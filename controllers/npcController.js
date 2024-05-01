@@ -49,7 +49,7 @@ class NPCController {
 
                 // Assign all associated locations to npcObject
                 npcLocations.forEach((npcLocation) => {
-                    // Early return if current locationQuest in loop is not related to the current quest
+                    // Early return if current npcLocation in loop is not related to the current npc
                     if (npcLocation.npc_id !== npcObject.id) {
                         return;
                     }
