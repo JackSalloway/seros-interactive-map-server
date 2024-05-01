@@ -3,11 +3,62 @@ const he = require("he");
 
 class LocationController {
     // Fetch all location data when the app is started
-    async mapData(campaignId) {
+    async mapData(campaignID) {
         try {
-            const locationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked FROM location WHERE campaign_id = '${campaignId}'`;
-            const locations = await database.execute(locationQuery);
-            return locations[0];
+            const locationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked 
+            FROM location WHERE campaign_id = '${campaignID}'`;
+            const [locations, _locationField] = await database.execute(
+                locationQuery
+            );
+
+            const sublocationsQuery = `SELECT sublocation.id AS 'sublocation_id',
+            sublocation.name AS 'sublocation_name',
+            sublocation.description AS 'sublocation_description',
+            sublocation.location_id FROM sublocation
+            JOIN location ON location.id = sublocation.location_id
+            WHERE campaign_id = '${campaignID}'`;
+            const [sublocations, _sublocationField] = await database.execute(
+                sublocationsQuery
+            );
+
+            const locationData = locations.map((location) => {
+                // Create location object
+                let locationObject = {
+                    id: location.id,
+                    name: location.name,
+                    description: location.description,
+                    latlng: {
+                        lat: location.latitude,
+                        lng: location.longitude,
+                    },
+                    type: location.type,
+                    visited: Boolean(location.visited),
+                    marked: Boolean(location.marked),
+                    sublocations: [],
+                    campaign: {
+                        id: campaignID,
+                    },
+                };
+
+                // Assign all relevant sublocations to locationObject
+                sublocations.forEach((sublocation) => {
+                    // Early return if current sublocation in loop is not related to current location
+                    if (sublocation.location_id !== locationObject.id) {
+                        return;
+                    }
+
+                    // Push sublocation into relevant locationObject
+                    locationObject.sublocations.push({
+                        id: sublocation.sublocation_id,
+                        name: sublocation.sublocation_name,
+                        description: sublocation.sublocation_description,
+                    });
+                });
+
+                return locationObject;
+            });
+
+            return locationData;
         } catch (err) {
             throw err;
         }
