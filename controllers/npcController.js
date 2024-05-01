@@ -78,7 +78,7 @@ class NPCController {
                 return npcObject;
             });
 
-            // return npcs[0];
+            return npcData;
         } catch (err) {
             throw err;
         }
