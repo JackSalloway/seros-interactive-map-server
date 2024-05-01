@@ -65,10 +65,22 @@ class NPCController {
                     });
                 });
 
+                // Assign all associated quests to npcObject
+                npcQuests.forEach((npcQuest) => {
+                    // Early return if current npcQuest in loop is not related to the current npc
+                    if (npcQuest.npc_id !== npcObject.id) {
+                        return;
+                    }
+
+                    // Push associated quest to relevant npcObject
+                    npcObject.associated_quests.push({
+                        id: npcQuest.quest_id,
+                        name: npcQuest.quest_name,
+                    });
+                });
+
                 return npcObject;
             });
-
-            // console.log(npcData);
 
             // return npcs[0];
         } catch (err) {
