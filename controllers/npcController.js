@@ -30,10 +30,6 @@ class NPCController {
                 npcLocationsQuery
             );
 
-            // console.log(npcs);
-            // console.log(npcQuests);
-            // console.log(npcLocations);
-
             const npcData = npcs.map((npc) => {
                 // Create npc object
                 let npcObject = {
