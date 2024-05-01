@@ -31,8 +31,10 @@ class CombatInstanceController {
                     location: {
                         id: instance.location_id,
                         name: instance.location_name,
-                        latitude: instance.location_latitude,
-                        longitude: instance.location_longitude,
+                        latlng: {
+                            lat: instance.location_latitude,
+                            lng: instance.location_longitude,
+                        },
                     },
                     campaign: {
                         id: instance.campaign_id,
