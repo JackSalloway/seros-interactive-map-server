@@ -1,14 +1,16 @@
-const mongoose = require("mongoose");
-const Changelog = require("../models/changelog");
+// const mongoose = require("mongoose");
+// const Changelog = require("../models/changelog");
+const database = require("../services/database");
 
 class ChangelogController {
     // Fetch changelog data when a campaign is selected
     async changelogData(campaignId) {
         try {
-            return await Changelog.findOne(
-                { campaign: campaignId },
-                "-_id -campaign -__v" // Return all values except the ones inside of the projection string
+            const changelogQuery = `SELECT * FROM changelog WHERE campaign_id = '${campaignId}'`;
+            const [changelogs, _changelogField] = await database.execute(
+                changelogQuery
             );
+            return changelogs;
         } catch (err) {
             throw err;
         }
@@ -17,24 +19,6 @@ class ChangelogController {
     // Update relevant changelog document
     async updateChangelog(campaignId, username, dataName, reqUrl) {
         try {
-            // Search for changelog document within the database
-            let changelogDocument = await Changelog.findOne({
-                campaign: campaignId,
-            });
-
-            // Check if changelog document exists, if it doesnt create a new one with the correct field values
-            if (!changelogDocument) {
-                const initialChangelogValues = {
-                    campaign: mongoose.Types.ObjectId(campaignId),
-                    changes: [],
-                };
-                const newChangelogDocument = new Changelog(
-                    initialChangelogValues
-                );
-                await newChangelogDocument.save();
-                changelogDocument = newChangelogDocument; // Update the changelogDocument variable
-            }
-
             // Obtain changelog operation type and data affected
             const changelogUrl = reqUrl.replace("/", ""); // Remove the / at the start of the url
             const changelogDataArray = changelogUrl.split("_"); // Split the string into two separate words and return an array
@@ -53,36 +37,20 @@ class ChangelogController {
                 pastTenseOperation = "updated";
             }
 
-            // Date value used for time of request
-            const date = new Date();
+            // Insert new changelog into the SQL database
+            const newChangelogStatement = `INSERT INTO changelog
+            (user, action, data_name, data_affected, campaign_id)
+            VALUES ('${username}', '${pastTenseOperation}', '${dataName}', '${changelogDataArray[1]}', '${campaignId}')`;
+            const [newChangelog] = await database.execute(
+                newChangelogStatement
+            );
 
-            // Create new data values using parameters
-            const newChangelogData = {
-                username: username,
-                data_name: dataName,
-                data_affected: changelogDataArray[1],
-                operation_type: pastTenseOperation,
-                created_at: date,
-            };
+            const changelogQuery = `SELECT * FROM changelog WHERE id = ${newChangelog.insertId}`;
+            const [newChangelogData, _changelogField] = await database.execute(
+                changelogQuery
+            );
 
-            changelogDocument.changes.unshift(newChangelogData); // Push new data values into the document
-            // Remove the earliest entry if the length of the document is greater than 50.
-            // This number was picked because to me it is a nice number to show entries up to.
-            // I would like to keep all log values, but as of now I am unsure how big the document will actually get when it is full (50 changes)
-            while (changelogDocument.changes.length > 50) {
-                changelogDocument.changes.pop();
-            }
-            changelogDocument.save(); // Save document
-
-            // Return entire changelog document, which looks like:
-            // {
-            //     campaign: campaignId,
-            //     changes: [
-            //         ...changes, newChangelogData
-            //     ]
-            // }
-
-            return changelogDocument;
+            return newChangelogData[0];
         } catch (err) {
             throw err;
         }

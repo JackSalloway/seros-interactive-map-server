@@ -67,9 +67,55 @@ class LocationController {
     // Create a location at specified latlng coordinates
     async createLocation(data) {
         try {
-            const location = new Location(data);
-            await location.save();
-            return Location.findOne({ _id: location.id }).lean().exec();
+            const {
+                name,
+                description,
+                region, // Region is not longer needed as it wasn't really used to represent anything
+                latlng,
+                type,
+                visited,
+                marked,
+                sublocations, // Sublocations is no longer needed as it now has its own tables in the SQL database
+                campaign_id,
+            } = data;
+
+            // Convert visited and marked values to numbers to satisfy the TINYINT data type in the SQL table
+            const visitedBoolean = visited === "true" ? 1 : 0;
+            const markedBoolean = marked === "true" ? 1 : 0;
+
+            // Insert new location into the database
+            const createLocationStatement = `INSERT INTO location 
+            (name, description, latitude, longitude, type, visited, marked, campaign_id)
+            VALUES ('${name}', '${description}',
+            ${latlng.lat}, ${latlng.lng}, '${type}',
+            ${visitedBoolean}, ${markedBoolean}, ${campaign_id});`;
+            const [newLocation] = await database.execute(
+                createLocationStatement
+            );
+
+            // Select only the new location from the database
+            const newLocationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked
+            FROM location WHERE id = ${newLocation.insertId}`;
+            const [newLocationData, _newLocationField] = await database.execute(
+                newLocationQuery
+            );
+
+            // Add values that are missing from the query return value to make a default new object
+            newLocationData[0].sublocations = [];
+            newLocationData[0].latlng = {
+                lat: newLocationData[0].latitude,
+                lng: newLocationData[0].longitude,
+            };
+            newLocationData[0].campaign = {
+                id: campaign_id,
+            };
+
+            // Remove latitude and longitude values from the object as they are redundant now
+            delete newLocationData[0].latitude;
+            delete newLocationData[0].longitude;
+
+            // Return new location data
+            return newLocationData[0];
         } catch (err) {
             throw err;
         }

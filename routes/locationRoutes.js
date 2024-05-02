@@ -30,7 +30,7 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
     try {
         const locationContent = {
             name: req.body.location_name,
-            desc: req.body.location_desc,
+            description: req.body.location_desc,
             region: req.body.location_region,
             latlng: {
                 lat: req.body.location_lat,
@@ -39,8 +39,8 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
             type: req.body.location_type,
             visited: req.body.location_visited,
             marked: req.body.location_marked,
-            sub_locations: [],
-            campaign: req.body.location_campaign_id,
+            sublocations: [],
+            campaign_id: req.body.location_campaign_id,
         };
         const controller = new LocationController();
         const locationResult = await controller.createLocation(locationContent);
@@ -53,7 +53,10 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
             req.url
         );
 
-        return res.send({ locationResult, changelogResult });
+        return res.send({
+            locationResult,
+            changelogResult,
+        });
     } catch (err) {
         console.error(err.message);
         res.sendStatus(500);
