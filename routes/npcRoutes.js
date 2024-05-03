@@ -26,18 +26,16 @@ router.post("/create_npc", ...Validators.npc(), async (req, res) => {
     if (errors !== undefined) {
         return res.status(400).json(errors);
     }
-    const importance = req.body.npc_quests.length === 0 ? false : true;
 
     const npcContent = {
         name: req.body.npc_name,
         race: req.body.npc_race,
-        desc: req.body.npc_desc,
+        description: req.body.npc_desc,
         disposition: req.body.npc_disposition,
         status: req.body.npc_status,
-        important: importance,
         associated_locations: req.body.npc_associated_locations,
-        quests: req.body.npc_quests,
-        campaign: req.body.npc_campaign,
+        associated_quests: req.body.npc_quests,
+        campaignId: req.body.npc_campaign,
     };
     try {
         const controller = new NPCController();
