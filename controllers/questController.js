@@ -63,12 +63,65 @@ class QuestController {
     // Create a new quest
     async createQuest(data) {
         try {
-            const quest = new Quest(data);
-            await quest.save();
-            return Quest.find({ _id: quest.id })
-                .populate("associated_locations")
-                .lean()
-                .exec();
+            const {
+                name,
+                description,
+                completed,
+                associated_locations,
+                campaignId,
+            } = data;
+
+            // Convert completed value to numbers to satisfy the TINYINT data type in the SQL table
+            const completedBoolean = completed === "true" ? 1 : 0;
+
+            // Insert new quest into the database
+            const createQuestStatement = `INSERT INTO quest
+            (name, description, completed)
+            VALUES ('${name}', '${description}', ${completedBoolean});`;
+            const [newQuest] = await database.execute(createQuestStatement);
+
+            // Create any required new locationQuest rows
+            associated_locations.forEach(async (locationId) => {
+                const createLocationQuestStatement = `INSERT INTO location_quests
+                (location_id, quest_id)
+                VALUES(${locationId}, ${newQuest.insertId})`;
+                await database.execute(createLocationQuestStatement);
+            });
+
+            // Select only the new quest from the database
+            const newQuestQuery = `SELECT id, name, description, completed
+            FROM quest WHERE id = ${newQuest.insertId}`;
+            const [newQuestData, _newQuestField] = await database.execute(
+                newQuestQuery
+            );
+
+            // Select only the new location_quest rows
+            const newLocationQuestsQuery = `SELECT location_id, quest_id,
+            location.name AS 'location_name', latitude, longitude FROM location_quests
+            JOIN quest on quest.id = location_quests.quest_id
+            JOIN location on location.id = location_quests.location_id
+            WHERE quest_id = ${newQuest.insertId}`;
+            const [newLocationQuestsData, _locationQuestsField] =
+                await database.execute(newLocationQuestsQuery);
+
+            // Add relevant data to object from other tables and then return newQuestData object
+            newQuestData[0].associated_locations = newLocationQuestsData.map(
+                (locationQuest) => {
+                    return {
+                        id: locationQuest.location_id,
+                        name: locationQuest.location_name,
+                        latlng: {
+                            lat: locationQuest.latitude,
+                            lng: locationQuest.longitude,
+                        },
+                    };
+                }
+            );
+            newQuestData[0].campaign = {
+                id: campaignId,
+            };
+
+            return newQuestData[0];
         } catch (err) {
             throw err;
         }

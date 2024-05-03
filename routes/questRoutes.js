@@ -29,10 +29,10 @@ router.post("/create_quest", ...Validators.quest(), async (req, res) => {
     try {
         const questContent = {
             name: req.body.quest_name,
-            desc: req.body.quest_desc,
+            description: req.body.quest_desc,
             completed: req.body.quest_completed,
             associated_locations: req.body.quest_associated_locations,
-            campaign: req.body.quest_campaign,
+            campaignId: req.body.quest_campaign,
         };
         const controller = new QuestController();
         const questResult = await controller.createQuest(questContent);
