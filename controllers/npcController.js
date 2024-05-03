@@ -3,11 +3,13 @@ class NPCController {
     // Fetch all NPC data when the app is started
     async npcData(campaignID) {
         try {
-            const npcQuery = `SELECT npc.id AS 'npc_id', npc.name, npc.description, race, disposition, location_npcs.location_id, status,
-            location.id AS 'location_id' FROM npc
+            // Select all unique rows of npcs using their id value
+            const npcQuery = `SELECT npc.id AS 'npc_id', npc.name, npc.description, race, disposition, status
+            FROM npc
             JOIN location_npcs ON location_npcs.npc_id = npc.id
             JOIN location ON location.id = location_npcs.location_id
-            WHERE campaign_id = '${campaignID}'`;
+            WHERE campaign_id = ${campaignID}
+            GROUP BY npc_id;`;
             const [npcs, _npcField] = await database.execute(npcQuery);
 
             const npcQuestsQuery = `SELECT quest_id, quest_npcs.npc_id,
