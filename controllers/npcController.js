@@ -172,8 +172,6 @@ class NPCController {
 
             newNPCData[0].campaign = { id: campaignId };
 
-            console.log(newNPCData[0]);
-
             // CLEANUP - only used for testing!
             // const deleteNPCLocationsStatement = `DELETE FROM location_npcs WHERE npc_id = ${newNPC.insertId}`;
             // const deleteNPCQuestsStatment = `DELETE FROM quest_npcs WHERE npc_id = ${newNPC.insertId}`;
