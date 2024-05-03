@@ -29,6 +29,7 @@ app.use(morgan("tiny"));
 const userRoutes = require("./routes/userRoutes");
 const campaignRoutes = require("./routes/campaignRoutes");
 const locationRoutes = require("./routes/locationRoutes");
+const sublocationRoutes = require("./routes/sublocationRoutes");
 const questRoutes = require("./routes/questRoutes");
 const npcRoutes = require("./routes/npcRoutes");
 const changelogRoutes = require("./routes/changelogRoutes");
@@ -111,6 +112,7 @@ app.use(express.urlencoded({ extended: true })); // Support URL-encoded bodies
 app.use("/", userRoutes);
 app.use("/", campaignRoutes);
 app.use("/", locationRoutes);
+app.use("/", sublocationRoutes);
 app.use("/", npcRoutes);
 app.use("/", questRoutes);
 app.use("/", changelogRoutes);

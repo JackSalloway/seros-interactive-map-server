@@ -138,33 +138,36 @@ class Validators {
         ];
     }
 
-    // Validation for a sub location within a location
-    static subLocation() {
+    // Validation for a sublocation within a location
+    static sublocation() {
         // Validate all fields
         return [
             // Name field
-            body("sub_location_name", "Sub location name required.")
+            body("sublocation_name", "Sub location name required.")
                 .trim()
                 .isString()
                 .withMessage("Sub location name must be a string.")
                 .isLength({ min: 1 })
                 .withMessage(
-                    "Sub location name must be greater than 1 character."
+                    "Sublocation name must be greater than 1 character."
                 )
                 .isLength({ max: 75 })
                 .withMessage(
-                    "Sub location name must not be greater than 75 characters."
+                    "Sublocation name must not be greater than 75 characters."
                 )
                 .escape(),
 
             // Desc field
-            body("sub_location_desc", "Sub location description is required.")
+            body(
+                "sublocation_description",
+                "Sublocation description is required."
+            )
                 .trim()
                 .isString()
-                .withMessage("Sub location description must be a string.")
+                .withMessage("Sublocation description must be a string.")
                 .isLength({ min: 1 })
                 .withMessage(
-                    "Location description must be at least 1 character."
+                    "sublocation description must be at least 1 character."
                 )
                 .escape(),
         ];
