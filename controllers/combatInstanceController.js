@@ -93,12 +93,21 @@ class CombatInstanceController {
     // Create a combat instance at a relevant location
     async createCombatInstance(data) {
         try {
-            const combatInstance = new CombatInstance(data);
-            await combatInstance.save();
-            return CombatInstance.findOne({ _id: combatInstance.id })
-                .populate("associated_location")
-                .lean()
-                .exec();
+            // Create an insert statement to create a new row in the combat_instances table
+            const createCombatInstanceStatement = `INSERT INTO combat_instance
+            (name, description, location_id)
+            VALUES ('${data.name}', '${data.description}', '${data.location_id}')`;
+            const [newCombatInstance] = await database.execute(
+                createCombatInstanceStatement
+            );
+
+            // Query for the newly created combat instance
+            const combatInstanceQuery = `SELECT id, name, description, location_id, updated_at
+            FROM combat_instance WHERE id = ${newCombatInstance.insertId}`;
+            const [combatInstance, _combatInstanceField] =
+                await database.execute(combatInstanceQuery);
+
+            return combatInstance[0];
         } catch (err) {
             throw err;
         }

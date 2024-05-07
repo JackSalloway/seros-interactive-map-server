@@ -12,7 +12,7 @@ class CampaignController {
         try {
             // Create a query for finding all relevant players
             const playersQuery = `SELECT id, name, class
-            FROM player WHERE campaign_id = ${campaignId}`;
+            FROM player WHERE campaign_id = ${campaignId} AND is_real = 1`;
             const [players, _playerField] = await database.execute(
                 playersQuery
             );
