@@ -1,8 +1,5 @@
-const mongoose = require("mongoose");
+const database = require("../services/database");
 const crypto = require("crypto");
-const Campaign = require("../models/campaign");
-const Invite = require("../models/invite");
-const User = require("../models/user");
 const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
 
 //Error imports
@@ -10,14 +7,22 @@ const CampaignNoLongerExistsError = require("../errors/campaignErrors/campaignNo
 const InviteDoesNotExistError = require("../errors/inviteErrors/inviteDoesNotExistError");
 const UserAlreadyInCampaignError = require("../errors/campaignErrors/userAlreadyInCampaignError");
 class CampaignController {
-    // Fetch all campaign data when the app is started
-    // async campaignData() {
-    //     try {
-    //         return await Campaign.find({});
-    //     } catch (err) {
-    //         throw err;
-    //     }
-    // }
+    // Return all relevant players
+    async campaignPlayers(campaignId) {
+        try {
+            // Create a query for finding all relevant players
+            const playersQuery = `SELECT id, name, class
+            FROM player WHERE campaign_id = ${campaignId}`;
+            const [players, _playerField] = await database.execute(
+                playersQuery
+            );
+
+            return players;
+        } catch (err) {
+            throw err;
+        }
+    }
+
     // Create a new campaign and assign the creator as an admin
     async createCampaign(campaignData, username) {
         try {

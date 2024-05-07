@@ -53,7 +53,7 @@ app.use(cookieParser());
 
 // Refresh access token expiry if refresh token is still valid
 app.use(
-    /^(.(?!(location_data|npc_data|quest_data|changelog_data|combat_instance_data|login|register|logout)))*$/,
+    /^(.(?!(campaign_player_data|location_data|npc_data|quest_data|changelog_data|combat_instance_data|login|register|logout)))*$/,
     async (req, res, next) => {
         try {
             const token = req.cookies.refresh_token;
@@ -89,7 +89,7 @@ app.use(
 
 // Authorize user by veryfying JWT
 app.use(
-    /^(.(?!(location_data|npc_data|quest_data|changelog_data|combat_instance_data|login|register|logout|startup|campaign_settings|campaign_generate_code)))*$/,
+    /^(.(?!(campaign_player_data|location_data|npc_data|quest_data|changelog_data|combat_instance_data|login|register|logout|startup|campaign_settings|campaign_generate_code)))*$/,
     (req, res, next) => {
         try {
             const userToken = authorizeUser(req);

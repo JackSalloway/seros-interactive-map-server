@@ -10,8 +10,19 @@ const InviteCodeDoesNotExistError = require("../errors/inviteErrors/inviteDoesNo
 
 /// CAMPAIGN ROUTES ///
 
-// GET request for all relevant campaign data
-// router.get("")
+// GET request to fetch all relevant players for a specific campaign
+router.get("/campaign_player_data", async (req, res) => {
+    console.log("campain player data hit");
+    try {
+        // console.log(req.query);
+        const controller = new CampaignController();
+        const players = await controller.campaignPlayers(req.query.campaign_id);
+        res.send(players);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
 
 // POST request to create a new campaign and assign the relevant user as it's admin
 router.post("/create_campaign", ...Validators.campaign(), async (req, res) => {
