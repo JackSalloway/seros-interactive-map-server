@@ -12,7 +12,7 @@ class NPCController {
             GROUP BY npc_id;`;
             const [npcs, _npcField] = await database.execute(npcQuery);
 
-            const npcQuestsQuery = `SELECT quest_id, quest_npcs.npc_id,
+            const npcQuestsQuery = `SELECT DISTINCT quest_id, quest_npcs.npc_id,
             quest.name AS 'quest_name' FROM quest_npcs
             JOIN npc on npc.id = quest_npcs.npc_id
             JOIN quest on quest.id = quest_npcs.quest_id
