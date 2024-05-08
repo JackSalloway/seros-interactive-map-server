@@ -44,40 +44,43 @@ router.post(
 );
 
 // POST request to update a sub location at a specific location
-// router.post(
-//     "/update_sub_location",
-//     ...Validators.sublocation(),
-//     async (req, res) => {
-//         console.log("update_sub_location hit");
-//         const errors = Validators.validateResult(req);
-//         if (errors !== undefined) {
-//             return res.status(400).json(errors);
-//         }
+router.post(
+    "/update_sub_location",
+    ...Validators.sublocation(),
+    async (req, res) => {
+        console.log("update_sub_location hit");
+        const errors = Validators.validateResult(req);
+        if (errors !== undefined) {
+            return res.status(400).json(errors);
+        }
 
-//         try {
-//             const controller = new LocationController();
-//             const subLocationResult = await controller.updateSubLocation(
-//                 req.body.location_id,
-//                 req.body.sub_location_name,
-//                 req.body.updated_sub_location_name,
-//                 req.body.updated_sub_location_desc
-//             );
+        const sublocationData = {
+            id: req.body.sublocation_id,
+            name: req.body.sublocation_name,
+            description: req.body.sublocation_description,
+        };
 
-//             const changelogController = new ChangelogController();
-//             const changelogResult = await changelogController.updateChangelog(
-//                 req.body.location_campaign_id,
-//                 req.body.username,
-//                 req.body.updated_sub_location_name,
-//                 req.url
-//             );
+        try {
+            const controller = new SublocationController();
+            const sublocationResult = await controller.updateSublocation(
+                sublocationData
+            );
 
-//             return res.send({ subLocationResult, changelogResult });
-//         } catch (err) {
-//             console.error(err);
-//             res.sendStatus(500);
-//         }
-//     }
-// );
+            const changelogController = new ChangelogController();
+            const changelogResult = await changelogController.updateChangelog(
+                req.body.campaign_id,
+                req.body.username,
+                req.body.sublocation_name,
+                req.url
+            );
+
+            return res.send({ sublocationResult, changelogResult });
+        } catch (err) {
+            console.error(err);
+            res.sendStatus(500);
+        }
+    }
+);
 
 // POST request to delete a sub location from a specific location
 // router.post("/delete_sub_location", async (req, res) => {

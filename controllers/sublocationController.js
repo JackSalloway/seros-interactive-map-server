@@ -25,33 +25,25 @@ class SublocationController {
     }
 
     // Update a sub location
-    // async updateSubLocation(
-    //     parentId,
-    //     subLocationName,
-    //     updatedSubLocationName,
-    //     updatedSubLocationDesc
-    // ) {
-    //     try {
-    //         const result = await Location.findOneAndUpdate(
-    //             {
-    //                 _id: parentId,
-    //                 "sub_locations.name": he.decode(subLocationName),
-    //             },
-    //             {
-    //                 $set: {
-    //                     "sub_locations.$.name": updatedSubLocationName,
-    //                     "sub_locations.$.desc": updatedSubLocationDesc,
-    //                 },
-    //             },
-    //             { new: true }
-    //         )
-    //             .lean()
-    //             .exec();
-    //         return result;
-    //     } catch (err) {
-    //         throw err;
-    //     }
-    // }
+    async updateSublocation(sublocationData) {
+        try {
+            // Create and execute update sublocation statement
+            const updateSublocationStatement = `UPDATE sublocation
+            SET name = '${sublocationData.name}', description = '${sublocationData.description}'
+            WHERE id = ${sublocationData.id}`;
+            await database.execute(updateSublocationStatement);
+
+            // Create and execute sublocation select query for new updated sublocation
+            const updatedSublocationQuery = `SELECT id, name, description
+            FROM sublocation WHERE id = ${sublocationData.id}`;
+            const [updatedSublocation, _sublocationField] =
+                await database.execute(updatedSublocationQuery);
+
+            return updatedSublocation[0];
+        } catch (err) {
+            throw err;
+        }
+    }
 
     // Delete a sub location
     // async deleteSubLocation(parentId, subLocationName) {
