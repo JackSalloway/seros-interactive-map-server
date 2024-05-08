@@ -100,8 +100,7 @@ router.post("/update_location", ...Validators.location(), async (req, res) => {
     try {
         const updatedLocationContent = {
             name: req.body.location_name,
-            desc: req.body.location_desc,
-            region: req.body.location_region,
+            description: req.body.location_description,
             latlng: {
                 lat: req.body.location_lat,
                 lng: req.body.location_lng,
@@ -109,9 +108,10 @@ router.post("/update_location", ...Validators.location(), async (req, res) => {
             type: req.body.location_type,
             visited: req.body.location_visited,
             marked: req.body.location_marked,
-            sub_locations: req.body.location_sub_locations,
-            campaign: req.body.location_campaign_id,
+            sublocations: req.body.location_sublocations,
+            campaign_id: req.body.campaign_id,
         };
+
         const controller = new LocationController();
         const locationResult = await controller.updateLocation(
             req.body.location_id,
@@ -120,7 +120,7 @@ router.post("/update_location", ...Validators.location(), async (req, res) => {
 
         const changelogController = new ChangelogController();
         const changelogResult = await changelogController.updateChangelog(
-            req.body.location_campaign_id,
+            req.body.campaign_id,
             req.body.username,
             req.body.location_name,
             req.url

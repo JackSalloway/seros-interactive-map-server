@@ -167,14 +167,43 @@ class LocationController {
 
     async updateLocation(locationId, data) {
         try {
-            const result = await Location.findOneAndUpdate(
-                { _id: locationId },
-                { $set: data },
-                { new: true }
-            )
-                .lean()
-                .exec();
-            return result;
+            // Convert boolean values into numbers to satisfy TINYINT data type in SQL schema
+            const visitedBoolean = data.visited === "true" ? 1 : 0;
+            const markedBoolean = data.marked === "true" ? 1 : 0;
+
+            // Create update statement to update a specific location
+            const updateLocationStatement = `UPDATE location
+            SET name = '${data.name}', description = '${data.description}', latitude = ${data.latlng.lat}, longitude = ${data.latlng.lng},
+            type = '${data.type}', visited = ${visitedBoolean}, marked = ${markedBoolean}
+            WHERE id = ${locationId}`;
+            await database.execute(updateLocationStatement);
+
+            // Create a query to select the new location from the database
+            const updatedLocationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked
+            FROM location WHERE id = ${locationId}`;
+            const [updatedLocation, _locationField] = await database.execute(
+                updatedLocationQuery
+            );
+
+            // Create locationObject variable and add values to create a complete location object
+            const returnLocation = {
+                id: updatedLocation[0].id,
+                name: updatedLocation[0].name,
+                description: updatedLocation[0].description,
+                latlng: {
+                    lat: updatedLocation[0].latitude,
+                    lng: updatedLocation[0].longitude,
+                },
+                type: updatedLocation[0].type,
+                visited: Boolean(updatedLocation[0].visited),
+                marked: Boolean(updatedLocation[0].marked),
+                sublocations: data.sublocations,
+                campaign: {
+                    id: data.campaign_id,
+                },
+            };
+
+            return returnLocation;
         } catch (err) {
             throw err;
         }

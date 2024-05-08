@@ -83,13 +83,6 @@ class Validators {
                 )
                 .escape(),
 
-            // Region field
-            body("location_region", "Location region required.")
-                .trim()
-                .isString()
-                .withMessage("Location region must be a string.")
-                .escape(),
-
             // Lat field
             body("location_lat", "Location latitude required.")
                 .trim()
@@ -125,8 +118,8 @@ class Validators {
                 .withMessage("Location marked status must be a boolean.")
                 .escape(),
 
-            // Desc field
-            body("location_desc", "Location description is required.")
+            // Description field
+            body("location_description", "Location description is required.")
                 .trim()
                 .isString()
                 .withMessage("Location description must be a string.")
