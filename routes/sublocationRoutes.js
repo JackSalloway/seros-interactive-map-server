@@ -26,8 +26,6 @@ router.post(
                 req.body.sublocation_description
             );
 
-            console.log(sublocationResult);
-
             // Create new changelog controller and call updateChangelog method
             const changelogController = new ChangelogController();
             const changelogResult = await changelogController.updateChangelog(
@@ -37,38 +35,11 @@ router.post(
                 req.url
             );
 
-            console.log(changelogResult);
-
             return res.send({ sublocationResult, changelogResult });
         } catch (err) {
             console.error(err);
             res.sendStatus(500);
         }
-
-        // try {
-        //     const subLocationContent = {
-        //         name: req.body.sublocation_name,
-        //         desc: req.body.sublocation_desc,
-        //     };
-        //     const controller = new LocationController();
-        //     const subLocationResult = await controller.createSubLocation(
-        //         req.body.parent_location_id,
-        //         subLocationContent
-        //     );
-
-        //     const changelogController = new ChangelogController();
-        //     const changelogResult = await changelogController.updateChangelog(
-        //         req.body.location_campaign_id,
-        //         req.body.username,
-        //         req.body.sub_location_name,
-        //         req.url
-        //     );
-
-        //     return res.send({ subLocationResult, changelogResult });
-        // } catch (err) {
-        //     console.error(err);
-        //     res.sendStatus(500);
-        // }
     }
 );
 
