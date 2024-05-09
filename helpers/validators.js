@@ -185,7 +185,7 @@ class Validators {
                 .escape(),
 
             // NPC desc
-            body("npc_desc", "NPC description is required.")
+            body("npc_description", "NPC description is required.")
                 .trim()
                 .isString()
                 .withMessage("NPC description must be a string.")

@@ -198,16 +198,95 @@ class NPCController {
 
     async updateNPC(npcId, data) {
         try {
-            const result = await NPC.findOneAndUpdate(
-                { _id: npcId },
-                { $set: data },
-                { new: true }
-            )
-                .populate("quests")
-                .populate("associated_locations")
-                .lean()
-                .exec();
-            return result;
+            const {
+                name,
+                description,
+                race,
+                disposition,
+                status,
+                associated_locations,
+                quests,
+            } = data;
+
+            // Check if associated_locations array is empty
+            if (associated_locations.length !== 0) {
+                // Create delete statement and delete all existing location_npcs rows
+                const locationNPCDeleteStatement = `DELETE FROM location_npcs WHERE npc_id = ${npcId}`;
+                await database.execute(locationNPCDeleteStatement);
+                // Create insert statements
+                associated_locations.forEach(async (locationId) => {
+                    const createLocationNPCStatement = `INSERT INTO location_npcs
+                    (location_id, npc_id)
+                    VALUES (${locationId}, ${npcId})`;
+                    await database.execute(createLocationNPCStatement);
+                });
+            }
+
+            // Check if quests array is empty
+            if (quests.length !== 0) {
+                // Create delete statement and delete all existing quest_npcs rows
+                const questNPCDeleteStatement = `DELETE FROM quest_npcs WHERE npc_id = ${npcId}`;
+                await database.execute(questNPCDeleteStatement);
+                // Create insert statements
+                quests.forEach(async (questId) => {
+                    const createQuestNPCStatement = `INSERT INTO quest_npcs
+                    (quest_id, npc_id)
+                    VALUES (${questId}, ${npcId})`;
+                    await database.execute(createQuestNPCStatement);
+                });
+            }
+
+            // Update relvant npc row
+            const updateNPCStatement = `UPDATE npc
+            SET name = '${name}', description = '${description}', race = '${race}', disposition = '${disposition}', status = '${status}'
+            WHERE id = ${npcId}`;
+            await database.execute(updateNPCStatement);
+
+            // Query the relevant data
+            const npcQuery = `SELECT * FROM npc WHERE id = ${npcId}`;
+            const [npc, _npcField] = await database.execute(npcQuery);
+
+            const npcLocationsQuery = `SELECT location_id AS 'id',
+            location.name, latitude, longitude FROM location_npcs
+            JOIN npc on npc.id = location_npcs.npc_id
+            JOIN location on location.id = location_npcs.location_id
+            WHERE npc_id = ${npcId}`;
+            const [npcLocationsData, _npcLocationField] =
+                await database.execute(npcLocationsQuery);
+
+            // Select only the relevant quests to the new npc
+            const npcQuestsQuery = `SELECT quest_id AS 'id',
+            quest.name FROM quest_npcs
+            JOIN npc on npc.id = quest_npcs.npc_id
+            JOIN quest on quest.id = quest_npcs.quest_id
+            WHERE npc_id = ${npcId}`;
+            const [npcQuestsData, _npcQuestField] = await database.execute(
+                npcQuestsQuery
+            );
+
+            // Assemble updated npc object
+            const npcObject = {
+                id: npc[0].id,
+                name: npc[0].name,
+                description: npc[0].description,
+                race: npc[0].race,
+                disposition: npc[0].disposition,
+                status: npc[0].status,
+                updated_at: npc[0].updated_at,
+                associated_locations: npcLocationsData.map((location) => {
+                    return {
+                        id: location.id,
+                        name: location.name,
+                        latlng: {
+                            lat: location.latitude,
+                            lng: location.longitude,
+                        },
+                    };
+                }),
+                associated_quests: npcQuestsData,
+            };
+
+            return npcObject;
         } catch (err) {
             throw err;
         }

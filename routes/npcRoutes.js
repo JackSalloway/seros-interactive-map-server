@@ -86,23 +86,16 @@ router.post("/update_npc", ...Validators.npc(), async (req, res) => {
         return res.status(400).json(errors);
     }
     try {
-        let importance = null;
-        if (req.body.npc_quests.length === 0) {
-            importance = false;
-        } else {
-            importance = true;
-        }
         const updatedNPCContent = {
             name: req.body.npc_name,
+            description: req.body.npc_description,
             race: req.body.npc_race,
-            desc: req.body.npc_desc,
             disposition: req.body.npc_disposition,
             status: req.body.npc_status,
-            important: importance,
             associated_locations: req.body.npc_associated_locations,
             quests: req.body.npc_quests,
-            campaign: req.body.npc_campaign,
         };
+
         const controller = new NPCController();
         const npcResult = await controller.updateNPC(
             req.body.npc_id,
@@ -111,13 +104,16 @@ router.post("/update_npc", ...Validators.npc(), async (req, res) => {
 
         const changelogController = new ChangelogController();
         const changelogResult = await changelogController.updateChangelog(
-            req.body.npc_campaign,
+            req.body.campaign_id,
             req.body.username,
             req.body.npc_name,
             req.url
         );
 
-        return res.send({ npcResult, changelogResult });
+        return res.send({
+            npcResult,
+            changelogResult,
+        });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
