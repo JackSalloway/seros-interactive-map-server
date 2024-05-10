@@ -30,7 +30,7 @@ router.post("/create_npc", ...Validators.npc(), async (req, res) => {
     const npcContent = {
         name: req.body.npc_name,
         race: req.body.npc_race,
-        description: req.body.npc_desc,
+        description: req.body.npc_description,
         disposition: req.body.npc_disposition,
         status: req.body.npc_status,
         associated_locations: req.body.npc_associated_locations,
