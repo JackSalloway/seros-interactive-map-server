@@ -30,7 +30,7 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
     try {
         const locationContent = {
             name: req.body.location_name,
-            description: req.body.location_desc,
+            description: req.body.location_description,
             region: req.body.location_region,
             latlng: {
                 lat: req.body.location_lat,
