@@ -4,7 +4,7 @@ class NPCController {
     async npcData(campaignID) {
         try {
             // Select all unique rows of npcs using their id value
-            const npcQuery = `SELECT npc.id AS 'npc_id', npc.name, npc.description, race, disposition, status
+            const npcQuery = `SELECT npc.id AS 'npc_id', npc.name, npc.description, race, disposition, status, updated_at
             FROM npc
             JOIN location_npcs ON location_npcs.npc_id = npc.id
             JOIN location ON location.id = location_npcs.location_id
@@ -41,8 +41,12 @@ class NPCController {
                     race: npc.race,
                     disposition: npc.disposition,
                     status: npc.status,
+                    updated_at: npc.updated_at,
                     associated_locations: [],
                     associated_quests: [],
+                    campaign: {
+                        id: campaignID,
+                    },
                 };
 
                 // Assign all associated locations to npcObject
@@ -123,7 +127,7 @@ class NPCController {
             });
 
             // Select only the new npc from the database
-            const newNPCQuery = `SELECT id, name, description, race, disposition, status
+            const newNPCQuery = `SELECT id, name, description, race, disposition, status, updated_at
             FROM npc WHERE id = ${newNPC.insertId}`;
             const [newNPCData, _newNPCField] = await database.execute(
                 newNPCQuery
@@ -196,7 +200,7 @@ class NPCController {
         }
     }
 
-    async updateNPC(npcId, data) {
+    async updateNPC(npcId, data, campaignId) {
         try {
             const {
                 name,
@@ -284,6 +288,9 @@ class NPCController {
                     };
                 }),
                 associated_quests: npcQuestsData,
+                campaign: {
+                    id: campaignId,
+                },
             };
 
             return npcObject;

@@ -99,7 +99,8 @@ router.post("/update_npc", ...Validators.npc(), async (req, res) => {
         const controller = new NPCController();
         const npcResult = await controller.updateNPC(
             req.body.npc_id,
-            updatedNPCContent
+            updatedNPCContent,
+            req.body.campaign_id
         );
 
         const changelogController = new ChangelogController();
