@@ -4,7 +4,7 @@ class NPCController {
     async npcData(campaignID) {
         try {
             // Select all unique rows of npcs using their id value
-            const npcQuery = `SELECT npc.id AS 'npc_id', npc.name, npc.description, race, disposition, status, updated_at
+            const npcQuery = `SELECT npc.id AS 'npc_id', npc.name, npc.description, race, disposition, status, npc.updated_at
             FROM npc
             JOIN location_npcs ON location_npcs.npc_id = npc.id
             JOIN location ON location.id = location_npcs.location_id
