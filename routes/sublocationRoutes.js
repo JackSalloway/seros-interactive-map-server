@@ -83,27 +83,28 @@ router.post(
 );
 
 // POST request to delete a sub location from a specific location
-// router.post("/delete_sub_location", async (req, res) => {
-//     console.log("delete_sub_location hit");
-//     try {
-//         const controller = new LocationController();
-//         const subLocationResult = await controller.deleteSubLocation(
-//             req.body.location_id,
-//             req.body.sub_location_name
-//         );
+router.post("/delete_sublocation", async (req, res) => {
+    console.log("delete_sublocation hit");
+    try {
+        const controller = new SublocationController();
+        await controller.deleteSubLocation(req.body.sublocation_id);
 
-//         const changelogController = new ChangelogController();
-//         const changelogResult = await changelogController.updateChangelog(
-//             req.body.location_campaign_id,
-//             req.body.username,
-//             req.body.sub_location_name,
-//             req.url
-//         );
-//         return res.send({ subLocationResult, changelogResult });
-//     } catch (err) {
-//         console.error(err);
-//         res.sendStatus(500);
-//     }
-// });
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.campaign_id,
+            req.body.username,
+            req.body.sublocation_name,
+            req.url
+        );
+
+        return res.send({
+            sublocation_id: req.body.sublocation_id,
+            changelogResult,
+        });
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
 
 module.exports = router;

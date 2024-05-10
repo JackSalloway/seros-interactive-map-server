@@ -46,24 +46,16 @@ class SublocationController {
     }
 
     // Delete a sub location
-    // async deleteSubLocation(parentId, subLocationName) {
-    //     try {
-    //         const result = await Location.findOneAndUpdate(
-    //             { _id: parentId },
-    //             {
-    //                 $pull: {
-    //                     sub_locations: { name: subLocationName },
-    //                 },
-    //             },
-    //             { new: true }
-    //         )
-    //             .lean()
-    //             .exec();
-    //         return result;
-    //     } catch (err) {
-    //         throw err;
-    //     }
-    // }
+    async deleteSubLocation(sublocationId) {
+        try {
+            // Create delete statement
+            const deleteSublocation = `DELETE FROM sublocation WHERE id = ${sublocationId}`;
+            await database.execute(deleteSublocation);
+            return;
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 
 module.exports = SublocationController;
