@@ -5,7 +5,7 @@ class LocationController {
     // Fetch all location data when the app is started
     async mapData(campaignID) {
         try {
-            const locationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked 
+            const locationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked, updated_at 
             FROM location WHERE campaign_id = '${campaignID}'`;
             const [locations, _locationField] = await database.execute(
                 locationQuery
@@ -35,6 +35,7 @@ class LocationController {
                     visited: Boolean(location.visited),
                     marked: Boolean(location.marked),
                     sublocations: [],
+                    updated_at: location.updated_at,
                     campaign: {
                         id: campaignID,
                     },
@@ -94,7 +95,7 @@ class LocationController {
             );
 
             // Select only the new location from the database
-            const newLocationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked
+            const newLocationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked, updated_at
             FROM location WHERE id = ${newLocation.insertId}`;
             const [newLocationData, _newLocationField] = await database.execute(
                 newLocationQuery
@@ -179,7 +180,7 @@ class LocationController {
             await database.execute(updateLocationStatement);
 
             // Create a query to select the new location from the database
-            const updatedLocationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked
+            const updatedLocationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked, updated_at
             FROM location WHERE id = ${locationId}`;
             const [updatedLocation, _locationField] = await database.execute(
                 updatedLocationQuery
@@ -198,6 +199,7 @@ class LocationController {
                 visited: Boolean(updatedLocation[0].visited),
                 marked: Boolean(updatedLocation[0].marked),
                 sublocations: data.sublocations,
+                updated_at: updatedLocation[0].updated_at,
                 campaign: {
                     id: data.campaign_id,
                 },
