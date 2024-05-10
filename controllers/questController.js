@@ -6,7 +6,7 @@ class QuestController {
     // Fetch all quest data when the app is started
     async questData(campaignID) {
         try {
-            const questQuery = `SELECT DISTINCT quest.id AS 'quest_id' , quest.name, quest.description, completed,
+            const questQuery = `SELECT DISTINCT quest.id AS 'quest_id' , quest.name, quest.description, completed, quest.updated_at,
             campaign_id FROM tactical_journal.quest
             JOIN location_quests ON location_quests.quest_id = quest.id
             JOIN location ON location.id = location_quests.location_id
@@ -27,6 +27,7 @@ class QuestController {
                     id: quest.quest_id,
                     name: quest.name,
                     description: quest.description,
+                    updated_at: quest.updated_at,
                     completed: Boolean(quest.completed),
                     associated_locations: [],
                     campaign: {
@@ -89,7 +90,7 @@ class QuestController {
             });
 
             // Select only the new quest from the database
-            const newQuestQuery = `SELECT id, name, description, completed
+            const newQuestQuery = `SELECT id, name, description, completed, updated_at
             FROM quest WHERE id = ${newQuest.insertId}`;
             const [newQuestData, _newQuestField] = await database.execute(
                 newQuestQuery
