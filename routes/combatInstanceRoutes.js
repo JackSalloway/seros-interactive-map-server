@@ -27,7 +27,7 @@ router.post("/create_combat_instance", async (req, res) => {
     try {
         const combatInstanceData = {
             name: req.body.instance_name,
-            description: req.body.instance_desc,
+            description: req.body.instance_description,
             location_id: req.body.instance_location_id,
         };
 
