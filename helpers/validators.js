@@ -253,7 +253,7 @@ class Validators {
                 .escape(),
 
             // Desc field
-            body("quest_desc", "Quest description is required.")
+            body("quest_description", "Quest description is required.")
                 .trim()
                 .isString()
                 .withMessage("Quest description must be a string.")

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Validators = require("../helpers/validators");
 const QuestController = require("../controllers/questController");
+const NPCController = require("../controllers/npcController");
 const ChangelogController = require("../controllers/changelogController");
 
 /// QUEST-ROUTES ///
@@ -88,28 +89,37 @@ router.post("/update_quest", ...Validators.quest(), async (req, res) => {
     try {
         const updatedQuestContent = {
             name: req.body.quest_name,
-            desc: req.body.quest_desc,
+            description: req.body.quest_description,
             completed: req.body.quest_completed,
             associated_locations: req.body.quest_associated_locations,
-            campaign: req.body.quest_campaign,
         };
+
+        // Update quest and return it
         const controller = new QuestController();
-        // Decided to keep this one named as just result as it already returns an object with two objects named questResult and npcResult.
-        const result = await controller.updateQuest(
+        const questResult = await controller.updateQuest(
             req.body.quest_id,
             updatedQuestContent,
-            req.body.quest_campaign
+            req.body.campaign_id
         );
 
+        // Return all npcs for a specific campaign - doing this due to quest name values needing to be updated in npc objects
+        const npcController = new NPCController();
+        const npcResult = await npcController.npcData(req.body.campaign_id);
+
+        // Add a new row to the changelog table
         const changelogController = new ChangelogController();
         const changelogResult = await changelogController.updateChangelog(
-            req.body.quest_campaign,
+            req.body.campaign_id,
             req.body.username,
             req.body.quest_name,
             req.url
         );
 
-        return res.json({ result, changelogResult });
+        return res.json({
+            questResult,
+            npcResult,
+            changelogResult,
+        });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
