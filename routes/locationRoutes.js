@@ -40,7 +40,7 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
             visited: req.body.location_visited,
             marked: req.body.location_marked,
             sublocations: [],
-            campaign_id: req.body.location_campaign_id,
+            campaignId: req.body.location_campaign_id,
         };
         const controller = new LocationController();
         const locationResult = await controller.createLocation(locationContent);
