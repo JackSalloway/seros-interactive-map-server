@@ -1,28 +1,62 @@
 const database = require("../services/database");
-const he = require("he");
+const {
+    selectMultipleQuery,
+    insertStatement,
+    selectSingularQuery,
+    updateStatement,
+} = require("../helpers/queries");
+
+// Prepare columns for locations - globablly scoped as each method that queries a location will require all the values from these columns
+const locationColumns = [
+    "id",
+    "name",
+    "description",
+    "latitude",
+    "longitude",
+    "type",
+    "visited",
+    "marked",
+    "updated_at",
+];
 
 class LocationController {
     // Fetch all location data when the app is started
-    async mapData(campaignID) {
+    async mapData(campaignId) {
         try {
-            const locationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked, updated_at 
-            FROM location WHERE campaign_id = '${campaignID}'`;
-            const [locations, _locationField] = await database.execute(
-                locationQuery
+            const locations = await selectMultipleQuery(
+                "location",
+                locationColumns,
+                "campaign_id",
+                campaignId
             );
 
-            const sublocationsQuery = `SELECT sublocation.id AS 'sublocation_id',
-            sublocation.name AS 'sublocation_name',
-            sublocation.description AS 'sublocation_description',
-            sublocation.location_id FROM sublocation
-            JOIN location ON location.id = sublocation.location_id
-            WHERE campaign_id = '${campaignID}'`;
-            const [sublocations, _sublocationField] = await database.execute(
-                sublocationsQuery
+            // Create prepared statement for sublocation query
+            const preparedSublocationsQuery = `SELECT ?? AS 'sublocation_id',
+            ?? AS 'sublocation_name',
+            ?? AS 'sublocation_description',
+            ?? FROM ??
+            JOIN ?? ON ?? = ?? WHERE ?? = ?`;
+
+            const params = [
+                "sublocation.id",
+                "sublocation.name",
+                "sublocation.description",
+                "sublocation.location_id",
+                "sublocation",
+                "location",
+                "location.id",
+                "sublocation.location_id",
+                "campaign_id",
+                campaignId,
+            ];
+
+            const [sublocations, _sublocationField] = await database.query(
+                preparedSublocationsQuery,
+                params
             );
 
+            // Create location object for each location and populate it with relevant sublocations
             const locationData = locations.map((location) => {
-                // Create location object
                 let locationObject = {
                     id: location.id,
                     name: location.name,
@@ -37,7 +71,7 @@ class LocationController {
                     sublocations: [],
                     updated_at: location.updated_at,
                     campaign: {
-                        id: campaignID,
+                        id: campaignId,
                     },
                 };
 
@@ -71,52 +105,68 @@ class LocationController {
             const {
                 name,
                 description,
-                region, // Region is not longer needed as it wasn't really used to represent anything
                 latlng,
                 type,
                 visited,
                 marked,
-                sublocations, // Sublocations is no longer needed as it now has its own tables in the SQL database
-                campaign_id,
+                campaignId,
             } = data;
 
             // Convert visited and marked values to numbers to satisfy the TINYINT data type in the SQL table
-            const visitedBoolean = visited === "true" ? 1 : 0;
-            const markedBoolean = marked === "true" ? 1 : 0;
+            const convertedVisited = visited === "true" ? 1 : 0;
+            const convertedMarked = marked === "true" ? 1 : 0;
 
-            // Insert new location into the database
-            const createLocationStatement = `INSERT INTO location 
-            (name, description, latitude, longitude, type, visited, marked, campaign_id)
-            VALUES ('${name}', '${description}',
-            ${latlng.lat}, ${latlng.lng}, '${type}',
-            ${visitedBoolean}, ${markedBoolean}, ${campaign_id});`;
-            const [newLocation] = await database.execute(
-                createLocationStatement
+            const insertLocationColumns = [
+                "name",
+                "description",
+                "latitude",
+                "longitude",
+                "type",
+                "visited",
+                "marked",
+                "campaign_id",
+            ];
+
+            const locationValues = [
+                name,
+                description,
+                latlng.lat,
+                latlng.lng,
+                type,
+                convertedVisited,
+                convertedMarked,
+                campaignId,
+            ];
+
+            const [newLocation] = await insertStatement(
+                "location",
+                insertLocationColumns,
+                locationValues
             );
 
-            // Select only the new location from the database
-            const newLocationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked, updated_at
-            FROM location WHERE id = ${newLocation.insertId}`;
-            const [newLocationData, _newLocationField] = await database.execute(
-                newLocationQuery
+            const [newLocationData, _locationField] = await selectSingularQuery(
+                "location",
+                locationColumns,
+                "id",
+                newLocation.insertId
             );
 
             // Add values that are missing from the query return value to make a default new object
-            newLocationData[0].sublocations = [];
-            newLocationData[0].latlng = {
-                lat: newLocationData[0].latitude,
-                lng: newLocationData[0].longitude,
+            newLocationData.sublocations = [];
+            newLocationData.latlng = {
+                lat: newLocationData.latitude,
+                lng: newLocationData.longitude,
             };
-            newLocationData[0].campaign = {
-                id: campaign_id,
+            newLocationData.campaign = {
+                id: campaignId,
             };
 
             // Remove latitude and longitude values from the object as they are redundant now
-            delete newLocationData[0].latitude;
-            delete newLocationData[0].longitude;
+            delete newLocationData.latitude;
+            delete newLocationData.longitude;
 
             // Return new location data
-            return newLocationData[0];
+            return newLocationData;
         } catch (err) {
             throw err;
         }
@@ -159,47 +209,61 @@ class LocationController {
                 .lean()
                 .exec();
 
-            console.log(updatedNPCList, updatedQuestList);
             return { updatedNPCList, updatedQuestList };
         } catch (err) {
             throw err;
         }
     }
 
+    // Update a single location and return it
     async updateLocation(locationId, data) {
         try {
+            const { name, description, latlng, type, visited, marked } = data;
+
             // Convert boolean values into numbers to satisfy TINYINT data type in SQL schema
             const visitedBoolean = data.visited === "true" ? 1 : 0;
             const markedBoolean = data.marked === "true" ? 1 : 0;
 
-            // Create update statement to update a specific location
-            const updateLocationStatement = `UPDATE location
-            SET name = '${data.name}', description = '${data.description}', latitude = ${data.latlng.lat}, longitude = ${data.latlng.lng},
-            type = '${data.type}', visited = ${visitedBoolean}, marked = ${markedBoolean}
-            WHERE id = ${locationId}`;
-            await database.execute(updateLocationStatement);
+            const columnsPlusValues = {
+                name: name,
+                description: description,
+                latitude: latlng.lat,
+                longitude: latlng.lng,
+                type: type,
+                visited: visitedBoolean,
+                marked: markedBoolean,
+            };
 
-            // Create a query to select the new location from the database
-            const updatedLocationQuery = `SELECT id, name, description, latitude, longitude, type, visited, marked, updated_at
-            FROM location WHERE id = ${locationId}`;
-            const [updatedLocation, _locationField] = await database.execute(
-                updatedLocationQuery
+            // Update the relevant location
+            await updateStatement(
+                "location",
+                columnsPlusValues,
+                "id",
+                locationId
+            );
+
+            // Select the new updated location
+            const [updatedLocation, _locationField] = await selectSingularQuery(
+                "location",
+                locationColumns,
+                "id",
+                locationId
             );
 
             // Create locationObject variable and add values to create a complete location object
             const returnLocation = {
-                id: updatedLocation[0].id,
-                name: updatedLocation[0].name,
-                description: updatedLocation[0].description,
+                id: updatedLocation.id,
+                name: updatedLocation.name,
+                description: updatedLocation.description,
                 latlng: {
-                    lat: updatedLocation[0].latitude,
-                    lng: updatedLocation[0].longitude,
+                    lat: updatedLocation.latitude,
+                    lng: updatedLocation.longitude,
                 },
-                type: updatedLocation[0].type,
-                visited: Boolean(updatedLocation[0].visited),
-                marked: Boolean(updatedLocation[0].marked),
+                type: updatedLocation.type,
+                visited: Boolean(updatedLocation.visited),
+                marked: Boolean(updatedLocation.marked),
                 sublocations: data.sublocations,
-                updated_at: updatedLocation[0].updated_at,
+                updated_at: updatedLocation.updated_at,
                 campaign: {
                     id: data.campaign_id,
                 },
