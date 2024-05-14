@@ -1,4 +1,20 @@
 const database = require("../services/database");
+const {
+    selectMultipleQuery,
+    insertStatement,
+    selectSingularQuery,
+    updateStatement,
+} = require("../helpers/queries");
+
+const npcColumns = [
+    "id",
+    "name",
+    "description",
+    "race",
+    "disposition",
+    "status",
+    "updated_at",
+];
 class NPCController {
     // Fetch all NPC data when the app is started
     async npcData(campaignId) {
@@ -173,55 +189,110 @@ class NPCController {
             } = data;
 
             // Insert new npc into the database
-            const createNPCStatement = `INSERT INTO npc
-            (name, description, race, disposition, status)
-            VALUES ('${name}', '${description}', '${race}', '${disposition}', '${status}')`;
-            const [newNPC] = await database.execute(createNPCStatement);
+            const insertNPCColumns = [
+                "name",
+                "description",
+                "race",
+                "disposition",
+                "status",
+            ];
+
+            const npcValues = [name, description, race, disposition, status];
+
+            const [newNPC] = await insertStatement(
+                "npc",
+                insertNPCColumns,
+                npcValues
+            );
 
             // Create any required new locationNPC rows
             associated_locations.forEach(async (locationId) => {
-                const createLocationNPCStatement = `INSERT INTO location_npcs
-                (location_id, npc_id)
-                VALUES (${locationId}, ${newNPC.insertId})`;
-                await database.execute(createLocationNPCStatement);
+                const insertLocationNPCColumns = ["location_id", "npc_id"];
+                const locationNPCValues = [locationId, newNPC.insertId];
+                await insertStatement(
+                    "location_npcs",
+                    insertLocationNPCColumns,
+                    locationNPCValues
+                );
             });
 
             // Create any required new questNPC rows
             associated_quests.forEach(async (questId) => {
-                const createQuestNPCStatement = `INSERT INTO quest_npcs
-                (quest_id, npc_id)
-                VALUES (${questId}, ${newNPC.insertId})`;
-                await database.execute(createQuestNPCStatement);
+                const insertQuestNPCColumns = ["quest_id", "npc_id"];
+                const questNPCValues = [questId, newNPC.insertId];
+                await insertStatement(
+                    "quest_npcs",
+                    insertQuestNPCColumns,
+                    questNPCValues
+                );
             });
 
             // Select only the new npc from the database
-            const newNPCQuery = `SELECT id, name, description, race, disposition, status, updated_at
-            FROM npc WHERE id = ${newNPC.insertId}`;
-            const [newNPCData, _newNPCField] = await database.execute(
-                newNPCQuery
+            const [newNPCData, _newNPCField] = await selectSingularQuery(
+                "npc",
+                npcColumns,
+                "id",
+                newNPC.insertId
             );
 
             // Select only the relevant locations to the new npc
-            const newNPCLocationsQuery = `SELECT location_id, npc_id,
-            location.name AS 'location_name', latitude, longitude FROM location_npcs
-            JOIN npc on npc.id = location_npcs.npc_id
-            JOIN location on location.id = location_npcs.location_id
-            WHERE npc_id = '${newNPC.insertId}';`;
+            const npcLocationsQuery = `SELECT ??, ??,
+            ?? AS ??, ??, ?? FROM ??
+            JOIN ?? ON ?? = ??
+            JOIN ?? ON ?? = ??
+            WHERE ?? = ?`;
+
+            const npcLocationsParams = [
+                "location_id",
+                "npc_id",
+                "location.name",
+                "location_name",
+                "latitude",
+                "longitude",
+                "location_npcs",
+                "npc",
+                "npc.id",
+                "location_npcs.npc_id",
+                "location",
+                "location.id",
+                "location_npcs.location_id",
+                "npc_id",
+                newNPC.insertId,
+            ];
+
             const [newNPCLocationsData, _npcLocationField] =
-                await database.execute(newNPCLocationsQuery);
+                await database.query(npcLocationsQuery, npcLocationsParams);
 
             // Select only the relevant quests to the new npc
-            const newNPCQuestsQuery = `SELECT quest_id, quest_npcs.npc_id,
-            quest.name AS 'quest_name' FROM quest_npcs
-            JOIN npc on npc.id = quest_npcs.npc_id
-            JOIN quest on quest.id = quest_npcs.quest_id
-            WHERE npc_id = ${newNPC.insertId}`;
-            const [newNPCQuestsData, _npcQuestField] = await database.execute(
-                newNPCQuestsQuery
+            const newNPCQuestsQuery = `SELECT ??, ??,
+            ?? AS ?? FROM ??
+            JOIN ?? ON ?? = ??
+            JOIN ?? ON ?? = ??
+            WHERE ?? = ?`;
+
+            const newNPCQuestsParams = [
+                "quest_id",
+                "quest_npcs.npc_id",
+                "quest.name",
+                "quest_name",
+                "quest_npcs",
+                "npc",
+                "npc.id",
+                "quest_npcs.npc_id",
+                "quest",
+                "quest.id",
+                "quest_npcs.quest_id",
+                "npc_id",
+                newNPC.insertId,
+            ];
+
+            const [newNPCQuestsData, _npcQuestField] = await database.query(
+                newNPCQuestsQuery,
+                newNPCQuestsParams
             );
 
             // Create and populate the associated_locations value
-            newNPCData[0].associated_locations = newNPCLocationsData.map(
+            newNPCData.associated_locations = newNPCLocationsData.map(
                 (location) => {
                     return {
                         id: location.location_id,
@@ -235,25 +306,17 @@ class NPCController {
             );
 
             // Create and populate the associated_quests value
-            newNPCData[0].associated_quests = newNPCQuestsData.map((quest) => {
+            newNPCData.associated_quests = newNPCQuestsData.map((quest) => {
                 return {
                     id: quest.quest_id,
                     name: quest.quest_name,
                 };
             });
 
-            newNPCData[0].campaign = { id: campaignId };
+            // Create and populate campaign value
+            newNPCData.campaign = { id: campaignId };
 
-            // CLEANUP - only used for testing!
-            // const deleteNPCLocationsStatement = `DELETE FROM location_npcs WHERE npc_id = ${newNPC.insertId}`;
-            // const deleteNPCQuestsStatment = `DELETE FROM quest_npcs WHERE npc_id = ${newNPC.insertId}`;
-            // const deleteNPCStatement = `DELETE FROM npc WHERE id = ${newNPC.insertId}`;
-
-            // await database.execute(deleteNPCLocationsStatement);
-            // await database.execute(deleteNPCQuestsStatment);
-            // await database.execute(deleteNPCStatement);
-
-            return newNPCData[0];
+            return newNPCData;
         } catch (err) {
             throw err;
         }
