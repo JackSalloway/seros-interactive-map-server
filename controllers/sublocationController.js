@@ -1,24 +1,47 @@
-const database = require("../services/database");
-const he = require("he");
+const {
+    insertStatement,
+    selectSingularQuery,
+    updateStatement,
+    deleteStatement,
+} = require("../helpers/queries");
+
+const sublocationColumns = [
+    "id",
+    "name",
+    "description",
+    "updated_at",
+    "location_id",
+];
 
 class SublocationController {
     // Create a new sub location
     async createSublocation(parentId, name, description) {
         try {
-            // Create statement to insert new sublocation into the database
-            const createSublocationStatement = `INSERT INTO sublocation
-            (name, description, location_id)
-            VALUES ('${name}', '${description}', ${parentId});`;
-            const [newSublocation] = await database.execute(
-                createSublocationStatement
+            const insertSublocationColumns = [
+                "name",
+                "description",
+                "location_id",
+            ];
+
+            const insertSublocationValues = [name, description, parentId];
+
+            // Insert new sublocation into the database
+            const [newSublocation] = await insertStatement(
+                "sublocation",
+                insertSublocationColumns,
+                insertSublocationValues
             );
 
-            // Select only the new sublocation from the database
-            const newSublocationQuery = `SELECT * FROM sublocation WHERE id = ${newSublocation.insertId}`;
+            // Select the new sublocation from the database
             const [newSublocationData, _sublocationField] =
-                await database.execute(newSublocationQuery);
+                await selectSingularQuery(
+                    "sublocation",
+                    sublocationColumns,
+                    "id",
+                    newSublocation.insertId
+                );
 
-            return newSublocationData[0];
+            return newSublocationData;
         } catch (err) {
             throw err;
         }
@@ -27,19 +50,25 @@ class SublocationController {
     // Update a sub location
     async updateSublocation(sublocationData) {
         try {
-            // Create and execute update sublocation statement
-            const updateSublocationStatement = `UPDATE sublocation
-            SET name = '${sublocationData.name}', description = '${sublocationData.description}'
-            WHERE id = ${sublocationData.id}`;
-            await database.execute(updateSublocationStatement);
+            const { name, description, id } = sublocationData;
 
-            // Create and execute sublocation select query for new updated sublocation
-            const updatedSublocationQuery = `SELECT id, name, description
-            FROM sublocation WHERE id = ${sublocationData.id}`;
+            const columnsPlusValues = {
+                name: name,
+                description: description,
+            };
+
+            // Update the relevant location
+            await updateStatement("sublocation", columnsPlusValues, "id", id);
+
             const [updatedSublocation, _sublocationField] =
-                await database.execute(updatedSublocationQuery);
+                await selectSingularQuery(
+                    "sublocation",
+                    sublocationColumns,
+                    "id",
+                    id
+                );
 
-            return updatedSublocation[0];
+            return updatedSublocation;
         } catch (err) {
             throw err;
         }
@@ -49,8 +78,7 @@ class SublocationController {
     async deleteSubLocation(sublocationId) {
         try {
             // Create delete statement
-            const deleteSublocation = `DELETE FROM sublocation WHERE id = ${sublocationId}`;
-            await database.execute(deleteSublocation);
+            await deleteStatement("sublocation", "id", sublocationId);
             return;
         } catch (err) {
             throw err;
