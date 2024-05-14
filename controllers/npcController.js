@@ -1,35 +1,103 @@
 const database = require("../services/database");
 class NPCController {
     // Fetch all NPC data when the app is started
-    async npcData(campaignID) {
+    async npcData(campaignId) {
         try {
-            // Select all unique rows of npcs using their id value
-            const npcQuery = `SELECT npc.id AS 'npc_id', npc.name, npc.description, race, disposition, status, npc.updated_at
-            FROM npc
-            JOIN location_npcs ON location_npcs.npc_id = npc.id
-            JOIN location ON location.id = location_npcs.location_id
-            WHERE campaign_id = ${campaignID}
-            GROUP BY npc_id;`;
-            const [npcs, _npcField] = await database.execute(npcQuery);
+            // Select all unique rows of npcs using the campaign_id value
+            const npcQuery = `SELECT ?? AS ??, ??, ??, ??, ??, ??, ??
+            FROM ??
+            JOIN ?? ON ?? = ??
+            JOIN ?? ON ?? = ??
+            WHERE ?? = ?
+            GROUP BY ??`;
 
-            const npcQuestsQuery = `SELECT DISTINCT quest_id, quest_npcs.npc_id,
-            quest.name AS 'quest_name' FROM quest_npcs
-            JOIN npc on npc.id = quest_npcs.npc_id
-            JOIN quest on quest.id = quest_npcs.quest_id
-            JOIN location_npcs on location_npcs.npc_id = quest_npcs.npc_id
-            JOIN location on location.id = location_npcs.location_id
-            WHERE campaign_id = '${campaignID}'`;
-            const [npcQuests, _npcQuestField] = await database.execute(
-                npcQuestsQuery
+            const npcParams = [
+                "npc.id",
+                "npc_id",
+                "npc.name",
+                "npc.description",
+                "race",
+                "disposition",
+                "status",
+                "npc.updated_at",
+                "npc",
+                "location_npcs",
+                "location_npcs.npc_id",
+                "npc.id",
+                "location",
+                "location.id",
+                "location_npcs.location_id",
+                "campaign_id",
+                campaignId,
+                "npc_id",
+            ];
+
+            const [npcs, _npcField] = await database.query(npcQuery, npcParams);
+
+            // Select all the relevant quest_npcs rows using the campaign_id value
+            const npcQuestsQuery = `SELECT DISTINCT ??, ??,
+            ?? AS ?? FROM ??
+            JOIN ?? ON ?? = ??
+            JOIN ?? ON ?? = ??
+            JOIN ?? ON ?? = ??
+            JOIN ?? ON ?? = ??
+            WHERE ?? = ?`;
+
+            const npcQuestsParams = [
+                "quest_id",
+                "quest_npcs.npc_id",
+                "quest.name",
+                "quest_name",
+                "quest_npcs",
+                "npc",
+                "npc.id",
+                "quest_npcs.npc_id",
+                "quest",
+                "quest.id",
+                "quest_npcs.quest_id",
+                "location_npcs",
+                "location_npcs.npc_id",
+                "quest_npcs.npc_id",
+                "location",
+                "location.id",
+                "location_npcs.location_id",
+                "campaign_id",
+                campaignId,
+            ];
+
+            const [npcQuests, _npcQuestField] = await database.query(
+                npcQuestsQuery,
+                npcQuestsParams
             );
 
-            const npcLocationsQuery = `SELECT location_id, npc_id,
-            location.name AS 'location_name', latitude, longitude FROM location_npcs
-            JOIN npc on npc.id = location_npcs.npc_id
-            JOIN location on location.id = location_npcs.location_id
-            WHERE campaign_id = '${campaignID}';`;
-            const [npcLocations, _npcLocationField] = await database.execute(
-                npcLocationsQuery
+            // Select all the relevant location_npcs rows using the campaign_id value
+            const npcLocationsQuery = `SELECT ??, ??,
+            ?? AS ??, ??, ?? FROM ??
+            JOIN ?? ON ?? = ??
+            JOIN ?? ON ?? = ??
+            WHERE ?? = ?`;
+
+            const npcLocationsParams = [
+                "location_id",
+                "npc_id",
+                "location.name",
+                "location_name",
+                "latitude",
+                "longitude",
+                "location_npcs",
+                "npc",
+                "npc.id",
+                "location_npcs.npc_id",
+                "location",
+                "location.id",
+                "location_npcs.location_id",
+                "campaign_id",
+                campaignId,
+            ];
+
+            const [npcLocations, _npcLocationField] = await database.query(
+                npcLocationsQuery,
+                npcLocationsParams
             );
 
             const npcData = npcs.map((npc) => {
@@ -45,7 +113,7 @@ class NPCController {
                     associated_locations: [],
                     associated_quests: [],
                     campaign: {
-                        id: campaignID,
+                        id: campaignId,
                     },
                 };
 
