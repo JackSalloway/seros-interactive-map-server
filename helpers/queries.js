@@ -84,9 +84,20 @@ const updateStatement = async (
     return;
 };
 
+const deleteStatement = async (table, column, id) => {
+    const query = `DELETE FROM ??
+    WHERE ?? = ?`;
+
+    const params = [table, column, id];
+
+    await database.query(query, params);
+    return;
+};
+
 module.exports = {
     selectMultipleQuery,
     selectSingularQuery,
     insertStatement,
     updateStatement,
+    deleteStatement,
 };
