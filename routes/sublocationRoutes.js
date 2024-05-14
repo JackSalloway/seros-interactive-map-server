@@ -9,8 +9,6 @@ router.post(
     "/create_sublocation",
     ...Validators.sublocation(),
     async (req, res) => {
-        console.log(req.body);
-
         console.log("create_sublocation hit");
         const errors = Validators.validateResult(req);
         if (errors !== undefined) {
@@ -54,13 +52,13 @@ router.post(
             return res.status(400).json(errors);
         }
 
-        const sublocationData = {
-            id: req.body.sublocation_id,
-            name: req.body.sublocation_name,
-            description: req.body.sublocation_description,
-        };
-
         try {
+            const sublocationData = {
+                id: req.body.sublocation_id,
+                name: req.body.sublocation_name,
+                description: req.body.sublocation_description,
+            };
+
             const controller = new SublocationController();
             const sublocationResult = await controller.updateSublocation(
                 sublocationData
