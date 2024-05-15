@@ -1,8 +1,7 @@
 const database = require("../services/database");
 const {
-    selectMultipleQuery,
+    selectQuery,
     insertStatement,
-    selectSingularQuery,
     updateStatement,
 } = require("../helpers/queries");
 
@@ -23,7 +22,7 @@ class LocationController {
     // Fetch all location data when the app is started
     async mapData(campaignId) {
         try {
-            const locations = await selectMultipleQuery(
+            const locations = await selectQuery(
                 "location",
                 locationColumns,
                 "campaign_id",
@@ -144,7 +143,7 @@ class LocationController {
                 locationValues
             );
 
-            const [newLocationData, _locationField] = await selectSingularQuery(
+            const [newLocationData, _locationField] = await selectQuery(
                 "location",
                 locationColumns,
                 "id",
@@ -243,7 +242,7 @@ class LocationController {
             );
 
             // Select the new updated location
-            const [updatedLocation, _locationField] = await selectSingularQuery(
+            const [updatedLocation, _locationField] = await selectQuery(
                 "location",
                 locationColumns,
                 "id",
