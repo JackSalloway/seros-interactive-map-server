@@ -22,12 +22,7 @@ const generateUpdateStatementString = (columnsPlusValues) => {
 };
 
 // Select specific rows from a singular table
-const selectMultipleQuery = async (
-    table,
-    columns,
-    conditionRow,
-    conditionValue
-) => {
+const selectQuery = async (table, columns, conditionRow, conditionValue) => {
     const query = `SELECT 
     ${generateColumnString(columns)}
     FROM ?? WHERE ?? = ?`;
@@ -36,23 +31,6 @@ const selectMultipleQuery = async (
 
     const [rows, _field] = await database.query(query, params);
     return rows;
-};
-
-// Select a single row from a singular table
-const selectSingularQuery = async (
-    table,
-    columns,
-    conditionRow,
-    conditionValue
-) => {
-    const query = `SELECT 
-    ${generateColumnString(columns)}
-    FROM ?? WHERE ?? = ?`;
-
-    const params = [...columns, table, conditionRow, conditionValue];
-
-    const [row, _field] = await database.query(query, params);
-    return row;
 };
 
 const insertStatement = async (table, columns, values) => {
@@ -95,8 +73,7 @@ const deleteStatement = async (table, column, id) => {
 };
 
 module.exports = {
-    selectMultipleQuery,
-    selectSingularQuery,
+    selectQuery,
     insertStatement,
     updateStatement,
     deleteStatement,
