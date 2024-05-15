@@ -1,21 +1,50 @@
 const database = require("../services/database");
+const { selectQuery, insertStatement } = require("../helpers/queries");
+
+const defaultTurnQueryColumns = [
+    "id",
+    "turn_number",
+    "damage",
+    "healing",
+    "player_id",
+    "combat_instance_id",
+];
 
 class CombatInstancePlayerTurnController {
     // Add a new turn to the database
     async addNewTurn(turnNumber, damage, healing, playerId, combatInstanceId) {
-        // Create a statement to add a new turn to the column
-        const createTurnStatement = `INSERT INTO combat_instance_player_turn
-        (turn_number, damage, healing, player_id, combat_instance_id)
-        VALUES (${turnNumber}, ${damage}, ${healing}, ${playerId}, ${combatInstanceId})`;
-        const [newTurn] = await database.execute(createTurnStatement);
+        const insertTurnColumns = [
+            "turn_number",
+            "damage",
+            "healing",
+            "player_id",
+            "combat_instance_id",
+        ];
 
-        // Query and return the new turn value
-        const turnQuery = `SELECT id, turn_number, damage, healing, player_id, combat_instance_id
-        FROM combat_instance_player_turn
-        WHERE id = ${newTurn.insertId}`;
-        const [turn, _turnField] = await database.execute(turnQuery);
+        const turnValues = [
+            turnNumber,
+            damage,
+            healing,
+            playerId,
+            combatInstanceId,
+        ];
 
-        return turn[0];
+        // Insert new combat instance into the database
+        const [newTurn] = await insertStatement(
+            "combat_instance_player_turn",
+            insertTurnColumns,
+            turnValues
+        );
+
+        // Select only the new turn from the database
+        const [newTurnData, _combatInstancePlayerTurnField] = await selectQuery(
+            "combat_instance_player_turn",
+            defaultTurnQueryColumns,
+            "id",
+            newTurn.insertId
+        );
+
+        return newTurnData;
     }
 }
 

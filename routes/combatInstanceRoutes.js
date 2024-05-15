@@ -25,12 +25,6 @@ router.post("/create_combat_instance", async (req, res) => {
     console.log("create_combat_instance hit");
     // Add data validation and sanitization here later
     try {
-        const combatInstanceData = {
-            name: req.body.instance_name,
-            description: req.body.instance_description,
-            location_id: req.body.instance_location_id,
-        };
-
         // THINGS TO DO
         // Validate and sanitize the date before the try catch clauses
 
@@ -50,7 +44,11 @@ router.post("/create_combat_instance", async (req, res) => {
             })
         );
 
-        const turns = playerDetails[0].turns.damage.length;
+        const combatInstanceData = {
+            name: req.body.instance_name,
+            description: req.body.instance_description,
+            location_id: req.body.instance_location_id,
+        };
 
         // Create a new combat instance row and return it
         const combatInstanceController = new CombatInstanceController();
@@ -62,6 +60,8 @@ router.post("/create_combat_instance", async (req, res) => {
         // Create new rows in the combat_instance_player_turns table for each player and their turns
         const combatInstancePlayerTurnsController =
             new CombatInstancePlayerTurnController();
+
+        const turns = playerDetails[0].turns.damage.length;
 
         let playerArray = [];
 
