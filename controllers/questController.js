@@ -131,8 +131,6 @@ class QuestController {
                 campaignId,
             } = data;
 
-            console.log(data);
-
             // Convert completed value to numbers to satisfy the TINYINT data type in the SQL table
             const completedBoolean = completed === "true" ? 1 : 0;
 
