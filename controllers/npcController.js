@@ -1,7 +1,7 @@
 const database = require("../services/database");
 const {
     insertStatement,
-    selectSingularQuery,
+    selectQuery,
     updateStatement,
     deleteStatement,
 } = require("../helpers/queries");
@@ -229,7 +229,7 @@ class NPCController {
             });
 
             // Select only the new npc from the database
-            const [newNPCData, _newNPCField] = await selectSingularQuery(
+            const [newNPCData, _newNPCField] = await selectQuery(
                 "npc",
                 npcColumns,
                 "id",
@@ -383,7 +383,7 @@ class NPCController {
             await updateStatement("npc", columnsPlusValues, "id", npcId);
 
             // Select only the updated npc
-            const [npc, _npcField] = await selectSingularQuery(
+            const [npc, _npcField] = await selectQuery(
                 "npc",
                 npcColumns,
                 "id",
