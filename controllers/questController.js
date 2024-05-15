@@ -1,6 +1,6 @@
 const database = require("../services/database");
-const { body, validationResult } = require("express-validator");
-const { npc, campaign } = require("../helpers/validators");
+// const { body, validationResult } = require("express-validator");
+// const { npc, campaign } = require("../helpers/validators");
 
 class QuestController {
     // Fetch all quest data when the app is started
