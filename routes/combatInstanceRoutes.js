@@ -86,8 +86,6 @@ router.post("/create_combat_instance", async (req, res) => {
             playerArray.push(playerStats);
         });
 
-        const test = playerDetails.map((player) => {});
-
         newCombatInstance.players = playerArray;
         newCombatInstance.location = {
             id: req.body.instance_location_id,
