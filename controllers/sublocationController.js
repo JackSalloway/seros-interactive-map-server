@@ -1,6 +1,6 @@
 const {
     insertStatement,
-    selectSingularQuery,
+    selectQuery,
     updateStatement,
     deleteStatement,
 } = require("../helpers/queries");
@@ -33,13 +33,12 @@ class SublocationController {
             );
 
             // Select the new sublocation from the database
-            const [newSublocationData, _sublocationField] =
-                await selectSingularQuery(
-                    "sublocation",
-                    sublocationColumns,
-                    "id",
-                    newSublocation.insertId
-                );
+            const [newSublocationData, _sublocationField] = await selectQuery(
+                "sublocation",
+                sublocationColumns,
+                "id",
+                newSublocation.insertId
+            );
 
             return newSublocationData;
         } catch (err) {
@@ -60,13 +59,12 @@ class SublocationController {
             // Update the relevant location
             await updateStatement("sublocation", columnsPlusValues, "id", id);
 
-            const [updatedSublocation, _sublocationField] =
-                await selectSingularQuery(
-                    "sublocation",
-                    sublocationColumns,
-                    "id",
-                    id
-                );
+            const [updatedSublocation, _sublocationField] = await selectQuery(
+                "sublocation",
+                sublocationColumns,
+                "id",
+                id
+            );
 
             return updatedSublocation;
         } catch (err) {
