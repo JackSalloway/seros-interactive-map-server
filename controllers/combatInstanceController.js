@@ -12,21 +12,73 @@ class CombatInstanceController {
     // Fetch combat instance data when a campaign is selected
     async combatInstanceData(campaignId) {
         try {
-            const combatInstanceQuery = `SELECT combat_instance.id AS 'combat_instance_id', combat_instance.name, combat_instance.description,
-            location_id, location.name AS 'location_name', latitude AS 'location_latitude', longitude AS 'location_longitude', campaign_id
-            FROM combat_instance JOIN location ON location.id = combat_instance.location_id
-            WHERE campaign_id = '${campaignId}'`;
-            const [combatInstances, _combatInstanceField] =
-                await database.query(combatInstanceQuery);
+            const combatInstanceQuery = `SELECT ?? AS ??, ??, ??,
+            ??, ?? AS ??, ??, ??, ??, ??
+            FROM ??
+            JOIN ?? ON ?? = ??
+            WHERE ?? = ?`;
 
-            const combatInstanceTurnsQuery = `SELECT combat_instance_player_turn.id AS 'player_turn_id', turn_number, damage, healing, 
-            player_id, player.name AS 'player_name', player.class AS 'player_class', combat_instance_id, campaign.id AS 'campaign_id'
-            FROM tactical_journal.combat_instance_player_turn
-            JOIN player ON player.id = combat_instance_player_turn.player_id
-            JOIN campaign ON campaign.id = player.campaign_id
-            WHERE campaign_id = '${campaignId}'`;
+            const combatInstanceParams = [
+                "combat_instance.id",
+                "combat_instance_id",
+                "combat_instance.name",
+                "combat_instance.description",
+                "location_id",
+                "location.name",
+                "location_name",
+                "latitude",
+                "longitude",
+                "combat_instance.updated_at",
+                "campaign_id",
+                "combat_instance",
+                "location",
+                "location.id",
+                "combat_instance.location_id",
+                "campaign_id",
+                campaignId,
+            ];
+
+            const [combatInstances, _combatInstanceField] =
+                await database.query(combatInstanceQuery, combatInstanceParams);
+
+            const combatInstanceTurnsQuery = `SELECT ?? AS ??, ??, ??, ??,
+            ??, ?? AS ??, ?? AS ??, ??, ?? AS ??, ??
+            FROM ??
+            JOIN ?? ON ?? = ??
+            JOIN ?? ON ?? = ??
+            WHERE ?? = ?`;
+
+            const combatInstanceTurnsParams = [
+                "combat_instance_player_turn.id",
+                "player_turn_id",
+                "turn_number",
+                "damage",
+                "healing",
+                "player_id",
+                "player.name",
+                "player_name",
+                "player.class",
+                "player_class",
+                "combat_instance_id",
+                "campaign.id",
+                "campaign_id",
+                "combat_instance_player_turn.updated_at",
+                "combat_instance_player_turn",
+                "player",
+                "player.id",
+                "combat_instance_player_turn.player_id",
+                "campaign",
+                "campaign.id",
+                "player.campaign_id",
+                "campaign_id",
+                campaignId,
+            ];
+
             const [combatInstanceTurns, _combatInstanceTurnField] =
-                await database.query(combatInstanceTurnsQuery);
+                await database.query(
+                    combatInstanceTurnsQuery,
+                    combatInstanceTurnsParams
+                );
 
             const instanceData = combatInstances.map((instance) => {
                 // Create instance object
@@ -34,12 +86,13 @@ class CombatInstanceController {
                     id: instance.combat_instance_id,
                     name: instance.name,
                     description: instance.description,
+                    updated_at: instance.updated_at,
                     location: {
                         id: instance.location_id,
                         name: instance.location_name,
                         latlng: {
-                            lat: instance.location_latitude,
-                            lng: instance.location_longitude,
+                            lat: instance.latitude,
+                            lng: instance.longitude,
                         },
                     },
                     campaign: {
@@ -69,6 +122,7 @@ class CombatInstanceController {
                             turn_number: playerTurn.turn_number,
                             damage: playerTurn.damage,
                             healing: playerTurn.healing,
+                            updated_at: playerTurn.updated_at,
                         });
                     } else {
                         // Player index does not exist yet, so create a new one with all relevant details
@@ -82,6 +136,7 @@ class CombatInstanceController {
                                     turn_number: playerTurn.turn_number,
                                     damage: playerTurn.damage,
                                     healing: playerTurn.healing,
+                                    updated_at: playerTurn.updated_at,
                                 },
                             ],
                         });
