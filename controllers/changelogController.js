@@ -1,10 +1,12 @@
 const database = require("../services/database");
+const { insertStatement } = require("../helpers/queries");
+
+const changelogQuery = `SELECT * FROM ?? WHERE ?? = ?`;
 
 class ChangelogController {
     // Fetch changelog data when a campaign is selected
     async changelogData(campaignId) {
         try {
-            const changelogQuery = `SELECT * FROM ?? WHERE ?? = ?`;
             const [changelogs, _changelogField] = await database.query(
                 changelogQuery,
                 ["changelog", "campaign_id", campaignId]
@@ -37,20 +39,36 @@ class ChangelogController {
                 pastTenseOperation = "updated";
             }
 
+            const insertChangelogColumns = [
+                "user",
+                "action",
+                "data_name",
+                "data_affected",
+                "campaign_id",
+            ];
+
+            const changelogValues = [
+                username,
+                pastTenseOperation,
+                dataName,
+                changelogDataArray[1],
+                campaignId,
+            ];
+
             // Insert new changelog into the SQL database
-            const newChangelogStatement = `INSERT INTO changelog
-            (user, action, data_name, data_affected, campaign_id)
-            VALUES ('${username}', '${pastTenseOperation}', '${dataName}', '${changelogDataArray[1]}', '${campaignId}')`;
-            const [newChangelog] = await database.execute(
-                newChangelogStatement
+            const [newChangelog] = await insertStatement(
+                "changelog",
+                insertChangelogColumns,
+                changelogValues
             );
 
-            const changelogQuery = `SELECT * FROM changelog WHERE id = ${newChangelog.insertId}`;
-            const [newChangelogData, _changelogField] = await database.execute(
-                changelogQuery
+            // Query for the newly created changelog row
+            const [newChangelogData, _changelogField] = await database.query(
+                changelogQuery,
+                ["changelog", "id", newChangelog.insertId]
             );
 
-            return newChangelogData[0];
+            return newChangelogData;
         } catch (err) {
             throw err;
         }
