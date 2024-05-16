@@ -1,4 +1,3 @@
-const User = require("../models/user");
 const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
 const database = require("../services/database");
 const bcrypt = require("bcryptjs");
