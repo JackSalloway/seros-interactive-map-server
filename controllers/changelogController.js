@@ -4,10 +4,12 @@ class ChangelogController {
     // Fetch changelog data when a campaign is selected
     async changelogData(campaignId) {
         try {
-            const changelogQuery = `SELECT * FROM changelog WHERE campaign_id = '${campaignId}'`;
-            const [changelogs, _changelogField] = await database.execute(
-                changelogQuery
+            const changelogQuery = `SELECT * FROM ?? WHERE ?? = ?`;
+            const [changelogs, _changelogField] = await database.query(
+                changelogQuery,
+                ["changelog", "campaign_id", campaignId]
             );
+
             return changelogs;
         } catch (err) {
             throw err;
