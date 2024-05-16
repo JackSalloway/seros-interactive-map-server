@@ -1,5 +1,3 @@
-// const mongoose = require("mongoose");
-// const Changelog = require("../models/changelog");
 const database = require("../services/database");
 
 class ChangelogController {
