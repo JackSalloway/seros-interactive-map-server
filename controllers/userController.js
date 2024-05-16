@@ -1,5 +1,6 @@
 const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
 const database = require("../services/database");
+const { insertStatement } = require("../helpers/queries");
 const bcrypt = require("bcryptjs");
 const { verify } = require("jsonwebtoken");
 
@@ -22,30 +23,33 @@ class UserController {
             }
 
             // Create sql query for finding a specific user to check if username provided is available
-            const usernameQuery = `SELECT username FROM user WHERE username = '${username}' LIMIT 1`;
-            const dbUsername = await database.execute(usernameQuery);
+            const usernameQuery = `SELECT ?? FROM ?? WHERE ?? = ? LIMIT 1`;
+            const usernameParams = ["username", "user", "username", username];
+            const dbUsername = await database.query(
+                usernameQuery,
+                usernameParams
+            );
+
             if (dbUsername[0].length !== 0) {
                 throw new UsernameAlreadyExistsError("Username already exists");
             }
 
             // Create sql query for finding a specific email to check if email provided is available
-            const emailQuery = `SELECT email FROM user WHERE email = '${email}' LIMIT 1`;
-            const dbEmail = await database.execute(emailQuery);
+            const emailQuery = `SELECT ?? FROM ?? WHERE ?? = ? LIMIT 1`;
+            const emailParams = ["email", "user", "email", email];
+            const dbEmail = await database.query(emailQuery, emailParams);
             if (dbEmail[0].length !== 0) {
                 throw new EmailAlreadyExistsError("Email already exists");
             }
 
             // Username and email provided are not taken so continue
-            // Create new user document with hashed password
             const hashedPassword = await bcrypt.hash(password, 10);
 
             // Create new row for user and campaign_user tables
-            const insertUser = `INSERT INTO user (username, password, email) VALUES ('${username}', '${hashedPassword}', '${email}')`;
-            const dbNewUser = await database.execute(insertUser);
+            const insertUserColumns = ["username", "password", "email"];
+            const userValues = [username, hashedPassword, email];
+            await insertStatement("user", insertUserColumns, userValues);
 
-            console.log(dbNewUser);
-
-            // console.log("POST request recieved: register");
             return { username: username, email: email };
         } catch (err) {
             throw err;
