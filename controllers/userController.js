@@ -1,6 +1,6 @@
 const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
 const database = require("../services/database");
-const { insertStatement } = require("../helpers/queries");
+const { insertStatement, updateStatement } = require("../helpers/queries");
 const bcrypt = require("bcryptjs");
 const { verify } = require("jsonwebtoken");
 
@@ -67,12 +67,13 @@ class UserController {
         // Process request after validation and sanitization
 
         try {
-            // Find user within database
-
             // Create user query to check if user exists
-            const userQuery = `SELECT * FROM user WHERE username = '${username}' LIMIT 1`;
-
-            const [userRows, _userField] = await database.execute(userQuery);
+            const userQuery = `SELECT * FROM ?? WHERE ?? = ? LIMIT 1`;
+            const userQueryParams = ["user", "username", username];
+            const [userRows, _userField] = await database.query(
+                userQuery,
+                userQueryParams
+            );
 
             // Check username exists
             if (userRows.length !== 1) {
@@ -82,7 +83,7 @@ class UserController {
             }
 
             // Destructure user values
-            const dbUserID = userRows[0].id;
+            const dbUserId = userRows[0].id;
             const dbUsername = userRows[0].username;
             const dbPassword = userRows[0].password;
 
@@ -94,27 +95,41 @@ class UserController {
                 ); // Password provided does not match the username
 
             // Create campaign query to find the users relevant campaigns
-            const campaignQuery = `SELECT DISTINCT campaign.id AS 'campaign_id', campaign.name AS 'campaign_name', campaign.description AS 'campaign_description'
-            FROM campaign
-            JOIN campaign_users on campaign_users.campaign_id = campaign_id
-            WHERE campaign_users.user_id = ${dbUserID};`;
-
-            const [campaignRows, _campaignField] = await database.execute(
-                campaignQuery
+            const userCampaignQuery = `SELECT DISTINCT ?? , ?? , ?? 
+            FROM ??
+            JOIN ?? ON ?? = ??
+            WHERE ?? = ?`;
+            const userCampaignParams = [
+                "id",
+                "name",
+                "description",
+                "campaign",
+                "campaign_users",
+                "campaign_users.campaign_id",
+                "id",
+                "campaign_users.user_id",
+                dbUserId,
+            ];
+            const [campaignRows, _campaignField] = await database.query(
+                userCampaignQuery,
+                userCampaignParams
             );
 
             // Password matches username, so create Access and Refresh tokens
             const accessToken = createAccessToken(
-                dbUserID,
+                dbUserId,
                 dbUsername,
                 campaignRows
             );
-            const refreshToken = createRefreshToken(dbUserID);
+            const refreshToken = createRefreshToken(dbUserId);
 
-            // Put the refresh token in the database
-            const updateUser = `UPDATE user SET refresh_token = '${refreshToken}' WHERE id = '${dbUserID}'`;
-
-            await database.execute(updateUser);
+            // Update the refresh token in the database
+            await updateStatement(
+                "user",
+                { refresh_token: refreshToken },
+                "id",
+                dbUserId
+            );
 
             // return accessToken, refreshToken and userData
             return {
