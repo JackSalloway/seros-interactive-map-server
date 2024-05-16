@@ -26,7 +26,7 @@ const defaultQuestParams = [
     "quest",
     "location_quests",
     "location_quests.quest_id",
-    "quest_id",
+    "quest.id",
     "location",
     "location.id",
     "location_quests.location_id",
