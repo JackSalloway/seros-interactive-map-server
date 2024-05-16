@@ -63,28 +63,28 @@ router.post("/create_combat_instance", async (req, res) => {
 
         const turns = playerDetails[0].turns.damage.length;
 
-        let playerArray = [];
-
-        playerDetails.forEach(async (player) => {
-            let playerStats = {
-                id: player.id,
-                name: player.name,
-                class: player.class,
-                turns: [],
-            };
-            for (let i = 0; i < turns; i++) {
-                const newPlayerTurn =
-                    await combatInstancePlayerTurnsController.addNewTurn(
-                        i,
-                        player.turns.damage[i],
-                        player.turns.healing[i],
-                        player.id,
-                        newCombatInstance.id
-                    );
-                playerStats.turns.push(newPlayerTurn);
-            }
-            playerArray.push(playerStats);
-        });
+        const playerArray = await Promise.all(
+            playerDetails.map(async (player) => {
+                let playerStats = {
+                    id: player.id,
+                    name: player.name,
+                    class: player.class,
+                    turns: [],
+                };
+                for (let i = 0; i < turns; i++) {
+                    const newPlayerTurn =
+                        await combatInstancePlayerTurnsController.addNewTurn(
+                            i + 1,
+                            player.turns.damage[i],
+                            player.turns.healing[i],
+                            player.id,
+                            newCombatInstance.id
+                        );
+                    playerStats.turns.push(newPlayerTurn);
+                }
+                return playerStats;
+            })
+        );
 
         newCombatInstance.players = playerArray;
         newCombatInstance.location = {
