@@ -57,16 +57,18 @@ router.post("/create_quest", ...Validators.quest(), async (req, res) => {
 router.post("/delete_quest", async (req, res) => {
     console.log("delete_quest hit");
     try {
+        // Delete a single quest
         const controller = new QuestController();
-        // Named this npcResult as the return value is actually
-        const npcResult = await controller.deleteQuest(
-            req.body.quest_id,
-            req.body.quest_campaign
-        );
+        await controller.deleteQuest(req.body.quest_id);
 
+        // Select all npcs
+        const npcController = new NPCController();
+        const npcResult = await npcController.npcData(req.body.campaign_id);
+
+        // Update Changelog
         const changelogController = new ChangelogController();
         const changelogResult = await changelogController.updateChangelog(
-            req.body.quest_campaign,
+            req.body.campaign_id,
             req.body.username,
             req.body.quest_name,
             req.url
