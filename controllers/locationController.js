@@ -3,6 +3,7 @@ const {
     selectQuery,
     insertStatement,
     updateStatement,
+    deleteStatement,
 } = require("../helpers/queries");
 
 // Prepare columns for locations - globablly scoped as each method that queries a location will require all the values from these columns
@@ -172,43 +173,13 @@ class LocationController {
     }
 
     // Delete a specific location based on id and update any affected npcs/quests
-    async deleteLocation(locationId, campaignId) {
+    async deleteLocation(locationId) {
         try {
-            // Remove references to location from any NPCs that reference it
-            await NPC.updateMany(
-                { campaign: campaignId },
-                {
-                    $pull: {
-                        associated_locations:
-                            mongoose.Types.ObjectId(locationId),
-                    },
-                }
-            );
-            // Remove references to location from any NPCs that reference it
-            await Quest.updateMany(
-                { campaign: campaignId },
-                {
-                    $pull: {
-                        associated_locations:
-                            mongoose.Types.ObjectId(locationId),
-                    },
-                }
-            );
-            // Delete location
-            await Location.findByIdAndDelete(locationId);
-            // Retrieve updated NPC list
-            const updatedNPCList = await NPC.find({ campaign: campaignId })
-                .populate("quests")
-                .populate("associated_locations")
-                .lean()
-                .exec();
-            //  Retrieve updated Quest List
-            const updatedQuestList = await Quest.find({ campaign: campaignId })
-                .populate("associated_locations")
-                .lean()
-                .exec();
-
-            return { updatedNPCList, updatedQuestList };
+            // Create delete statement
+            // Because on delete cascade is enabled for all tables that use locationId as a foreign key, any relevant rows will automatically be deleted.
+            // Rows from tables that are dropped include: sublocation, npc, quest, combat_instance
+            await deleteStatement("location", "id", locationId);
+            return;
         } catch (err) {
             throw err;
         }

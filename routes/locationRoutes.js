@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const Validators = require("../helpers/validators");
 const LocationController = require("../controllers/locationController");
+const NPCController = require("../controllers/npcController");
+const QuestController = require("../controllers/questController");
+const CombatInstanceController = require("../controllers/combatInstanceController");
 const ChangelogController = require("../controllers/changelogController");
 
 /// LOCATION ROUTES ///
@@ -67,22 +70,42 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
 router.delete("/delete_location", async (req, res) => {
     console.log("delete location hit");
     try {
+        console.log(req.body);
+        // Delete a single location
         const controller = new LocationController();
-        const { updatedNPCList, updatedQuestList } =
-            await controller.deleteLocation(
-                req.body.location_id,
-                req.body.location_campaign_id
+        await controller.deleteLocation(req.body.location_id);
+
+        // Select all npcs
+        const npcController = new NPCController();
+        const npcResult = await npcController.npcData(req.body.campaign_id);
+
+        // Select all quests
+        const questController = new QuestController();
+        const questResult = await questController.questData(
+            req.body.campaign_id
+        );
+
+        // Select all combat instances
+        const combatInstanceController = new CombatInstanceController();
+        const combatInstanceResult =
+            await combatInstanceController.combatInstanceData(
+                req.body.campaign_id
             );
 
         const changelogController = new ChangelogController();
         const changelogResult = await changelogController.updateChangelog(
-            req.body.location_campaign_id,
+            req.body.campaign_id,
             req.body.username,
             req.body.location_name,
             req.url
         );
 
-        return res.json({ updatedNPCList, updatedQuestList, changelogResult });
+        return res.json({
+            npcResult,
+            questResult,
+            combatInstanceResult,
+            changelogResult,
+        });
     } catch (err) {
         console.error(err.message);
         res.sendStatus(500);
