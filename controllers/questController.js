@@ -275,8 +275,6 @@ class QuestController {
                 },
             };
 
-            console.log(questObject.associated_locations);
-
             return questObject;
         } catch (err) {
             throw err;
