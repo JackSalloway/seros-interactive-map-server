@@ -43,14 +43,14 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
             visited: req.body.location_visited,
             marked: req.body.location_marked,
             sublocations: [],
-            campaignId: req.body.location_campaign_id,
+            campaignId: req.body.campaign_id,
         };
         const controller = new LocationController();
         const locationResult = await controller.createLocation(locationContent);
 
         const changelogController = new ChangelogController();
         const changelogResult = await changelogController.updateChangelog(
-            req.body.location_campaign_id,
+            req.body.campaign_id,
             req.body.username,
             req.body.location_name,
             req.url
