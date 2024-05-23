@@ -326,7 +326,9 @@ class NPCController {
     // Delete an NPC
     async deleteNPC(npcId) {
         try {
-            await NPC.findByIdAndDelete(npcId);
+            // Create delete statement
+            await deleteStatement("npc", "id", npcId);
+            return;
         } catch (err) {
             throw err;
         }

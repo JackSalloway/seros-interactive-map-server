@@ -65,7 +65,7 @@ router.delete("/delete_npc", async (req, res) => {
 
         const changelogController = new ChangelogController();
         const changelogResult = await changelogController.updateChangelog(
-            req.body.npc_campaign,
+            req.body.campaign_id,
             req.body.username,
             req.body.npc_name,
             req.url
