@@ -110,4 +110,27 @@ router.post("/create_combat_instance", async (req, res) => {
     }
 });
 
+router.delete("/delete_combat_instance", async (req, res) => {
+    console.log("delete_combat_instance hit");
+    try {
+        // Delete a single combat instance
+        const controller = new CombatInstanceController();
+        await controller.deleteCombatInstance(req.body.combat_instance_id);
+
+        // Update changelog
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.campaign_id,
+            req.body.username,
+            req.body.combat_instance_name,
+            req.url
+        );
+
+        return res.send({ changelogResult });
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
 module.exports = router;

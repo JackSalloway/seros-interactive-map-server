@@ -1,5 +1,9 @@
 const database = require("../services/database");
-const { selectQuery, insertStatement } = require("../helpers/queries");
+const {
+    selectQuery,
+    insertStatement,
+    deleteStatement,
+} = require("../helpers/queries");
 
 const combatInstanceColumns = [
     "id",
@@ -182,6 +186,17 @@ class CombatInstanceController {
             );
 
             return combatInstance;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async deleteCombatInstance(combatInstanceId) {
+        try {
+            // Create delete statement
+            // because on delete cascade is enabled, only the relevant combat instance has to be deleted.
+            await deleteStatement("combat_instance", "id", combatInstanceId);
+            return;
         } catch (err) {
             throw err;
         }
