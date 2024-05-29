@@ -137,20 +137,16 @@ router.put("/update_combat_instance", async (req, res) => {
     console.log("update_combat_instance hit");
     try {
         // Add new players in player table if neccessary
-        const playerDetails = await Promise.all(
-            req.body.instance_details.map(async (player) => {
-                // Check to see if the current player has an id value, if it doesnt then a new row will need to be made in the player table
-                if (!player.id) {
-                    const playerController = new PlayerController();
-                    const newPlayerId = await playerController.addNewPlayer(
-                        player,
-                        req.body.instance_campaign_id
-                    );
-                    player.id = newPlayerId;
-                }
-                return player;
-            })
-        );
+        await req.body.instance_details.forEach(async (player) => {
+            // Check to see if the current player has an id value, if it doesnt then a new row will need to be made in the player table
+            if (!player.id) {
+                const playerController = new PlayerController();
+                await playerController.addNewPlayer(
+                    player,
+                    req.body.campaign_id
+                );
+            }
+        });
 
         const updateCombatInstanceData = {
             name: req.body.instance_name,
@@ -159,11 +155,10 @@ router.put("/update_combat_instance", async (req, res) => {
 
         // Instantiate combat instance controller
         const combatInstanceController = new CombatInstanceController();
-        const updatedCombatInstance =
-            await combatInstanceController.updateCombatInstance(
-                req.body.instance_id,
-                updateCombatInstanceData
-            );
+        await combatInstanceController.updateCombatInstance(
+            req.body.instance_id,
+            updateCombatInstanceData
+        );
 
         // Instantiate combat instance turns controller
         const combatInstancePlayerTurnsController =
@@ -184,32 +179,36 @@ router.put("/update_combat_instance", async (req, res) => {
             player.turns.forEach(async (turn) => {
                 // Update the relevant turn row if it has an id value, create a new turn row if it doesnt
                 if (turn.id) {
-                    const updatedTurn =
-                        await combatInstancePlayerTurnsController.updateTurn(
-                            turn
-                        );
+                    await combatInstancePlayerTurnsController.updateTurn(turn);
                 } else {
-                    const newTurn =
-                        await combatInstancePlayerTurnsController.addNewTurn(
-                            turn.turn_number,
-                            turn.damage,
-                            turn.healing,
-                            player.id,
-                            req.body.instance_id
-                        );
+                    await combatInstancePlayerTurnsController.addNewTurn(
+                        turn.turn_number,
+                        turn.damage,
+                        turn.healing,
+                        player.id,
+                        req.body.instance_id
+                    );
                 }
             });
         });
 
         // ASSEMBLE COMBAT INSTANCE OBJECT
+        const combatInstanceResult = await combatInstanceController.assembleOne(
+            req.body.instance_id
+        );
 
-        // CREATE CHANGELOG ENTRY
+        // Update changelog
+        const changelogController = new ChangelogController();
+        const changelogResult = await changelogController.updateChangelog(
+            req.body.campaign_id,
+            req.body.username,
+            req.body.instance_name,
+            req.url
+        );
 
-        // RETURN {COMBAT_INSTANCE_RESULT, CHANGELOG_RESULT}
-
-        res.send({ test: "test" });
+        res.send({ combatInstanceResult, changelogResult });
     } catch (err) {
-        console.err(err);
+        console.error(err);
         res.sendStatus(500);
     }
 });
