@@ -193,20 +193,24 @@ class CombatInstanceController {
     }
 
     async updateCombatInstance(combatInstanceId, data) {
-        const columnsPlusValues = {
-            name: data.name,
-            description: data.description,
-        };
+        try {
+            const columnsPlusValues = {
+                name: data.name,
+                description: data.description,
+            };
 
-        // Create update statement
-        await updateStatement(
-            "combat_instance",
-            columnsPlusValues,
-            "id",
-            combatInstanceId
-        );
+            // Create update statement
+            await updateStatement(
+                "combat_instance",
+                columnsPlusValues,
+                "id",
+                combatInstanceId
+            );
 
-        return;
+            return;
+        } catch (err) {
+            throw err;
+        }
     }
 
     async deleteCombatInstance(combatInstanceId) {
