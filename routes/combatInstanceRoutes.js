@@ -165,7 +165,6 @@ router.put("/update_combat_instance", async (req, res) => {
             new CombatInstancePlayerTurnController();
 
         // Loop over removed player turn ids array and remove each id present - removed player turns account for players that are actually removed from the instance
-        console.log(req.body.removed_player_turn_ids);
         req.body.removed_player_turn_ids.forEach(async (id) => {
             await combatInstancePlayerTurnsController.deleteTurn(id);
         });
