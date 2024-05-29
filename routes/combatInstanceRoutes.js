@@ -136,7 +136,7 @@ router.delete("/delete_combat_instance", async (req, res) => {
 router.put("/update_combat_instance", async (req, res) => {
     console.log("update_combat_instance hit");
     try {
-        // Instantiate combat instance controller
+        // Instantiate combat instance turns controller
         const combatInstancePlayerTurnsController =
             new CombatInstancePlayerTurnController();
 
