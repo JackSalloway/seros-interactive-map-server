@@ -142,10 +142,9 @@ router.put("/update_combat_instance", async (req, res) => {
 
         // Loop over instance details array
         req.body.instance_details.forEach((player) => {
-            // Check the removed turns array for any turns that need to be deleted from the database
-            player.removedTurns.forEach((turn, index) => {
+            // Loop over removed turns array and delete any elements that have an id value
+            player.removedTurns.forEach((turn) => {
                 if (turn.id) {
-                    console.log("this turn should be removed: ", turn.id);
                     combatInstancePlayerTurnsController.deleteTurn(turn.id);
                 }
             });
