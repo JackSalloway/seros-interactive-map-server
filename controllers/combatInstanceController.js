@@ -3,6 +3,7 @@ const {
     selectQuery,
     insertStatement,
     deleteStatement,
+    updateStatement,
 } = require("../helpers/queries");
 
 const combatInstanceColumns = [
@@ -189,6 +190,23 @@ class CombatInstanceController {
         } catch (err) {
             throw err;
         }
+    }
+
+    async updateCombatInstance(combatInstanceId, data) {
+        const columnsPlusValues = {
+            name: data.name,
+            description: data.description,
+        };
+
+        // Create update statement
+        await updateStatement(
+            "combat_instance",
+            columnsPlusValues,
+            "id",
+            combatInstanceId
+        );
+
+        return;
     }
 
     async deleteCombatInstance(combatInstanceId) {

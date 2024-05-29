@@ -152,6 +152,19 @@ router.put("/update_combat_instance", async (req, res) => {
             })
         );
 
+        const updateCombatInstanceData = {
+            name: req.body.instance_name,
+            description: req.body.instance_description,
+        };
+
+        // Instantiate combat instance controller
+        const combatInstanceController = new CombatInstanceController();
+        const updatedCombatInstance =
+            combatInstanceController.updateCombatInstance(
+                req.body.instance_id,
+                updateCombatInstanceData
+            );
+
         // Instantiate combat instance turns controller
         const combatInstancePlayerTurnsController =
             new CombatInstancePlayerTurnController();
@@ -185,6 +198,14 @@ router.put("/update_combat_instance", async (req, res) => {
                 }
             });
         });
+
+        // ASSEMBLE COMBAT INSTANCE OBJECT
+
+        // CREATE CHANGELOG ENTRY
+
+        // RETURN {COMBAT_INSTANCE_RESULT, CHANGELOG_RESULT}
+
+        res.send({ test: "test" });
     } catch (err) {
         console.err(err);
         res.sendStatus(500);
