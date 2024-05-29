@@ -133,4 +133,29 @@ router.delete("/delete_combat_instance", async (req, res) => {
     }
 });
 
+router.put("/update_combat_instance", async (req, res) => {
+    console.log("update_combat_instance hit");
+    try {
+        // Instantiate combat instance controller
+        const combatInstancePlayerTurnsController =
+            new CombatInstancePlayerTurnController();
+
+        // Loop over instance details array
+        req.body.instance_details.forEach((player) => {
+            // Check the removed turns array for any turns that need to be deleted from the database
+            player.removedTurns.forEach((turn, index) => {
+                if (turn.id) {
+                    console.log("this turn should be removed: ", turn.id);
+                    combatInstancePlayerTurnsController.deleteTurn(turn.id);
+                }
+            });
+        });
+
+
+    } catch (err) {
+        console.err(err);
+        res.sendStatus(500);
+    }
+});
+
 module.exports = router;

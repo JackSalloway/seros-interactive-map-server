@@ -1,5 +1,9 @@
 const database = require("../services/database");
-const { selectQuery, insertStatement } = require("../helpers/queries");
+const {
+    selectQuery,
+    insertStatement,
+    deleteStatement,
+} = require("../helpers/queries");
 
 const defaultTurnQueryColumns = [
     "id",
@@ -45,6 +49,12 @@ class CombatInstancePlayerTurnController {
         );
 
         return newTurnData;
+    }
+
+    async deleteTurn(turnId) {
+        // Create delete statement
+        await deleteStatement("combat_instance_player_turn", "id", turnId);
+        return;
     }
 }
 
