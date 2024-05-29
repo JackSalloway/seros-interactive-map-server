@@ -160,7 +160,7 @@ router.put("/update_combat_instance", async (req, res) => {
         // Instantiate combat instance controller
         const combatInstanceController = new CombatInstanceController();
         const updatedCombatInstance =
-            combatInstanceController.updateCombatInstance(
+            await combatInstanceController.updateCombatInstance(
                 req.body.instance_id,
                 updateCombatInstanceData
             );
@@ -172,9 +172,11 @@ router.put("/update_combat_instance", async (req, res) => {
         // Loop over instance details array
         req.body.instance_details.forEach((player) => {
             // Loop over removed turns array and delete any elements that have an id value
-            player.removedTurns.forEach((turn) => {
+            player.removedTurns.forEach(async (turn) => {
                 if (turn.id) {
-                    combatInstancePlayerTurnsController.deleteTurn(turn.id);
+                    await combatInstancePlayerTurnsController.deleteTurn(
+                        turn.id
+                    );
                 }
             });
 
