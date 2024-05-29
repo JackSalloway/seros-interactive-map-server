@@ -136,6 +136,22 @@ router.delete("/delete_combat_instance", async (req, res) => {
 router.put("/update_combat_instance", async (req, res) => {
     console.log("update_combat_instance hit");
     try {
+        // Add new players in player table if neccessary
+        const playerDetails = await Promise.all(
+            req.body.instance_details.map(async (player) => {
+                // Check to see if the current player has an id value, if it doesnt then a new row will need to be made in the player table
+                if (!player.id) {
+                    const playerController = new PlayerController();
+                    const newPlayerId = await playerController.addNewPlayer(
+                        player,
+                        req.body.instance_campaign_id
+                    );
+                    player.id = newPlayerId;
+                }
+                return player;
+            })
+        );
+
         // Instantiate combat instance turns controller
         const combatInstancePlayerTurnsController =
             new CombatInstancePlayerTurnController();
