@@ -44,7 +44,7 @@ const refreshTokenFunc = async (token) => {
     // Create campaign query to find the users relevant campaigns
     const campaignQuery = `SELECT DISTINCT campaign.id, campaign.name, campaign.description
     FROM campaign
-    JOIN campaign_users on campaign_users.campaign_id = campaign_id
+    JOIN campaign_users on campaign_users.campaign_id = campaign.id
     WHERE campaign_users.user_id = ${dbUserID};`;
 
     const [campaignRows, _campaignField] = await database.execute(
