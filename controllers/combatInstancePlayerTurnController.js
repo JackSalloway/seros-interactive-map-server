@@ -2,6 +2,7 @@ const database = require("../services/database");
 const {
     selectQuery,
     insertStatement,
+    updateStatement,
     deleteStatement,
 } = require("../helpers/queries");
 
@@ -49,6 +50,32 @@ class CombatInstancePlayerTurnController {
         );
 
         return newTurnData;
+    }
+
+    async updateTurn(turn) {
+        const columnsPlusValues = {
+            damage: turn.damage,
+            healing: turn.healing,
+        };
+
+        // Create update statement
+        await updateStatement(
+            "combat_instance_player_turn",
+            columnsPlusValues,
+            "id",
+            turn.id
+        );
+
+        // Select only the updated turn from the database
+        const [updatedTurnData, _combatInstancePlayerTurnField] =
+            await selectQuery(
+                "combat_instance_player_turn",
+                defaultTurnQueryColumns,
+                "id",
+                turn.id
+            );
+
+        return updatedTurnData;
     }
 
     async deleteTurn(turnId) {

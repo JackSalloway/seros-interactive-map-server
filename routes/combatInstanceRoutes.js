@@ -149,9 +149,26 @@ router.put("/update_combat_instance", async (req, res) => {
                     combatInstancePlayerTurnsController.deleteTurn(turn.id);
                 }
             });
-        });
 
-
+            // Loop over turns array
+            player.turns.forEach(async (turn) => {
+                // Update the relevant turn row if it has an id value, create a new turn row if it doesnt
+                if (turn.id) {
+                    const updatedTurn =
+                        await combatInstancePlayerTurnsController.updateTurn(
+                            turn
+                        );
+                } else {
+                    const newTurn =
+                        await combatInstancePlayerTurnsController.addNewTurn(
+                            turn.turn_number,
+                            turn.damage,
+                            turn.healing,
+                            player.id,
+                            req.body.instance_id
+                        );
+                }
+            });
     } catch (err) {
         console.err(err);
         res.sendStatus(500);
