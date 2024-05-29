@@ -169,6 +169,7 @@ router.put("/update_combat_instance", async (req, res) => {
                         );
                 }
             });
+        });
     } catch (err) {
         console.err(err);
         res.sendStatus(500);
