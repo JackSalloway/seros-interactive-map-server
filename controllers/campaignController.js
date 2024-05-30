@@ -113,7 +113,7 @@ class CampaignController {
                 campaignResult.length > 0 ? campaignResult[0] : null;
 
             // Fetch all the usernames of the users in the campaign - id, username
-            const campaignUsersQuery = `SELECT id, username FROM user
+            const campaignUsersQuery = `SELECT id, username, is_admin FROM user
             JOIN campaign_users ON campaign_users.user_id = user.id
             WHERE campaign_users.campaign_id = ?`;
             const [campaignUsers, _campaignUsersFields] = await database.query(
