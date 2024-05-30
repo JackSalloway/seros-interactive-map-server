@@ -42,13 +42,14 @@ const refreshTokenFunc = async (token) => {
     const dbUsername = userRows[0].username;
 
     // Create campaign query to find the users relevant campaigns
-    const campaignQuery = `SELECT DISTINCT campaign.id, campaign.name, campaign.description
+    const campaignQuery = `SELECT campaign.id, campaign.name, campaign.description, is_admin
     FROM campaign
     JOIN campaign_users on campaign_users.campaign_id = campaign.id
-    WHERE campaign_users.user_id = ${dbUserID};`;
+    WHERE campaign_users.user_id = ?`;
 
-    const [campaignRows, _campaignField] = await database.execute(
-        campaignQuery
+    const [campaignRows, _campaignField] = await database.query(
+        campaignQuery,
+        dbUserID
     );
 
     // Password matches username, so create Access and Refresh tokens

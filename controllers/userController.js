@@ -95,24 +95,13 @@ class UserController {
                 ); // Password provided does not match the username
 
             // Create campaign query to find the users relevant campaigns
-            const userCampaignQuery = `SELECT DISTINCT ?? , ?? , ?? 
-            FROM ??
-            JOIN ?? ON ?? = ??
-            WHERE ?? = ?`;
-            const userCampaignParams = [
-                "id",
-                "name",
-                "description",
-                "campaign",
-                "campaign_users",
-                "campaign_users.campaign_id",
-                "id",
-                "campaign_users.user_id",
-                dbUserId,
-            ];
+            const userCampaignQuery = `SELECT id, name, description, is_admin
+            FROM campaign JOIN campaign_users ON campaign_users.campaign_id = id
+            WHERE campaign_users.user_id = ?`;
+
             const [campaignRows, _campaignField] = await database.query(
                 userCampaignQuery,
-                userCampaignParams
+                dbUserId
             );
 
             // Password matches username, so create Access and Refresh tokens
