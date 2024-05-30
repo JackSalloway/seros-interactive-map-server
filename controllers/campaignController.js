@@ -1,6 +1,7 @@
 const database = require("../services/database");
 const crypto = require("crypto");
 const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
+const { selectQuery } = require("../helpers/queries");
 
 //Error imports
 const CampaignNoLongerExistsError = require("../errors/campaignErrors/campaignNoLongerExistsError");
@@ -94,41 +95,42 @@ class CampaignController {
     // Fetch all data on a campaign and return it in a campaignSettings object for the user.
     async campaignSettings(campaignId) {
         try {
-            const campaign = await Campaign.find({
-                _id: mongoose.Types.ObjectId(campaignId),
-            });
-            if (!campaign)
-                throw new CampaignNoLongerExistsError(
-                    "This campaign no longer exists."
-                );
-            // console.log(campaign);
-            const invite = await Invite.find({
-                campaign: mongoose.Types.ObjectId(campaignId),
-            })
-                .populate("campaign")
-                .lean()
-                .exec();
+            // Fetch campaign data - id, name, description, created_at, updated_at
+            const columns = [
+                "id",
+                "name",
+                "description",
+                "created_at",
+                "updated_at",
+            ];
+            const campaignResult = await selectQuery(
+                "campaign",
+                columns,
+                "id",
+                campaignId
+            );
+            const campaign =
+                campaignResult.length > 0 ? campaignResult[0] : null;
 
-            // Find all users who have joined the campaign, and return their names and campaign details
-            const campaignUsers = await User.find(
-                {
-                    campaigns: {
-                        $elemMatch: {
-                            campaign: campaignId,
-                        },
-                    },
-                },
-                {
-                    username: 1,
-                    campaigns: { $elemMatch: { campaign: campaignId } },
-                }
-            )
-                .lean()
-                .exec();
+            // Fetch all the usernames of the users in the campaign - id, username
+            const campaignUsersQuery = `SELECT id, username FROM user
+            JOIN campaign_users ON campaign_users.user_id = user.id
+            WHERE campaign_users.campaign_id = ?`;
+            const [campaignUsers, _campaignUsersFields] = await database.query(
+                campaignUsersQuery,
+                campaignId
+            );
 
-            console.log(campaignUsers);
+            // Find an invite that has been created for the campaign and is still in use - code
+            const campaignInvitesQuery = `SELECT code FROM invite WHERE campaign_id = ? AND expires_at > NOW()`;
+            const [inviteResult, _inviteFields] = await database.query(
+                campaignInvitesQuery,
+                campaignId
+            );
+            const campaignInvite =
+                inviteResult.length > 0 ? inviteResult[0] : null;
 
-            return { campaign, invite, campaignUsers };
+            return { campaign, campaignInvite, campaignUsers };
         } catch (err) {
             throw err;
         }

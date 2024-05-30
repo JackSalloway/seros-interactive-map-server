@@ -55,17 +55,14 @@ router.post("/create_campaign", ...Validators.campaign(), async (req, res) => {
 // GET request to fetch campaign settings
 router.get("/campaign_settings", async (req, res) => {
     console.log("campaign settings hit");
-    // console.log(req.query.campaign_id);
     try {
         const controller = new CampaignController();
-        const { campaign, invite, campaignUsers } =
+        const { campaign, campaignInvite, campaignUsers } =
             await controller.campaignSettings(req.query.campaign_id);
-        // console.log(campaign);
-        // console.log(invite);
-        res.json({ campaign, invite, campaignUsers });
+        res.json({ campaign, campaignInvite, campaignUsers });
     } catch (err) {
         console.error(err);
-        res.sendstatus(500);
+        res.sendStatus(500);
     }
 });
 
