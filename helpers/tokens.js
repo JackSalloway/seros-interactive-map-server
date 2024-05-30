@@ -1,13 +1,9 @@
 const { sign } = require("jsonwebtoken");
 
-const createAccessToken = (userId, username, campaigns) => {
-    return sign(
-        { userId, username, campaigns },
-        process.env.ACCESS_TOKEN_SECRET,
-        {
-            expiresIn: "7d",
-        }
-    );
+const createAccessToken = (id, username, campaigns) => {
+    return sign({ id, username, campaigns }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "7d",
+    });
 };
 
 const createRefreshToken = (userId) => {
