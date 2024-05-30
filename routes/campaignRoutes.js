@@ -66,7 +66,7 @@ router.get("/campaign_settings", async (req, res) => {
     }
 });
 
-router.post("/update_campaign", ...Validators.campaign(), async (req, res) => {
+router.put("/update_campaign", ...Validators.campaign(), async (req, res) => {
     console.log("update campaign hit");
     const errors = Validators.validateResult(req);
     if (errors !== undefined) {
@@ -74,10 +74,9 @@ router.post("/update_campaign", ...Validators.campaign(), async (req, res) => {
     }
     try {
         const controller = new CampaignController();
-        console.log(req.body);
         const updatedData = {
             name: req.body.campaign_name,
-            desc: req.body.campaign_desc,
+            description: req.body.campaign_description,
         };
         const { accessToken, refreshToken, returnValue } =
             await controller.updateCampaign(
@@ -89,6 +88,7 @@ router.post("/update_campaign", ...Validators.campaign(), async (req, res) => {
         setAccessToken(req, res, accessToken); // Send response
         console.log(returnValue);
         res.send(returnValue);
+        // res.send(null);
     } catch (err) {
         console.error(err);
         res.sendStatus(500);

@@ -56,7 +56,7 @@ class Validators {
                 .escape(),
 
             // Description field
-            body("campaign_desc", "Campaign description required.")
+            body("campaign_description", "Campaign description required.")
                 .trim()
                 .isString()
                 .withMessage("Campaign description must be a string.")

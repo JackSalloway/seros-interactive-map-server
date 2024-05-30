@@ -1,7 +1,7 @@
 const database = require("../services/database");
 const crypto = require("crypto");
 const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
-const { selectQuery } = require("../helpers/queries");
+const { selectQuery, updateStatement } = require("../helpers/queries");
 
 //Error imports
 const CampaignNoLongerExistsError = require("../errors/campaignErrors/campaignNoLongerExistsError");
@@ -138,46 +138,57 @@ class CampaignController {
 
     async updateCampaign(campaignId, data, username) {
         try {
-            const user = await User.findOne({ username: username });
+            // Select user from database
+            const userQuery = `SELECT id, username FROM user WHERE username = ?`;
+            const [userResult, _userField] = await database.query(
+                userQuery,
+                username
+            );
+            const user = userResult.length > 0 ? userResult[0] : null;
 
-            await Campaign.findOneAndUpdate(
-                { _id: campaignId },
-                { $set: data },
-                { new: true }
-            )
-                .lean()
-                .exec();
+            // Update campaign values
+            await updateStatement(
+                "campaign",
+                {
+                    name: data.name,
+                    description: data.description,
+                },
+                "id",
+                campaignId
+            );
 
+            // Create refresh token and update user value in the database
             const refreshToken = createRefreshToken(user.id);
+            await updateStatement(
+                "user",
+                { refresh_token: refreshToken },
+                "id",
+                user.id
+            );
 
-            const updatedUser = await User.findOneAndUpdate(
-                {
-                    username: username,
-                },
-                {
-                    $set: { refresh_token: refreshToken },
-                },
-                { new: true }
-            )
-                .populate("campaigns.campaign")
-                .lean()
-                .exec();
+            // Create campaign query to find the users relevant campaigns
+            const userCampaignQuery = `SELECT id, name, description, is_admin
+            FROM campaign JOIN campaign_users ON campaign_users.campaign_id = id
+            WHERE campaign_users.user_id = ?`;
+
+            const [campaignRows, _campaignField] = await database.query(
+                userCampaignQuery,
+                user.id
+            );
 
             const accessToken = createAccessToken(
-                updatedUser.id,
-                username,
-                updatedUser.privileged,
-                updatedUser.campaigns
+                user.id,
+                user.username,
+                campaignRows
             );
-            console.log(updatedUser);
 
             return {
                 accessToken,
                 refreshToken,
                 returnValue: {
-                    username,
-                    privileged: updatedUser.privileged,
-                    campaigns: updatedUser.campaigns,
+                    username: username,
+                    // privileged: updatedUser.privileged,
+                    campaigns: campaignRows,
                 },
             };
         } catch (err) {
