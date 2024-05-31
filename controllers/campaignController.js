@@ -1,7 +1,11 @@
 const database = require("../services/database");
 const crypto = require("crypto");
 const { createAccessToken, createRefreshToken } = require("../helpers/tokens");
-const { selectQuery, updateStatement } = require("../helpers/queries");
+const {
+    selectQuery,
+    insertStatement,
+    updateStatement,
+} = require("../helpers/queries");
 
 //Error imports
 const CampaignNoLongerExistsError = require("../errors/campaignErrors/campaignNoLongerExistsError");
@@ -38,53 +42,53 @@ class CampaignController {
     }
 
     // Create a new campaign and assign the creator as an admin
-    async createCampaign(campaignData, username) {
+    async createCampaign(campaignData, userData) {
         try {
-            // Find user in database, this could also be done by passing the id as part of the body
-            const user = await User.findOne({ username: username });
-            const campaign = new Campaign(campaignData);
-            await campaign.save();
-            const newCampaignUserData = {
-                campaign: mongoose.Types.ObjectId(campaign.id),
-                admin: true,
-                creator: true,
-            };
-
-            const refreshToken = createRefreshToken(user.id);
-
-            const updatedUser = await User.findOneAndUpdate(
-                { username: username },
-                {
-                    $push: { campaigns: newCampaignUserData },
-                    $set: { refresh_token: refreshToken },
-                },
-                { new: true }
-            )
-                .populate("campaigns.campaign")
-                .lean()
-                .exec();
-
-            const accessToken = createAccessToken(
-                updatedUser.id,
-                username,
-                updatedUser.privileged,
-                updatedUser.campaigns
+            // Create a new campaign in the database
+            const [newCampaign] = await insertStatement(
+                "campaign",
+                ["name", "description"],
+                [campaignData.name, campaignData.description]
             );
 
-            /// NEED THIS CODE TO KEEP USER LOGGED IN THROUGH USE OF COOKIES
+            // Create a new campaign_players row and set them as an admin
+            const [newCampaignUser] = await insertStatement(
+                "campaign_users",
+                ["campaign_id", "user_id", "is_admin"],
+                [newCampaign.insertId, userData.id, 1]
+            );
 
-            // User.updateOne({ username: username }, {}).exec();
-            /// NEED THIS CODE TO KEEP USER LOGGED IN THROUGH USE OF COOKIES
+            // Create new refresh token and update the user row
+            const refreshToken = createRefreshToken(userData.id);
+            await updateStatement(
+                "user",
+                { refresh_token: refreshToken },
+                "id",
+                userData.id
+            );
 
-            console.log(updatedUser);
+            // Create campaign query to find the users relevant campaigns
+            const userCampaignQuery = `SELECT id, name, description, is_admin
+            FROM campaign JOIN campaign_users ON campaign_users.campaign_id = id
+            WHERE campaign_users.user_id = ?`;
+
+            const [campaignRows, _campaignField] = await database.query(
+                userCampaignQuery,
+                userData.id
+            );
+
+            const accessToken = createAccessToken(
+                userData.id,
+                userData.username,
+                campaignRows
+            );
 
             return {
                 accessToken,
                 refreshToken,
                 returnValue: {
-                    username,
-                    privileged: updatedUser.privileged,
-                    campaigns: updatedUser.campaigns,
+                    username: userData.username,
+                    campaigns: campaignRows,
                 },
             };
         } catch (err) {

@@ -34,18 +34,23 @@ router.post("/create_campaign", ...Validators.campaign(), async (req, res) => {
     try {
         const campaignData = {
             name: req.body.campaign_name,
-            desc: req.body.campaign_desc,
+            description: req.body.campaign_description,
         };
 
-        // console.log(campaignData);
-        // console.log(req.body.username);
+        const userData = {
+            username: req.body.username,
+            id: req.body.user_id,
+        };
+
+        // Create a new campaign with the given data
         const controller = new CampaignController();
         const { accessToken, refreshToken, returnValue } =
-            await controller.createCampaign(campaignData, req.body.username);
+            await controller.createCampaign(campaignData, userData);
         setRefreshToken(res, refreshToken); // Set cookies
         setAccessToken(req, res, accessToken); // Send response
-        console.log(returnValue);
+
         res.send(returnValue);
+        // res.send({});
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
@@ -87,6 +92,7 @@ router.put("/update_campaign", ...Validators.campaign(), async (req, res) => {
         setRefreshToken(res, refreshToken); // Set cookies
         setAccessToken(req, res, accessToken); // Send response
         console.log(returnValue);
+
         res.send(returnValue);
         // res.send(null);
     } catch (err) {

@@ -61,7 +61,9 @@ class Validators {
                 .isString()
                 .withMessage("Campaign description must be a string.")
                 .isLength({ min: 1 })
-                .withMessage("Campaign name must be greater than 1 character.")
+                .withMessage(
+                    "Campaign description must be greater than 1 character."
+                )
                 .escape(),
         ];
     }
