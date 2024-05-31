@@ -390,7 +390,7 @@ class CampaignController {
             const [instances] = await database.query(
                 `SELECT COUNT(*) AS count FROM combat_instance
                 JOIN location ON location.id = combat_instance.location_id
-                WHERE campaign_id = 2`,
+                WHERE campaign_id = ?`,
                 campaignId
             );
             const instanceCount = instances.length > 0 ? instances[0].count : 0;
