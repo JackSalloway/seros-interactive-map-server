@@ -356,6 +356,50 @@ class CampaignController {
             throw err;
         }
     }
+
+    async getDataCounts(campaignId) {
+        try {
+            // Query the amount of locations
+            const [locations] = await database.query(
+                "SELECT COUNT(*) AS count FROM location WHERE campaign_id = ?",
+                campaignId
+            );
+            const locationCount = locations.length > 0 ? locations[0].count : 0;
+
+            // Query the amount of npcs
+            const [npcs] = await database.query(
+                `SELECT DISTINCT COUNT(*) AS count FROM npc
+                JOIN location_npcs ON location_npcs.npc_id = npc.id
+                JOIN location ON location.id = location_npcs.location_id
+                WHERE campaign_id = ?`,
+                campaignId
+            );
+            const npcCount = npcs.length > 0 ? npcs[0].count : 0;
+
+            // Query the amount of quests
+            const [quests] = await database.query(
+                `SELECT DISTINCT COUNT(*) AS count FROM quest
+                JOIN location_quests ON location_quests.quest_id = quest.id
+                JOIN location ON location.id = location_quests.location_id
+                WHERE campaign_id = ?`,
+                campaignId
+            );
+            const questCount = quests.length > 0 ? quests[0].count : 0;
+
+            // QUERY INSTANCES COUNT
+            const [instances] = await database.query(
+                `SELECT COUNT(*) AS count FROM combat_instance
+                JOIN location ON location.id = combat_instance.location_id
+                WHERE campaign_id = 2`,
+                campaignId
+            );
+            const instanceCount = instances.length > 0 ? instances[0].count : 0;
+
+            return { locationCount, npcCount, questCount, instanceCount };
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 
 module.exports = CampaignController;

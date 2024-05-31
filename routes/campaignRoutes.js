@@ -143,4 +143,17 @@ router.post("/join_campaign", async (req, res) => {
     }
 });
 
+// GET request to fetch all rows in major tables (locations, npcs, quests, instances) that reference a specific campaign id
+router.get("/campaign_data_count", async (req, res) => {
+    try {
+        const controller = new CampaignController();
+        const { locationCount, npcCount, questCount, instanceCount } =
+            await controller.getDataCounts(req.query.campaign_id);
+        res.send({ locationCount, npcCount, questCount, instanceCount });
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
 module.exports = router;

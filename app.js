@@ -89,7 +89,7 @@ app.use(
 
 // Authorize user by veryfying JWT
 app.use(
-    /^(.(?!(campaign_player_data|location_data|npc_data|quest_data|changelog_data|combat_instance_data|login|register|logout|startup|campaign_settings|campaign_generate_code)))*$/,
+    /^(.(?!(campaign_player_data|campaign_data_count|location_data|npc_data|quest_data|changelog_data|combat_instance_data|login|register|logout|startup|campaign_settings|campaign_generate_code)))*$/,
     (req, res, next) => {
         try {
             const userToken = authorizeUser(req);
