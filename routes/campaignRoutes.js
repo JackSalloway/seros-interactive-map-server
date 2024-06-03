@@ -156,4 +156,23 @@ router.get("/campaign_data_count", async (req, res) => {
     }
 });
 
+// DELETE request to delete a specific campaign by id
+router.delete("/delete_campaign", async (req, res) => {
+    try {
+        const controller = new CampaignController();
+
+        const { accessToken, refreshToken, returnValue } =
+            await controller.deleteCampaign(
+                req.body.campaign_id,
+                req.body.user
+            );
+        setRefreshToken(res, refreshToken); // Set cookies
+        setAccessToken(req, res, accessToken); // Send response
+        res.send(returnValue);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
 module.exports = router;

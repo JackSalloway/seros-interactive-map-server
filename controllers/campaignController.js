@@ -5,6 +5,7 @@ const {
     selectQuery,
     insertStatement,
     updateStatement,
+    deleteStatement,
 } = require("../helpers/queries");
 
 //Error imports
@@ -393,6 +394,47 @@ class CampaignController {
         } catch (err) {
             throw err;
         }
+    }
+
+    async deleteCampaign(campaignId, user) {
+        console.log(campaignId, user);
+
+        // Create delete statement
+        await deleteStatement("campaign", "id", campaignId);
+
+        // // Create refresh token and update user value in the database
+        const refreshToken = createRefreshToken(user.id);
+        await updateStatement(
+            "user",
+            { refresh_token: refreshToken },
+            "id",
+            user.id
+        );
+
+        // Create campaign query to find the users relevant campaigns
+        const userCampaignQuery = `SELECT id, name, description, is_admin
+        FROM campaign JOIN campaign_users ON campaign_users.campaign_id = id
+        WHERE campaign_users.user_id = ?`;
+
+        const [campaignRows, _campaignField] = await database.query(
+            userCampaignQuery,
+            user.id
+        );
+
+        const accessToken = createAccessToken(
+            user.id,
+            user.username,
+            campaignRows
+        );
+
+        return {
+            accessToken,
+            refreshToken,
+            returnValue: {
+                username: user.username,
+                campaigns: campaignRows,
+            },
+        };
     }
 }
 
