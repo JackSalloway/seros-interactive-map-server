@@ -88,9 +88,8 @@ class CampaignController {
             return {
                 accessToken,
                 refreshToken,
-                returnValue: {
-                    username: userData.username,
-                    campaigns: campaignRows,
+                campaign: {
+                    id: newCampaign.insertId,
                 },
             };
         } catch (err) {

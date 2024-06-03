@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Validators = require("../helpers/validators");
 const CampaignController = require("../controllers/campaignController");
+const ChangelogController = require("../controllers/changelogController");
 const { setRefreshToken, setAccessToken } = require("../helpers/tokens");
 
 // Error imports
@@ -45,13 +46,23 @@ router.post("/create_campaign", ...Validators.campaign(), async (req, res) => {
 
         // Create a new campaign with the given data
         const controller = new CampaignController();
-        const { accessToken, refreshToken, returnValue } =
+        const { accessToken, refreshToken, campaign } =
             await controller.createCampaign(campaignData, userData);
         setRefreshToken(res, refreshToken); // Set cookies
         setAccessToken(req, res, accessToken); // Send response
 
-        res.send(returnValue);
-        // res.send({});
+        // Add a new changelog value showing a user created the campaign - As the user is on the dashboard when creating campaigns, a changelog result is not necessary
+        const changelogController = new ChangelogController();
+        await changelogController.updateChangelog(
+            campaign.id,
+            userData.username,
+            campaignData.name,
+            req.url
+        );
+
+        res.status(201).send(
+            `Campaign: ${campaignData.name} successfully Created!`
+        );
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
