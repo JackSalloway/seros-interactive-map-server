@@ -105,11 +105,9 @@ router.put("/campaign_generate_code", async (req, res) => {
     console.log("campaign generate code hit");
     try {
         const controller = new CampaignController();
-        // console.log(req.body);
         const result = await controller.campaignCreateInviteCode(
             req.body.campaign_id
         );
-        // console.log(result);
         res.send(result);
     } catch (err) {
         console.error(err);

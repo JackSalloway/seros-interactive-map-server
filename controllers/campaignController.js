@@ -219,31 +219,33 @@ class CampaignController {
 
     async campaignCreateInviteCode(campaignId) {
         try {
-            const inviteExists = Invite.findOne({
-                campaign: mongoose.Types.ObjectId(campaignId),
-            });
-            if (inviteExists) {
-                console.log(
-                    "Invite code already exists - no need to create another."
+            // Check if there is already a valid invite
+            const [inviteExists] = await database.query(
+                `SELECT * FROM invite WHERE expires_at > NOW()`
+            );
+            const existingInvite =
+                inviteExists.length > 0 ? inviteExists[0] : null;
+
+            let invite = {};
+
+            if (existingInvite !== null) {
+                // Valid invite found
+                invite = inviteExists[0];
+            } else {
+                // No valid invite found, so create a new one
+                const inviteCode = crypto.randomUUID();
+                const [insertNewInvite] = await database.query(
+                    `INSERT INTO invite(code, campaign_id) VALUES (?, ?)`,
+                    [inviteCode, campaignId]
                 );
+                const [newInvite] = await database.query(
+                    `SELECT * FROM invite WHERE id = ?`,
+                    insertNewInvite.insertId
+                );
+                invite = newInvite[0];
             }
-            const inviteCode = crypto.randomUUID();
-            const date = new Date();
 
-            const inviteData = {
-                code: inviteCode,
-                created_at: date,
-                campaign: campaignId,
-            };
-
-            const invite = new Invite(inviteData);
-            await invite.save();
-            console.log(inviteData);
-
-            return await Invite.find({ _id: invite._id })
-                .populate("campaign")
-                .lean()
-                .exec();
+            return invite;
         } catch (err) {
             throw err;
         }
