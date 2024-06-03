@@ -368,20 +368,14 @@ class CampaignController {
 
             // Query the amount of npcs
             const [npcs] = await database.query(
-                `SELECT DISTINCT COUNT(*) AS count FROM npc
-                JOIN location_npcs ON location_npcs.npc_id = npc.id
-                JOIN location ON location.id = location_npcs.location_id
-                WHERE campaign_id = ?`,
+                `SELECT COUNT(*) AS count FROM npc WHERE campaign_id = ?`,
                 campaignId
             );
             const npcCount = npcs.length > 0 ? npcs[0].count : 0;
 
             // Query the amount of quests
             const [quests] = await database.query(
-                `SELECT DISTINCT COUNT(*) AS count FROM quest
-                JOIN location_quests ON location_quests.quest_id = quest.id
-                JOIN location ON location.id = location_quests.location_id
-                WHERE campaign_id = ?`,
+                `SELECT COUNT(*) AS count from quest WHERE campaign_id = ?`,
                 campaignId
             );
             const questCount = quests.length > 0 ? quests[0].count : 0;
