@@ -11,6 +11,7 @@ const {
 //Error imports
 const CampaignNoLongerExistsError = require("../errors/campaignErrors/campaignNoLongerExistsError");
 const InviteDoesNotExistError = require("../errors/inviteErrors/inviteDoesNotExistError");
+const InviteExpiredError = require("../errors/inviteErrors/inviteExpiredError");
 const UserAlreadyInCampaignError = require("../errors/campaignErrors/userAlreadyInCampaignError");
 class CampaignController {
     // Return all relevant players
@@ -251,109 +252,78 @@ class CampaignController {
         }
     }
 
-    async joinCampaign(username, inviteCode) {
+    async joinCampaign(user, inviteCode) {
         try {
-            const invite = await Invite.find({ code: inviteCode })
-                .lean()
-                .exec();
+            // Select the invite from the code provided
+            const [checkInvite] = await database.query(
+                `SELECT * FROM invite WHERE code = ?`,
+                inviteCode
+            );
+            const invite = checkInvite.length > 0 ? checkInvite[0] : null;
 
-            // Check if invite code is valid
-
-            console.log(invite);
-
-            if (!invite[0]) {
-                throw new InviteDoesNotExistError("Invite code not valid.");
+            // Check if invite code exists in the database
+            if (invite === null) {
+                throw new InviteDoesNotExistError("Invite code invalid.");
             }
 
-            // find method seems to return an array, so have to select index 0 of that array
-            const campaign = await Campaign.findById(invite[0].campaign);
+            // Check the expiry date of the invite code against current timestamp
+            const dateToCheck = new Date(invite.expired_at);
+            const now = new Date();
 
-            const user = await User.findOne({ username: username });
+            if (dateToCheck < now) {
+                throw new InviteExpiredError("Invite code expired.");
+            }
 
-            const doesUserHaveCampaign = await User.findOne({
-                campaigns: {
-                    $elemMatch: {
-                        campaign: campaign._id,
-                    },
-                },
-                username: username,
-            })
-                .lean()
-                .exec();
+            // Check if the user is already in that campaign
+            const [campaignUser] = await database.query(
+                `SELECT * FROM campaign_users WHERE campaign_id = ? AND user_id = ?`,
+                [invite.campaign_id, user.id]
+            );
 
-            console.log(doesUserHaveCampaign);
+            const userInCampaign =
+                campaignUser.length > 0 ? campaignUser[0] : null;
 
-            if (doesUserHaveCampaign) {
+            if (userInCampaign !== null) {
                 throw new UserAlreadyInCampaignError(
-                    "You are already a member of this campaign."
+                    "You are already a member of that campaign."
                 );
             }
 
-            // console.log(user);
-
-            // const userCurrentCampaigns = user.campaigns.map((campaign) => {
-            //     return campaign.campaign;
-            // });
-
-            // console.log(invite[0].campaign.toString());
-            // userCurrentCampaigns.forEach((campaign) => {
-            //     console.log(
-            //         campaign.toString(),
-            //         "---",
-            //         invite[0].campaign.toString()
-            //     );
-            // });
-
-            // console.log(userCurrentCampaigns);
-
-            // Currently having issues with preventing users from joining the same campaign twice
-            // Cannot seem to get a truthy value back from the .every method below. Have also tried .filter
-            // Perhaps I will have to use a database find method that searches for users who have the username argument and already have the campaignId value in their campaigns field.
-
-            // console.log(
-            //     userCurrentCampaigns.every((id) => {
-            //         id.toString() == invite[0].campaign.toString();
-            //     })
-            // );
-
-            const refreshToken = createRefreshToken(
-                mongoose.Types.ObjectId(user.id)
+            // Insert new campaign_user row to add user to this campaign
+            await insertStatement(
+                "campaign_users",
+                ["campaign_id", "user_id", "is_admin"],
+                [invite.campaign_id, user.id, 0]
             );
 
-            const joinCampaignUserData = {
-                campaign: campaign._id,
-                admin: false,
-                creator: false,
-            };
+            // Create refresh token and update user value in the database
+            const refreshToken = createRefreshToken(user.id);
+            await updateStatement(
+                "user",
+                { refresh_token: refreshToken },
+                "id",
+                user.id
+            );
 
-            const updatedUser = await User.findOneAndUpdate(
-                { username: username },
-                {
-                    $push: { campaigns: joinCampaignUserData },
-                    $set: { refresh_token: refreshToken },
-                },
-                { new: true }
-            )
-                .populate("campaigns.campaign")
-                .lean()
-                .exec();
+            // Create campaign query to find the users relevant campaigns
+            const userCampaignQuery = `SELECT id, name, description, is_admin
+            FROM campaign JOIN campaign_users ON campaign_users.campaign_id = id
+            WHERE campaign_users.user_id = ?`;
 
-            // console.log("updatedUser: ", updatedUser);
+            const [campaignRows, _campaignField] = await database.query(
+                userCampaignQuery,
+                user.id
+            );
 
             const accessToken = createAccessToken(
-                updatedUser._id,
-                updatedUser.username,
-                updatedUser.privileged,
-                updatedUser.campaigns
+                user.id,
+                user.username,
+                campaignRows
             );
+
             return {
                 accessToken,
                 refreshToken,
-                returnValue: {
-                    username: updatedUser.username,
-                    privileged: updatedUser.privileged,
-                    campaigns: updatedUser.campaigns,
-                },
             };
         } catch (err) {
             throw err;

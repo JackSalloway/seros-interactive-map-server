@@ -38,6 +38,7 @@ const getDatabasePoolConnection = () => {
             enableKeepAlive: true,
             keepAliveInitialDelay: 0,
             supportBigNumbers: true,
+            timezone: "Z",
             ssl: {
                 ca: process.env.MYSQL_CA_CERT,
             },

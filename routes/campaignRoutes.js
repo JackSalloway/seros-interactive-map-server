@@ -7,6 +7,7 @@ const { setRefreshToken, setAccessToken } = require("../helpers/tokens");
 // Error imports
 const UserAlreadyInCampaignError = require("../errors/campaignErrors/userAlreadyInCampaignError");
 const InviteCodeDoesNotExistError = require("../errors/inviteErrors/inviteDoesNotExistError");
+const InviteExpiredError = require("../errors/inviteErrors/inviteExpiredError");
 
 /// CAMPAIGN ROUTES ///
 
@@ -119,22 +120,25 @@ router.post("/join_campaign", async (req, res) => {
     console.log("join campaign hit");
     try {
         const controller = new CampaignController();
-        const { accessToken, refreshToken, returnValue } =
-            await controller.joinCampaign(
-                req.body.username,
-                req.body.invite_code
-            );
+        const { accessToken, refreshToken } = await controller.joinCampaign(
+            req.body.user,
+            req.body.invite_code
+        );
         setRefreshToken(res, refreshToken); // Set cookies
         setAccessToken(req, res, accessToken); // Send response
-        res.send(returnValue);
+        res.status(201).send("Campaign successfully joined!");
     } catch (err) {
         console.error(err);
         if (err instanceof UserAlreadyInCampaignError) {
-            res.status(400).send("You are already a member in this campaign.");
+            res.status(400).send("You are already a member of that campaign.");
             return;
         }
         if (err instanceof InviteCodeDoesNotExistError) {
             res.status(400).send("Invite code invalid.");
+            return;
+        }
+        if (err instanceof InviteExpiredError) {
+            res.status(400).send("Invite code expired.");
             return;
         }
         res.sendStatus(500);
