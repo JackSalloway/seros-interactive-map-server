@@ -196,9 +196,17 @@ class NPCController {
                 "race",
                 "disposition",
                 "status",
+                "campaign_id",
             ];
 
-            const npcValues = [name, description, race, disposition, status];
+            const npcValues = [
+                name,
+                description,
+                race,
+                disposition,
+                status,
+                campaignId,
+            ];
 
             const [newNPC] = await insertStatement(
                 "npc",

@@ -139,8 +139,18 @@ class QuestController {
             const completedBoolean = completed === "true" ? 1 : 0;
 
             // Insert new quest into the database
-            const insertQuestColumns = ["name", "description", "completed"];
-            const questValues = [name, description, completedBoolean];
+            const insertQuestColumns = [
+                "name",
+                "description",
+                "completed",
+                "campaign_id",
+            ];
+            const questValues = [
+                name,
+                description,
+                completedBoolean,
+                campaignId,
+            ];
             const [newQuest] = await insertStatement(
                 "quest",
                 insertQuestColumns,
