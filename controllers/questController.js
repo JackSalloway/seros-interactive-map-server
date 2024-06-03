@@ -22,7 +22,7 @@ const defaultQuestParams = [
     "quest.description",
     "completed",
     "quest.updated_at",
-    "campaign_id",
+    "location.campaign_id",
     "quest",
     "location_quests",
     "location_quests.quest_id",
@@ -30,7 +30,7 @@ const defaultQuestParams = [
     "location",
     "location.id",
     "location_quests.location_id",
-    "campaign_id",
+    "location.campaign_id",
 ];
 
 const defaultQuestQueryColumns = [
@@ -77,7 +77,11 @@ class QuestController {
 
             const [locationQuests, _locationQuestsField] = await database.query(
                 defaultLocationQuestsQuery,
-                [...defaultLocationQuestsParams, "campaign_id", campaignId]
+                [
+                    ...defaultLocationQuestsParams,
+                    "location.campaign_id",
+                    campaignId,
+                ]
             );
 
             const questData = quests.map((quest) => {

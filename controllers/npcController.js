@@ -44,7 +44,7 @@ class NPCController {
                 "location",
                 "location.id",
                 "location_npcs.location_id",
-                "campaign_id",
+                "location.campaign_id",
                 campaignId,
                 "npc_id",
             ];
@@ -78,7 +78,7 @@ class NPCController {
                 "location",
                 "location.id",
                 "location_npcs.location_id",
-                "campaign_id",
+                "location.campaign_id",
                 campaignId,
             ];
 
@@ -108,7 +108,7 @@ class NPCController {
                 "location",
                 "location.id",
                 "location_npcs.location_id",
-                "campaign_id",
+                "location.campaign_id",
                 campaignId,
             ];
 
