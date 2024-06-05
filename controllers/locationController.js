@@ -31,28 +31,15 @@ class LocationController {
             );
 
             // Create prepared statement for sublocation query
-            const preparedSublocationsQuery = `SELECT ?? AS 'sublocation_id',
-            ?? AS 'sublocation_name',
-            ?? AS 'sublocation_description',
-            ?? FROM ??
-            JOIN ?? ON ?? = ?? WHERE ?? = ?`;
-
-            const params = [
-                "sublocation.id",
-                "sublocation.name",
-                "sublocation.description",
-                "sublocation.location_id",
-                "sublocation",
-                "location",
-                "location.id",
-                "sublocation.location_id",
-                "campaign_id",
-                campaignId,
-            ];
+            const preparedSublocationsQuery = `SELECT sublocation.id AS 'sublocation_id',
+            sublocation.name AS 'sublocation_name',
+            sublocation.description AS 'sublocation_description',
+            sublocation.location_id FROM sublocation
+            JOIN location ON location.id = sublocation.location_id WHERE campaign_id = ?`;
 
             const [sublocations, _sublocationField] = await database.query(
                 preparedSublocationsQuery,
-                params
+                campaignId
             );
 
             // Create location object for each location and populate it with relevant sublocations
