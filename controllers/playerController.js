@@ -6,7 +6,7 @@ class PlayerController {
     async addNewPlayer(player, campaignId) {
         try {
             // Convert BOOLEAN to number to satisfy TINYINT data type in the SQL schema
-            const isRealBoolean = player.isReal === "true" ? 1 : 0;
+            const isRealBoolean = player.isReal === true ? 1 : 0;
 
             const insertPlayerColumns = [
                 "name",
