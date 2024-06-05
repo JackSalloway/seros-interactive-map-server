@@ -183,14 +183,13 @@ router.delete("/delete_campaign", async (req, res) => {
     try {
         const controller = new CampaignController();
 
-        const { accessToken, refreshToken, returnValue } =
-            await controller.deleteCampaign(
-                req.body.campaign_id,
-                req.body.user
-            );
+        const { accessToken, refreshToken } = await controller.deleteCampaign(
+            req.body.campaign_id,
+            req.body.user
+        );
         setRefreshToken(res, refreshToken); // Set cookies
         setAccessToken(req, res, accessToken); // Send response
-        res.send(returnValue);
+        res.status(200).send(`Campaign successfully deleted.`);
     } catch (err) {
         console.error(err);
         res.sendStatus(500);

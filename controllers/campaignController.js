@@ -396,10 +396,6 @@ class CampaignController {
         return {
             accessToken,
             refreshToken,
-            returnValue: {
-                username: user.username,
-                campaigns: campaignRows,
-            },
         };
     }
 }
