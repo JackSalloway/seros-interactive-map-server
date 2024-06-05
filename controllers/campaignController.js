@@ -18,19 +18,10 @@ class CampaignController {
     async campaignPlayers(campaignId) {
         try {
             // Create a query for finding all relevant players
-            const playersQuery = `SELECT ??, ??, ??
-            FROM ?? WHERE ?? = ? AND ?? = ?`;
+            const playersQuery = `SELECT id, name, class
+            FROM player WHERE campaign_id = ? AND is_real = ?`;
 
-            const params = [
-                "id",
-                "name",
-                "class",
-                "player",
-                "campaign_id",
-                campaignId,
-                "is_real",
-                1,
-            ];
+            const params = [campaignId, 1];
 
             const [players, _playerField] = await database.query(
                 playersQuery,
