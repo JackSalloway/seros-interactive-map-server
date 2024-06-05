@@ -70,7 +70,6 @@ router.post("/create_location", ...Validators.location(), async (req, res) => {
 router.delete("/delete_location", async (req, res) => {
     console.log("delete location hit");
     try {
-        console.log(req.body);
         // Delete a single location
         const controller = new LocationController();
         await controller.deleteLocation(req.body.location_id);
