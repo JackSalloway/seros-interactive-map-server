@@ -9,7 +9,6 @@ const {
 } = require("../helpers/queries");
 
 //Error imports
-const CampaignNoLongerExistsError = require("../errors/campaignErrors/campaignNoLongerExistsError");
 const InviteDoesNotExistError = require("../errors/inviteErrors/inviteDoesNotExistError");
 const InviteExpiredError = require("../errors/inviteErrors/inviteExpiredError");
 const UserAlreadyInCampaignError = require("../errors/campaignErrors/userAlreadyInCampaignError");
