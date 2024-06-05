@@ -95,17 +95,26 @@ router.put("/update_campaign", ...Validators.campaign(), async (req, res) => {
             name: req.body.campaign_name,
             description: req.body.campaign_description,
         };
-        const { accessToken, refreshToken, returnValue } =
-            await controller.updateCampaign(
-                req.body.campaign_id,
-                updatedData,
-                req.body.username
-            );
+        const { accessToken, refreshToken } = await controller.updateCampaign(
+            req.body.campaign_id,
+            updatedData,
+            req.body.username
+        );
         setRefreshToken(res, refreshToken); // Set cookies
-        setAccessToken(req, res, accessToken); // Send response
-        console.log(returnValue);
+        setAccessToken(req, res, accessToken); // Send respons
 
-        res.send(returnValue);
+        // Add a new changelog value showing a user updated the campaign - As the user is on the dashboard when updating campaigns, a changelog result is not necessary
+        const changelogController = new ChangelogController();
+        await changelogController.updateChangelog(
+            req.body.campaign_id,
+            req.body.username,
+            updatedData.name,
+            req.url
+        );
+
+        res.status(201).send(
+            `Campaign: ${req.body.campaign_name} successfully updated!`
+        );
         // res.send(null);
     } catch (err) {
         console.error(err);

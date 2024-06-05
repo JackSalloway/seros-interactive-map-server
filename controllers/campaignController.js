@@ -190,11 +190,6 @@ class CampaignController {
             return {
                 accessToken,
                 refreshToken,
-                returnValue: {
-                    username: username,
-                    // privileged: updatedUser.privileged,
-                    campaigns: campaignRows,
-                },
             };
         } catch (err) {
             throw err;
