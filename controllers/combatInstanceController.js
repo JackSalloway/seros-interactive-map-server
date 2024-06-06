@@ -17,73 +17,23 @@ class CombatInstanceController {
     // Fetch combat instance data when a campaign is selected
     async combatInstanceData(campaignId) {
         try {
-            const combatInstanceQuery = `SELECT ?? AS ??, ??, ??,
-            ??, ?? AS ??, ??, ??, ??, ??
-            FROM ??
-            JOIN ?? ON ?? = ??
-            WHERE ?? = ?`;
-
-            const combatInstanceParams = [
-                "combat_instance.id",
-                "combat_instance_id",
-                "combat_instance.name",
-                "combat_instance.description",
-                "location_id",
-                "location.name",
-                "location_name",
-                "latitude",
-                "longitude",
-                "combat_instance.updated_at",
-                "campaign_id",
-                "combat_instance",
-                "location",
-                "location.id",
-                "combat_instance.location_id",
-                "campaign_id",
-                campaignId,
-            ];
+            const combatInstanceQuery = `SELECT combat_instance.id AS combat_instance_id, combat_instance.name, combat_instance.description,
+            location_id, location.name AS location_name, latitude, longitude, combat_instance.updated_at, campaign_id
+            FROM combat_instance
+            JOIN location ON location.id = combat_instance.location_id
+            WHERE campaign_id = ?`;
 
             const [combatInstances, _combatInstanceField] =
-                await database.query(combatInstanceQuery, combatInstanceParams);
+                await database.query(combatInstanceQuery, campaignId);
 
-            const combatInstanceTurnsQuery = `SELECT ?? AS ??, ??, ??, ??,
-            ??, ?? AS ??, ?? AS ??, ??, ?? AS ??, ??
-            FROM ??
-            JOIN ?? ON ?? = ??
-            JOIN ?? ON ?? = ??
-            WHERE ?? = ?`;
-
-            const combatInstanceTurnsParams = [
-                "combat_instance_player_turn.id",
-                "player_turn_id",
-                "turn_number",
-                "damage",
-                "healing",
-                "player_id",
-                "player.name",
-                "player_name",
-                "player.class",
-                "player_class",
-                "combat_instance_id",
-                "campaign.id",
-                "campaign_id",
-                "combat_instance_player_turn.updated_at",
-                "combat_instance_player_turn",
-                "player",
-                "player.id",
-                "combat_instance_player_turn.player_id",
-                "campaign",
-                "campaign.id",
-                "player.campaign_id",
-                "campaign_id",
-                campaignId,
-            ];
+            const combatInstanceTurnsQuery = `SELECT combat_instance_player_turn.id AS player_turn_id, turn_number, damage, healing,
+            player_id, player.name AS name, class, combat_instance_id, player.campaign_id AS campaign_id, combat_instance_player_turn.updated_at
+            FROM combat_instance_player_turn
+            JOIN player ON player.id = combat_instance_player_turn.player_id
+            WHERE campaign_id = ?`;
 
             const [combatInstanceTurns, _combatInstanceTurnField] =
-                await database.query(
-                    combatInstanceTurnsQuery,
-                    combatInstanceTurnsParams
-                );
+                await database.query(combatInstanceTurnsQuery, campaignId);
 
             const instanceData = combatInstances.map((instance) => {
                 // Create instance object
@@ -133,8 +83,8 @@ class CombatInstanceController {
                         // Player index does not exist yet, so create a new one with all relevant details
                         instanceObject.players.push({
                             id: playerTurn.player_id,
-                            name: playerTurn.player_name,
-                            class: playerTurn.player_class,
+                            name: playerTurn.name,
+                            class: playerTurn.class,
                             turns: [
                                 {
                                     id: playerTurn.player_turn_id,
