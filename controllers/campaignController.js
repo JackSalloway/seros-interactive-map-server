@@ -17,17 +17,19 @@ class CampaignController {
     async campaignPlayers(campaignId) {
         try {
             // Create a query for finding all relevant players
-            const playersQuery = `SELECT id, name, class
+            const playersQuery = `SELECT id, name, class, is_real
             FROM player WHERE campaign_id = ? AND is_real = ?`;
 
-            const params = [campaignId, 1];
+            const playerParams = [campaignId, 1];
+            const nonPlayerParams = [campaignId, 0];
 
-            const [players, _playerField] = await database.query(
-                playersQuery,
-                params
-            );
+            // Query for real players (player characters)
+            const [pcs] = await database.query(playersQuery, playerParams);
 
-            return players;
+            // Query for non-real players (non- player characters that are in combat instances)
+            const [npcs] = await database.query(playersQuery, nonPlayerParams);
+
+            return { pcs, npcs };
         } catch (err) {
             throw err;
         }
