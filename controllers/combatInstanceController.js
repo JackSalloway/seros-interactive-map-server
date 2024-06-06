@@ -27,7 +27,7 @@ class CombatInstanceController {
                 await database.query(combatInstanceQuery, campaignId);
 
             const combatInstanceTurnsQuery = `SELECT combat_instance_player_turn.id AS player_turn_id, turn_number, damage, healing,
-            player_id, player.name AS name, class, combat_instance_id, player.campaign_id AS campaign_id, combat_instance_player_turn.updated_at
+            player_id, player.name AS name, class, is_real, combat_instance_id, player.campaign_id AS campaign_id, combat_instance_player_turn.updated_at
             FROM combat_instance_player_turn
             JOIN player ON player.id = combat_instance_player_turn.player_id
             WHERE campaign_id = ?`;
@@ -85,6 +85,7 @@ class CombatInstanceController {
                             id: playerTurn.player_id,
                             name: playerTurn.name,
                             class: playerTurn.class,
+                            is_real: playerTurn.is_real,
                             turns: [
                                 {
                                     id: playerTurn.player_turn_id,
