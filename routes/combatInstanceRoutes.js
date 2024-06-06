@@ -3,7 +3,7 @@ const router = express.Router();
 const CombatInstanceController = require("../controllers/combatInstanceController");
 const PlayerController = require("../controllers/playerController");
 const CombatInstancePlayerTurnController = require("../controllers/combatInstancePlayerTurnController");
-// const CampaignController = require("../controllers/campaignController");
+const CampaignController = require("../controllers/campaignController");
 const ChangelogController = require("../controllers/changelogController");
 
 // GET request all combat instance data
@@ -36,7 +36,7 @@ router.post("/create_combat_instance", async (req, res) => {
                     const playerController = new PlayerController();
                     const newPlayerId = await playerController.addNewPlayer(
                         player,
-                        req.body.instance_campaign_id
+                        req.body.campaign_id
                     );
                     player.id = newPlayerId;
                 }
@@ -47,7 +47,7 @@ router.post("/create_combat_instance", async (req, res) => {
         const combatInstanceData = {
             name: req.body.instance_name,
             description: req.body.instance_description,
-            location_id: req.body.instance_location_id,
+            location_id: req.body.location_id,
         };
 
         // Create a new combat instance row and return it
@@ -88,22 +88,28 @@ router.post("/create_combat_instance", async (req, res) => {
 
         newCombatInstance.players = playerArray;
         newCombatInstance.location = {
-            id: req.body.instance_location_id,
-            name: req.body.instance_location_name,
-            latlng: req.body.instance_location_latlng,
+            id: req.body.location_id,
+            name: req.body.location_name,
+            latlng: req.body.location_latlng,
         };
+
+        // Select player values
+        const campaignController = new CampaignController();
+        const players = await campaignController.campaignPlayers(
+            req.body.campaign_id
+        );
 
         // Update the changelog to include a new combat instance creation
         const changelogController = new ChangelogController();
         const changelogResult = await changelogController.updateChangelog(
-            req.body.instance_campaign_id,
+            req.body.campaign_id,
             req.body.username,
             req.body.instance_name,
             req.url
         );
 
         // Return {instanceResult, changelogResult} and apply the returned data to the front end logic
-        return res.json({ newCombatInstance, changelogResult });
+        return res.json({ newCombatInstance, players, changelogResult });
     } catch (err) {
         console.error(err.message);
         res.sendStatus(500);
