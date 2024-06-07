@@ -91,7 +91,7 @@ class QuestController {
                     name: quest.name,
                     description: quest.description,
                     updated_at: quest.updated_at,
-                    completed: Boolean(quest.completed),
+                    completed: quest.completed === 1 ? true : false,
                     associated_locations: [],
                     campaign: {
                         id: quest.campaign_id,
@@ -136,7 +136,8 @@ class QuestController {
             } = data;
 
             // Convert completed value to numbers to satisfy the TINYINT data type in the SQL table
-            const completedBoolean = completed ? 1 : 0;
+            let completedBoolean = 0;
+            if (completed === "true") completedBoolean = 1;
 
             // Insert new quest into the database
             const insertQuestColumns = [
@@ -183,6 +184,10 @@ class QuestController {
                     newQuest.insertId,
                 ]);
 
+            // Update quest.completed value to a Boolean
+            if (newQuestData.completed === 1) newQuestData.completed = true;
+            else newQuestData.completed = false;
+
             // Add relevant data to object from other tables and then return newQuestData object
             newQuestData.associated_locations = newLocationQuestsData.map(
                 (locationQuest) => {
@@ -228,7 +233,8 @@ class QuestController {
             } = data;
 
             // Convert boolean values into numbers to satisfy TINYINT data type in SQL schema
-            const completedBoolean = completed ? 1 : 0;
+            let completedBoolean = 0;
+            if (completed === "true") completedBoolean = 1;
 
             // Create delete statement and delete all existing location_quests rows
             await deleteStatement("location_quests", "quest_id", questId);
@@ -272,7 +278,7 @@ class QuestController {
                 id: quest.id,
                 name: quest.name,
                 description: quest.description,
-                completed: Boolean(quest.completed),
+                completed: quest.completed === 1 ? true : false,
                 updated_at: quest.updated_at,
                 associated_locations: locationQuestsData.map((location) => {
                     return {
