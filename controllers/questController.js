@@ -227,8 +227,6 @@ class QuestController {
                 campaignId,
             } = data;
 
-            console.log(completed);
-
             // Convert boolean values into numbers to satisfy TINYINT data type in SQL schema
             const completedBoolean = completed ? 1 : 0;
 
@@ -244,8 +242,6 @@ class QuestController {
                     locationQuestsValues
                 );
             });
-
-            console.log(completedBoolean);
 
             // Update relevant quest row
             const columnsPlusValues = {
