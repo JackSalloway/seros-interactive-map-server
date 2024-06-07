@@ -69,6 +69,7 @@ router.post("/create_combat_instance", async (req, res) => {
                     id: player.id,
                     name: player.name,
                     class: player.class,
+                    is_real: player.isReal,
                     turns: [],
                 };
                 for (let i = 0; i < turns; i++) {
@@ -146,16 +147,20 @@ router.put("/update_combat_instance", async (req, res) => {
     console.log("update_combat_instance hit");
     try {
         // Add new players in player table if neccessary
-        await req.body.instance_details.forEach(async (player) => {
-            // Check to see if the current player has an id value, if it doesnt then a new row will need to be made in the player table
-            if (!player.id) {
-                const playerController = new PlayerController();
-                await playerController.addNewPlayer(
-                    player,
-                    req.body.campaign_id
-                );
-            }
-        });
+        const playerDetails = await Promise.all(
+            req.body.instance_details.map(async (player) => {
+                // Check to see if the current player has an id value, if it doesnt then a new row will need to be made in the player table
+                if (!player.id) {
+                    const playerController = new PlayerController();
+                    const newPlayerId = await playerController.addNewPlayer(
+                        player,
+                        req.body.campaign_id
+                    );
+                    player.id = newPlayerId;
+                }
+                return player;
+            })
+        );
 
         const updateCombatInstanceData = {
             name: req.body.instance_name,
@@ -178,9 +183,11 @@ router.put("/update_combat_instance", async (req, res) => {
             await combatInstancePlayerTurnsController.deleteTurn(id);
         });
 
-        // Loop over instance details array
-        req.body.instance_details.forEach((player) => {
-            // Loop over removed turns array and delete any elements that have an id value
+        // Loop over playerDetails array
+        playerDetails.forEach((player) => {
+            console.log(player);
+
+            // Loop over removed turns array and delete any elements that have an id value - some turns dont have ids as they could have been added and then removed for some reason
             player.removedTurns.forEach(async (turn) => {
                 if (turn.id) {
                     await combatInstancePlayerTurnsController.deleteTurn(
@@ -211,6 +218,12 @@ router.put("/update_combat_instance", async (req, res) => {
             req.body.instance_id
         );
 
+        // Select player values
+        const campaignController = new CampaignController();
+        const players = await campaignController.campaignPlayers(
+            req.body.campaign_id
+        );
+
         // Update changelog
         const changelogController = new ChangelogController();
         const changelogResult = await changelogController.updateChangelog(
@@ -220,7 +233,7 @@ router.put("/update_combat_instance", async (req, res) => {
             req.url
         );
 
-        res.send({ combatInstanceResult, changelogResult });
+        res.send({ combatInstanceResult, players, changelogResult });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);

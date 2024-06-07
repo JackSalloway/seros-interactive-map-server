@@ -122,7 +122,7 @@ class CombatInstanceController {
 
         // Select relevant turns from database
         const combatInstanceTurnsQuery = `SELECT combat_instance_player_turn.id AS "turn_id", turn_number, damage, healing,
-        combat_instance_player_turn.player_id AS "player_id", name, class
+        combat_instance_player_turn.player_id AS "player_id", name, class, is_real
         FROM combat_instance_player_turn
         JOIN player ON player.id = combat_instance_player_turn.player_id
         WHERE combat_instance_id = ?`;
@@ -161,7 +161,7 @@ class CombatInstanceController {
             if (playerIndex !== -1) {
                 // Player index already exists, so push the player_turn_id, turn_number, damage and healing values into it
                 combatInstanceObject.players[playerIndex].turns.push({
-                    id: playerTurn.player_turn_id,
+                    id: playerTurn.turn_id,
                     turn_number: playerTurn.turn_number,
                     damage: playerTurn.damage,
                     healing: playerTurn.healing,
@@ -172,9 +172,10 @@ class CombatInstanceController {
                     id: playerTurn.player_id,
                     name: playerTurn.name,
                     class: playerTurn.class,
+                    is_real: playerTurn.is_real,
                     turns: [
                         {
-                            id: playerTurn.player_turn_id,
+                            id: playerTurn.turn_id,
                             turn_number: playerTurn.turn_number,
                             damage: playerTurn.damage,
                             healing: playerTurn.healing,
