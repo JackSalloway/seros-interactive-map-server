@@ -92,6 +92,9 @@ router.post("/create_combat_instance", async (req, res) => {
             name: req.body.location_name,
             latlng: req.body.location_latlng,
         };
+        newCombatInstance.campaign = {
+            id: req.body.campaign_id,
+        };
 
         // Select player values
         const campaignController = new CampaignController();
