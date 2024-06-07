@@ -136,7 +136,7 @@ class QuestController {
             } = data;
 
             // Convert completed value to numbers to satisfy the TINYINT data type in the SQL table
-            const completedBoolean = completed === true ? 1 : 0;
+            const completedBoolean = completed ? 1 : 0;
 
             // Insert new quest into the database
             const insertQuestColumns = [
@@ -227,8 +227,10 @@ class QuestController {
                 campaignId,
             } = data;
 
+            console.log(completed);
+
             // Convert boolean values into numbers to satisfy TINYINT data type in SQL schema
-            const completedBoolean = completed === true ? 1 : 0;
+            const completedBoolean = completed ? 1 : 0;
 
             // Create delete statement and delete all existing location_quests rows
             await deleteStatement("location_quests", "quest_id", questId);
@@ -242,6 +244,8 @@ class QuestController {
                     locationQuestsValues
                 );
             });
+
+            console.log(completedBoolean);
 
             // Update relevant quest row
             const columnsPlusValues = {
