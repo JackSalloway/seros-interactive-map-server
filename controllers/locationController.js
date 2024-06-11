@@ -53,8 +53,8 @@ class LocationController {
                         lng: location.longitude,
                     },
                     type: location.type,
-                    visited: Boolean(location.visited),
-                    marked: Boolean(location.marked),
+                    visited: location.visited === 1 ? true : false,
+                    marked: location.marked === 1 ? true : false,
                     sublocations: [],
                     updated_at: location.updated_at,
                     campaign: {
