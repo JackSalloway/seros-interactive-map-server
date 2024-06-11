@@ -178,9 +178,8 @@ class LocationController {
             const { name, description, latlng, type, visited, marked } = data;
 
             // Convert boolean values into numbers to satisfy TINYINT data type in SQL schema
-            const visitedBoolean = visited ? 1 : 0;
-            const markedBoolean = marked ? 1 : 0;
-
+            const visitedBoolean = visited === "true" ? 1 : 0;
+            const markedBoolean = marked === "true" ? 1 : 0;
             const columnsPlusValues = {
                 name: name,
                 description: description,
