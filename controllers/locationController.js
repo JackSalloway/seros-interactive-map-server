@@ -100,8 +100,8 @@ class LocationController {
             } = data;
 
             // Convert visited and marked values to numbers to satisfy the TINYINT data type in the SQL table
-            const convertedVisited = visited ? 1 : 0;
-            const convertedMarked = marked ? 1 : 0;
+            const convertedVisited = visited === "true" ? 1 : 0;
+            const convertedMarked = marked === "true" ? 1 : 0;
 
             const insertLocationColumns = [
                 "name",
