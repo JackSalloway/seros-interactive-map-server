@@ -105,6 +105,7 @@ router.get("/startup", async (req, res) => {
         res.send(result);
     } catch (err) {
         console.error(err);
+        console.log(err);
         res.sendStatus(500);
     }
 });
