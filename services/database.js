@@ -6,6 +6,7 @@ let pool;
 const createEventListeners = (pool) => {
     if (pool instanceof EventEmitter) {
         pool.addListener("error", (error) => {
+            console.log(pool);
             console.error(error);
         });
 
