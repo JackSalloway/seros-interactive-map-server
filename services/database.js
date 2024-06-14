@@ -1,5 +1,6 @@
 const EventEmitter = require("events");
 const mysql = require("mysql2/promise");
+const fs = require("fs");
 
 let pool;
 
@@ -40,7 +41,7 @@ const getDatabasePoolConnection = () => {
             supportBigNumbers: true,
             timezone: "Z",
             ssl: {
-                ca: process.env.MYSQL_CA_CERT,
+                ca: fs.readFileSync("./ca_cert.cert"),
             },
         });
 
