@@ -16,6 +16,12 @@ const createEventListeners = (pool) => {
     }
 };
 
+// Set the cert value depending on environment variable (production/development)
+const cert =
+    process.env.NODE_ENV === "production"
+        ? fs.readFileSync("./ca_cert.cert")
+        : process.env.MYSQL_CA_CERT;
+
 const getDatabasePoolConnection = () => {
     const {
         MYSQL_HOST,
@@ -41,7 +47,7 @@ const getDatabasePoolConnection = () => {
             supportBigNumbers: true,
             timezone: "Z",
             ssl: {
-                ca: fs.readFileSync("./ca_cert.cert"),
+                ca: cert,
             },
         });
 
