@@ -49,8 +49,8 @@ class LocationController {
                     name: location.name,
                     description: location.description,
                     latlng: {
-                        lat: location.latitude,
-                        lng: location.longitude,
+                        lat: parseFloat(location.latitude),
+                        lng: parseFloat(location.longitude),
                     },
                     type: location.type,
                     visited: location.visited === 1 ? true : false,
